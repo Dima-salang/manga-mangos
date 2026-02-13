@@ -17,5 +17,5 @@ export const MANGA_DATA: Manga[] = [
     rating: 4.8,
     description: "Humanity fights back against titans"
   },
-  // Add more manga entries...
+  // Template file for manga data, you can add more manga objects here
 ];
