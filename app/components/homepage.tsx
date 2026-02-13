@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { MANGA_DATA } from '@/app/lib/manga-data';
+import { MANGA_DATA } from '@/lib/manga-data';
 
 interface Manga {
   id: number;
