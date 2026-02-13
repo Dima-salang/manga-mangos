@@ -74,30 +74,6 @@ export default function BrowsePage() {
                 <li><Link href="/library" className="hover:text-primary transition-colors">Library</Link></li>
                 <li><Link href="/assistant" className="hover:text-primary transition-colors">Assistant</Link></li>
               </ul>
-              
-              <div className="flex items-center gap-6 border-l border-white/10 pl-8">
-                <SignedOut>
-                  <SignInButton mode="modal">
-                    <button className="text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                      Sign In
-                    </button>
-                  </SignInButton>
-                  <Link href="/register">
-                    <Button className="bg-mango text-white font-black uppercase tracking-tight rounded-full hover:scale-105 transition-transform px-6">
-                      JOIN THE CHAPTER
-                    </Button>
-                  </Link>
-                </SignedOut>
-                <SignedIn>
-                  <UserButton 
-                    appearance={{
-                      elements: {
-                        userButtonAvatarBox: "h-10 w-10 border-2 border-primary shadow-[0_0_15px_rgba(255,159,67,0.3)]"
-                      }
-                    }}
-                  />
-                </SignedIn>
-              </div>
             </div>
           </div>
         </div>
