@@ -37,6 +37,9 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-mango: #FF9F43;
+  --color-mango-foreground: #FFFFFF;
+  --color-mango-secondary: #FFB142;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -123,5 +126,29 @@
   body {
     @apply bg-background text-foreground;
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .manga-grid {
+    background-image: 
+      linear-gradient(to right, oklch(1 0 0 / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(1 0 0 / 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .manga-halftone {
+    position: relative;
+    display: inline-block;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--color-mango);
+    background: radial-gradient(circle, var(--color-mango) 20%, transparent 20%);
+    background-size: 4px 4px;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .manga-card-gradient {
+    background: linear-gradient(135deg, rgba(255, 159, 67, 0.05) 0%, transparent 100%);
   }
 }

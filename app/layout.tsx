@@ -30,13 +30,13 @@ export default function RootLayout({
                 </button>
               </SignInButton>
               <SignUpButton mode="modal">
-                <button className="bg-primary text-black px-4 py-2 rounded-full text-xs font-black uppercase tracking-tighter hover:scale-105 transition-transform cursor-pointer">
+                <button className="bg-mango text-white px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform cursor-pointer shadow-lg shadow-mango/20">
                   Join
                 </button>
               </SignUpButton>
             </SignedOut>
             <SignedIn>
-              <UserButton appearance={{ elements: { userButtonAvatarBox: "h-10 w-10 border-2 border-primary" } }} />
+              <UserButton appearance={{ elements: { userButtonAvatarBox: "h-10 w-10 border-2 border-mango shadow-[0_0_15px_rgba(255,159,67,0.2)]" } }} />
             </SignedIn>
           </header>
           {children}
