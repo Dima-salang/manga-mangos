@@ -1,8 +1,12 @@
-import { clerkMiddleware } from '@clerk/nextjs/server'
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export default clerkMiddleware()
+const isPublicRoute = createRouteMatcher(['/login(.*)', '/register(.*)', '/']);
+
+export default clerkMiddleware(async (auth, request) => {
+  if (!isPublicRoute(request)) {
+    await auth.protect();
+  }
+});
 
 export const config = {
   matcher: [
@@ -11,10 +15,5 @@ export const config = {
     // Always run for API routes
     '/(api|trpc)(.*)',
   ],
-}
+};
 
-export function middleware(req: NextRequest) {
-  // example: block unauthenticated review creation
-  return NextResponse.next();
-}
-// expand later with JWT
