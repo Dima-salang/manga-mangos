@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library - MangaMangos</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="browse.html" class="navbar-logo">
+                <div class="logo-icon">🥭</div>
+                <span class="logo-text">MangaMangos</span>
+            </a>
+            <ul class="navbar-menu" id="navbarMenu">
+                <li><a href="browse.html">Browse</a></li>
+                <li><a href="search.html">Search</a></li>
+                <li><a href="library.html" class="active">Library</a></li>
+                <li><a href="reviews.html">Reviews</a></li>
+                <li><a href="assistant.html">Assistant</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="#" onclick="logout()">Logout</a></li>
+            </ul>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+        </div>
+    </nav>
+    <div class="menu-overlay" id="menuOverlay"></div>
+    <div class="main-content">
+        <h1 style="font-size: 2rem; margin-bottom: 2rem;">📚 My Library</h1>
+        <div class="manga-grid" id="libraryGrid"></div>
+        <div id="emptyLibrary" style="text-align: center; padding: 4rem; display: none;">
+            <div style="font-size: 4rem;">📚</div>
+            <h3>Your library is empty</h3>
+            <button class="btn btn-primary" onclick="window.location.href='browse.html'">Browse Manga</button>
+        </div>
+    </div>
+    <script src="js/shared.js"></script>
+    <script src="js/library.js"></script>
+</body>
+</html>
