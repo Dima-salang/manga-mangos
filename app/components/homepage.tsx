@@ -80,9 +80,7 @@ export default function BrowsePage() {
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 py-12 relative z-10">
-        {/* Refined Pro Hero - Wholely Yellow Version */}
         <div className="relative rounded-[2.5rem] p-12 md:p-20 mb-24 overflow-hidden border border-mango shadow-2xl bg-mango group">
-          {/* Subtle Background Textures for Professionalism */}
           <div className="absolute inset-0 manga-grid opacity-20 pointer-events-none mix-blend-overlay" />
           <div className="absolute top-0 right-0 p-12 text-black/5 text-[15rem] font-black italic select-none pointer-events-none group-hover:translate-x-8 transition-transform duration-1000">
             MANGO
