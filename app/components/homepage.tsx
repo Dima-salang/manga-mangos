@@ -74,39 +74,13 @@ export default function BrowsePage() {
                 <li><Link href="/library" className="hover:text-primary transition-colors">Library</Link></li>
                 <li><Link href="/assistant" className="hover:text-primary transition-colors">Assistant</Link></li>
               </ul>
-              
-              <div className="flex items-center gap-6 border-l border-white/10 pl-8">
-                <SignedOut>
-                  <SignInButton mode="modal">
-                    <button className="text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
-                      Sign In
-                    </button>
-                  </SignInButton>
-                  <Link href="/register">
-                    <Button className="bg-mango text-white font-black uppercase tracking-tight rounded-full hover:scale-105 transition-transform px-6">
-                      JOIN THE CHAPTER
-                    </Button>
-                  </Link>
-                </SignedOut>
-                <SignedIn>
-                  <UserButton 
-                    appearance={{
-                      elements: {
-                        userButtonAvatarBox: "h-10 w-10 border-2 border-primary shadow-[0_0_15px_rgba(255,159,67,0.3)]"
-                      }
-                    }}
-                  />
-                </SignedIn>
-              </div>
             </div>
           </div>
         </div>
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 py-12 relative z-10">
-        {/* Refined Pro Hero - Wholely Yellow Version */}
         <div className="relative rounded-[2.5rem] p-12 md:p-20 mb-24 overflow-hidden border border-mango shadow-2xl bg-mango group">
-          {/* Subtle Background Textures for Professionalism */}
           <div className="absolute inset-0 manga-grid opacity-20 pointer-events-none mix-blend-overlay" />
           <div className="absolute top-0 right-0 p-12 text-black/5 text-[15rem] font-black italic select-none pointer-events-none group-hover:translate-x-8 transition-transform duration-1000">
             MANGO
