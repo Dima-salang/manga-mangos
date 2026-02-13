@@ -1,4 +1,6 @@
 import { clerkMiddleware } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 export default clerkMiddleware()
 
@@ -10,3 +12,9 @@ export const config = {
     '/(api|trpc)(.*)',
   ],
 }
+
+export function middleware(req: NextRequest) {
+  // example: block unauthenticated review creation
+  return NextResponse.next();
+}
+// expand later with JWT
