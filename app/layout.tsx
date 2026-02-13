@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
-import { ClerkProvider, SignedIn, SignedOut, UserButton, SignInButton, SignUpButton } from '@clerk/nextjs'
+import { ClerkProvider, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
 import { Outfit } from 'next/font/google'
+import Link from 'next/link'
 import './globals.css'
 
 const outfit = Outfit({
@@ -24,16 +25,16 @@ export default function RootLayout({
         <body className={`${outfit.variable} font-sans antialiased text-foreground bg-background`}>
           <header className="fixed top-0 right-0 p-6 z-50 flex items-center gap-4">
             <SignedOut>
-              <SignInButton mode="modal">
-                <button className="text-sm font-bold uppercase tracking-widest hover:text-primary transition-colors cursor-pointer">
+              <Link href="/login">
+                <button className="text-sm font-bold uppercase tracking-widest hover:text-mango transition-colors cursor-pointer">
                   Sign In
                 </button>
-              </SignInButton>
-              <SignUpButton mode="modal">
+              </Link>
+              <Link href="/register">
                 <button className="bg-mango text-white px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform cursor-pointer shadow-lg shadow-mango/20">
                   Join
                 </button>
-              </SignUpButton>
+              </Link>
             </SignedOut>
             <SignedIn>
               <UserButton appearance={{ elements: { userButtonAvatarBox: "h-10 w-10 border-2 border-mango shadow-[0_0_15px_rgba(255,159,67,0.2)]" } }} />
