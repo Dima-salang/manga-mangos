@@ -2,6 +2,8 @@ import { WebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Webhook } from "svix";
+import supabase from "@/utils/supabase/server";
+import { Profile, User } from "@/types/user";
 
 export async function POST(req: Request) {
     const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
@@ -39,7 +41,39 @@ export async function POST(req: Request) {
     const eventType = evt.type;
     if (eventType === "user.created") {
         const { id, email_addresses, first_name, last_name } = evt.data;
-        console.log("User created:", id, email_addresses, first_name, last_name);
+
+        // create the user
+        const user: Omit<User, "id"> = {
+            clerk_id: id,
+            role: "USER",
+        };
+
+        // insert the user
+        const { data: user_data, error: user_error } = await supabase.from("users").insert([user]).select().single();
+
+        if (user_error) {
+            console.error("Error creating user:", user_error);
+            return NextResponse.json({ error: "Error creating user" }, { status: 500 });
+        }
+
+        // create the profile of the user
+        const profile: Omit<Profile, "id"> = {
+            user_id: user_data.id,
+            username: `${first_name} ${last_name}`,
+            bio: "",
+            interests: [],
+            avatar_url: "",
+        };
+
+        // insert the profile
+        const { error: profile_error } = await supabase.from("profiles").insert(profile);
+
+        if (profile_error) {
+            console.error("Error creating profile:", profile_error);
+            return NextResponse.json({ error: "Error creating profile" }, { status: 500 });
+        }
+
+        console.log("User created:", user_data);
     }
 
     return NextResponse.json({ message: "Webhook verified successfully" });
