@@ -2,7 +2,7 @@ import { WebhookEvent } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Webhook } from "svix";
-import supabase from "@/utils/supabase/server";
+import { supabaseAdmin } from "@/utils/supabase/server";
 import { Profile, User } from "@/types/user";
 
 export async function POST(req: Request) {
@@ -21,16 +21,15 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Missing Svix headers" }, { status: 400 });
     }
 
-    const payload = await req.json();
-    const body = JSON.stringify(payload);
+    const body = await req.text();
 
     const verifier = new Webhook(WEBHOOK_SECRET);
     let evt: WebhookEvent;
     try {
         evt = verifier.verify(body, {
-            svix_id,
-            svix_timestamp,
-            svix_signature,
+            "svix-id": svix_id,
+            "svix-timestamp": svix_timestamp,
+            "svix-signature": svix_signature,
         }) as WebhookEvent;
     } catch (error) {
         console.error("Error verifying webhook:", error);
@@ -49,7 +48,7 @@ export async function POST(req: Request) {
         };
 
         // insert the user
-        const { data: user_data, error: user_error } = await supabase.from("users").insert([user]).select().single();
+        const { data: user_data, error: user_error } = await supabaseAdmin.from("users").insert([user]).select().single();
 
         if (user_error) {
             console.error("Error creating user:", user_error);
@@ -66,7 +65,7 @@ export async function POST(req: Request) {
         };
 
         // insert the profile
-        const { error: profile_error } = await supabase.from("profiles").insert(profile);
+        const { error: profile_error } = await supabaseAdmin.from("profiles").insert(profile);
 
         if (profile_error) {
             console.error("Error creating profile:", profile_error);

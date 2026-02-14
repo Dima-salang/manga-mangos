@@ -1,5 +1,5 @@
 export interface User {
-  id: string;
+  id: number;
   clerk_id: string;
   role: 'USER' | 'ADMIN';
 }
