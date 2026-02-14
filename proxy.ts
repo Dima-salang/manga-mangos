@@ -2,7 +2,6 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 // Define routes that should be accessible without authentication
 const isPublicRoute = createRouteMatcher([
-    '/(.*)', // This makes everything public by default for now (optional)
     '/login(.*)',
     '/register(.*)',
     '/',
