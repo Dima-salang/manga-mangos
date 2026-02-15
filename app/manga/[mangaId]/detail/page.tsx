@@ -43,7 +43,6 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
 
   return (
     <div className="min-h-screen bg-background relative selection:bg-mango/30" suppressHydrationWarning>
-      {/* Background Pattern */}
       <div className="fixed inset-0 manga-grid opacity-5 pointer-events-none" suppressHydrationWarning />
 
       <main className="relative z-10">
@@ -98,7 +97,6 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                 </div>
               </div>
 
-              {/* Title & Primary Info */}
               <div className="flex-1 text-center md:text-left">
                 <div className="flex flex-wrap justify-center md:justify-start gap-3 mb-6">
                   {manga.genres.map((genre) => (
@@ -156,7 +154,6 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
         {/* Content Section */}
         <div className="max-w-7xl mx-auto px-4 py-20">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 md:gap-24">
-            {/* Left Column: Description & Background */}
             <div className="lg:col-span-2 space-y-16">
               <section>
                 <div className="flex items-center gap-3 mb-8">
@@ -190,7 +187,6 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
               )}
             </div>
 
-            {/* Right Column: Metadata */}
             <div className="space-y-12">
               <div className="bg-card/40 backdrop-blur-md rounded-[2.5rem] p-10 border border-white/5 shadow-2xl">
                 <h2 className="text-2xl font-black italic uppercase mb-8 flex flex-col gap-2">
@@ -211,7 +207,6 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
 
               </div>
 
-              {/* Theme & Demographic */}
               <div className="flex flex-wrap gap-2">
                 {[...manga.themes, ...manga.demographics].map(item => (
                   <Badge
@@ -228,7 +223,6 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
         </div>
       </main>
 
-      {/* Footer Branding */}
       <footer className="py-24 border-t border-white/5 opacity-30 select-none pointer-events-none overflow-hidden">
         <div className="text-[12rem] font-black italic uppercase whitespace-nowrap animate-pulse">
           {manga.title} {manga.title}
