@@ -12,8 +12,6 @@ const config = {
     tools: [groundingTool],
 };
 
-export default mangosAI;
-
 
 export async function generateContent(prompt: string, systemInstruction?: string) {
     const response = await mangosAI.models.generateContentStream({

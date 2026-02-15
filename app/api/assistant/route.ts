@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import mangosAI from "@/utils/gemini/client";
+import { GoogleGenAI } from "@google/genai";
 
 export async function POST(req: NextRequest) {
     try {
@@ -8,6 +8,10 @@ export async function POST(req: NextRequest) {
         if (!process.env.GEMINI_API_KEY) {
             return new Response(JSON.stringify({ error: "API key not configured" }), { status: 500 });
         }
+
+        const mangosAI = new GoogleGenAI({
+            apiKey: process.env.GEMINI_API_KEY,
+        });
 
         const defaultSystemInstruction = "You are the MangaMangos Assistant, a helpful and enthusiastic AI built for manga fans. You provide recommendations, answer questions about manga, and have a deep knowledge of various genres. Your tone is professional yet 'cool' and 'manga-inspired'. Use emojis like 🥭, 📚, and ✨ sparingly.";
 

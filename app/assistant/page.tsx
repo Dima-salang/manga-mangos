@@ -7,7 +7,6 @@ import {
     User, 
     Trash2, 
     ArrowLeft,
-    Zap,
     Sparkles
 } from "lucide-react";
 import Link from "next/link";
