@@ -5,7 +5,8 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/nextjs";
-import { MANGA_DATA } from '@/lib/manga-data';
+import { MANGA_DATA, Manga as LocalManga } from '@/lib/manga-data';
+import { JikanManga, JikanResponse, MangaType, TopMangaFilter } from '@/types/manga';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -20,59 +21,61 @@ interface Manga {
 }
 
 export default function BrowsePage() {
-  const [trendingManga, setTrendingManga] = useState<Manga[]>([]);
+  const [trendingManga, setTrendingManga] = useState<JikanManga[]>([]);
   const [recommendedManga, setRecommendedManga] = useState<Manga[]>([]);
   const [sortBy, setSortBy] = useState('popularity');
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadTrendingManga(sortBy);
     loadRecommendedManga();
   }, [sortBy]);
 
-  const loadTrendingManga = (sortType: string) => {
-    let sorted = [...MANGA_DATA];
-    switch(sortType) {
-      case 'rating':
-        sorted.sort((a, b) => b.rating - a.rating);
-        break;
-      case 'recent':
-        sorted.sort((a, b) => b.id - a.id);
-        break;
-      default:
-        sorted.sort((a, b) => b.views - a.views);
+  const loadTrendingManga = async (sortType: string) => {
+    setIsLoading(true);
+    try {
+      let filter = TopMangaFilter.BY_POPULARITY;
+      if (sortType === 'rating') {
+        filter = TopMangaFilter.FAVORITE;
+      }
+      
+      const response = await fetch(`/api/manga/top?type=${MangaType.MANGA}&filter=${filter}&limit=6`);
+      const data: JikanResponse<JikanManga[]> = await response.json();
+      setTrendingManga(data.data || []);
+    } catch (error) {
+      console.error("Failed to load trending manga:", error);
+    } finally {
+      setIsLoading(false);
     }
-    setTrendingManga(sorted.slice(0, 6));
   };
 
   const loadRecommendedManga = () => {
-    const recommended = MANGA_DATA.filter(m => 
-      m.genres.some(g => ['Action', 'Adventure', 'Fantasy'].includes(g))
+    const recommended = MANGA_DATA.filter((m: LocalManga) => 
+      m.genres.some((g: string) => ['Action', 'Adventure', 'Fantasy'].includes(g))
     );
     setRecommendedManga(recommended.slice(0, 6));
   };
 
   return (
     <div className="min-h-screen bg-background relative selection:bg-primary/30">
-      {/* Decorative Grid Background */}
       <div className="fixed inset-0 manga-grid opacity-10 pointer-events-none" />
 
-      {/* Modern Navigation */}
       <nav className="sticky top-0 z-40 w-full border-b border-white/5 bg-background/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center gap-3 group cursor-pointer">
-              <div className="text-3xl transition-transform group-hover:rotate-12 duration-300">🥭</div>
+              <div className="text-3xl transition-transform group-hover:scale-110 group-hover:rotate-12 duration-500">🥭</div>
               <span className="font-black text-2xl tracking-tighter italic uppercase text-foreground">
                 Manga<span className="text-mango">Mangos</span>
               </span>
             </div>
             
             <div className="hidden md:flex items-center gap-10">
-              <ul className="flex gap-8 font-bold text-xs uppercase tracking-widest text-muted-foreground">
-                <li><Link href="/browse" className="hover:text-primary transition-colors">Browse</Link></li>
-                <li><Link href="/search" className="hover:text-primary transition-colors">Search</Link></li>
-                <li><Link href="/library" className="hover:text-primary transition-colors">Library</Link></li>
-                <li><Link href="/assistant" className="hover:text-primary transition-colors">Assistant</Link></li>
+              <ul className="flex gap-10 font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60">
+                <li><Link href="/browse" className="hover:text-mango transition-colors">Browse</Link></li>
+                <li><Link href="/search" className="hover:text-mango transition-colors">Search</Link></li>
+                <li><Link href="/library" className="hover:text-mango transition-colors">Library</Link></li>
+                <li><Link href="/assistant" className="hover:text-mango transition-colors">Assistant</Link></li>
               </ul>
             </div>
           </div>
@@ -107,7 +110,6 @@ export default function BrowsePage() {
             </div>
           </div>
 
-          {/* Minimalist Side Decoration */}
           <div className="absolute right-12 bottom-12 hidden lg:block">
             <div className="flex flex-col gap-4 items-end opacity-40 group-hover:opacity-60 transition-opacity duration-500">
               <div className="text-6xl font-black italic uppercase leading-none text-black">🥭</div>
@@ -136,9 +138,15 @@ export default function BrowsePage() {
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-            {trendingManga.map(manga => (
-              <MangaCard key={manga.id} manga={manga} />
-            ))}
+            {isLoading ? (
+              new Array(6).fill(0).map((_, i) => (
+                <div key={i} className="aspect-[3/4] rounded-[1.5rem] bg-card/20 animate-pulse border border-white/5" />
+              ))
+            ) : (
+              trendingManga.map(manga => (
+                <MangaCard key={manga.mal_id} manga={manga} />
+              ))
+            )}
           </div>
         </section>
 
@@ -156,7 +164,6 @@ export default function BrowsePage() {
         </section>
       </main>
 
-      {/* Footer Decoration */}
       <footer className="py-24 border-t border-white/5 opacity-30 select-none pointer-events-none overflow-hidden">
         <div className="text-[12rem] font-black italic uppercase whitespace-nowrap animate-pulse">
            CHAPTER 01 VOLUME 01 CHAPTER 01 VOLUME 01
@@ -166,36 +173,74 @@ export default function BrowsePage() {
   );
 }
 
-function MangaCard({ manga }: { manga: Manga }) {
+function MangaCard({ manga }: { manga: Manga | JikanManga }) {
+  // Normalize types
+  const isJikan = (m: any): m is JikanManga => 'mal_id' in m;
+  
+  const id = isJikan(manga) ? manga.mal_id : manga.id;
+  const title = manga.title;
+  const genres = isJikan(manga) ? manga.genres.map(g => g.name) : manga.genres;
+  const rating = isJikan(manga) ? manga.score || 0 : manga.rating;
+  const views = isJikan(manga) ? manga.members || 0 : manga.views;
+  const image = isJikan(manga) ? manga.images.webp.large_image_url : manga.image;
+  const description = isJikan(manga) ? manga.synopsis : manga.description;
+
   return (
-    <Card className="group relative overflow-hidden border border-white/5 bg-card/20 backdrop-blur-md hover:border-mango/40 transition-all duration-500 hover:-translate-y-2 cursor-pointer rounded-[1.5rem] shadow-lg hover:shadow-mango/5">
+    <Card className="group relative overflow-hidden border border-white/5 bg-card/20 backdrop-blur-md hover:border-mango/40 transition-all duration-700 hover:-translate-y-4 cursor-pointer rounded-[2rem] shadow-xl hover:shadow-mango/10">
       <CardContent className="p-0">
-        <div className="aspect-[3/4] relative m-2 overflow-hidden rounded-[1.2rem]">
-          {manga.image ? (
-            <Image src={manga.image} alt={manga.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+        <div className="aspect-[3/4.2] relative m-3 overflow-hidden rounded-[1.6rem]">
+          {image ? (
+            <Image src={image} alt={title} fill className="object-cover group-hover:scale-110 transition-transform duration-1000 ease-in-out" />
           ) : (
             <div className="w-full h-full bg-neutral-900/50 flex items-center justify-center text-5xl grayscale group-hover:grayscale-0 transition-all duration-500">🥭</div>
           )}
-          <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white text-[9px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider border border-white/10">
-            {manga.genres[0]}
+          
+          {/* Genre Bagde */}
+          <div className="absolute top-4 left-4 flex gap-2">
+            <div className="bg-black/60 backdrop-blur-lg text-white text-[8px] font-black px-3 py-1.5 rounded-full uppercase tracking-[0.2em] border border-white/10 shadow-lg">
+              {genres[0]}
+            </div>
+            {isJikan(manga) && (
+              <div className="bg-mango text-black text-[8px] font-black px-3 py-1.5 rounded-full uppercase tracking-[0.2em] shadow-lg">
+                {manga.type}
+              </div>
+            )}
           </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4">
-             <Button className="w-full bg-mango text-white font-bold uppercase text-[10px] tracking-widest rounded-lg h-10">READ NOW</Button>
+
+          {/* Read Now Overlay */}
+          <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+             <Button className="w-full bg-mango text-black font-black uppercase text-[10px] tracking-widest rounded-xl h-12 hover:bg-white transition-colors border-0">
+                VIEW DETAILS
+             </Button>
           </div>
         </div>
-        <div className="px-5 pb-5 pt-3">
-          <h3 className="font-bold text-lg mb-1.5 line-clamp-1 group-hover:text-mango transition-colors tracking-tight leading-tight">
-            {manga.title}
-          </h3>
-          <p className="text-xs text-muted-foreground mb-4 line-clamp-2 leading-relaxed font-medium opacity-70">
-            {manga.description}
-          </p>
-          <div className="flex justify-between items-center pt-3 border-t border-white/5">
-            <div className="flex items-center gap-1.5">
-              <span className="text-mango text-xs">★</span>
-              <span className="text-foreground font-bold text-xs">{manga.rating}</span>
+        
+        <div className="px-6 pb-6 pt-2">
+          <div className="flex justify-between items-start gap-4 mb-3">
+            <h3 className="font-black text-xl line-clamp-1 group-hover:text-mango transition-colors tracking-tighter italic uppercase leading-tight">
+              {title}
+            </h3>
+            <div className="bg-white/5 px-2 py-1 rounded-lg border border-white/5 flex items-center gap-1.5">
+              <span className="text-mango text-[10px]">★</span>
+              <span className="text-foreground font-black text-[10px]">{rating}</span>
             </div>
-            <span className="text-[9px] font-black uppercase text-muted-foreground tracking-widest opacity-50">{manga.views.toLocaleString()} VIEWS</span>
+          </div>
+
+          <p className="text-[11px] text-muted-foreground mb-5 line-clamp-2 leading-relaxed font-medium opacity-60">
+            {description}
+          </p>
+
+          <div className="flex justify-between items-center pt-4 border-t border-white/5">
+            <div className="flex items-center gap-3">
+               <div className="flex -space-x-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="w-5 h-5 rounded-full bg-mango/20 border border-background flex items-center justify-center text-[6px]">👤</div>
+                  ))}
+               </div>
+               <span className="text-[8px] font-black uppercase text-muted-foreground/60 tracking-widest">
+                 {views.toLocaleString()} Active Readers
+               </span>
+            </div>
           </div>
         </div>
       </CardContent>
