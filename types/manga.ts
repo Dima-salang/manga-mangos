@@ -1,14 +1,5 @@
-export interface Manga {
-  id: string;
-  title: string;
-  genre: string;
-  description: string;
-  coverImageUrl: string;
-  officialUrl: string;
-}
-
 // Jikan-specific Manga interface for external API results
-export interface JikanManga {
+export interface Manga {
   mal_id: number;
   url: string;
   images: {
@@ -105,8 +96,29 @@ export interface JikanResponse<T> {
   };
 }
 
-// Manga Type Enum
+
+// Manga Type Enum for getting the specific manga
 export enum MangaType {
+  MANGA = "Manga",
+  NOVEL = "Novel",
+  LIGHTNOVEL = "Light Novel",
+  MANHWA = "Manhwa",
+  MANHUA = "Manhua",
+  ONESHOT = "One-shot",
+  DOUJIN = "Doujinshi",
+  OEL = "OEL"
+}
+
+export enum MangaStatus { 
+  PUBLISHING = "Publishing",
+  FINISHED = "Finished",
+  ON_HIATUS = "On Hiatus",
+  DISCONTINUED = "Discontinued", 
+  NOT_YET_PUBLISHED = "Not yet published"
+}
+
+// Manga Type Enum for filtering
+export enum MangaTypeFilter {
   MANGA = "manga",
   NOVEL = "novel",
   LIGHTNOVEL = "lightnovel",
