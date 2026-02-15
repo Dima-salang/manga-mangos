@@ -41,6 +41,13 @@ export default function BrowsePage() {
       }
       
       const response = await fetch(`/api/manga/top?type=${MangaTypeFilter.MANGA}&filter=${filter}&limit=6`);
+      
+      if (!response.ok) {
+        const text = await response.text();
+        console.error(`API Error (${response.status}):`, text.slice(0, 100));
+        throw new Error(`Failed to fetch trending manga: ${response.status}`);
+      }
+
       const data: JikanResponse<Manga[]> = await response.json();
       setTrendingManga(data.data || []);
     } catch (error) {
