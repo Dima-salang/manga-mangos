@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
         const defaultSystemInstruction = "You are the MangaMangos Assistant, a helpful and enthusiastic AI built for manga fans. You provide recommendations, answer questions about manga, and have a deep knowledge of various genres. Your tone is professional yet 'cool' and 'manga-inspired'. Use emojis like 🥭, 📚, and ✨ sparingly.";
 
         const result = await mangosAI.models.generateContentStream({
-            model: "gemini-2.5-flash",
+            model: "gemini-2.5-flash-lite",
             contents: [
                 ...(history || []).map((h: any) => ({
                     role: h.role === "assistant" ? "model" : h.role,
