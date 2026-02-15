@@ -41,6 +41,23 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
     );
   }
 
+  // parse the published to and from dates into human-readable format
+  const fromPublishDate = manga.published.from 
+    ? new Date(manga.published.from).toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
+    : "Unknown";
+
+  const toPublishDate = manga.published.to
+    ? new Date(manga.published.to).toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
+    : "Present";
+
   return (
     <div className="min-h-screen bg-background relative selection:bg-mango/30" suppressHydrationWarning>
       <div className="fixed inset-0 manga-grid opacity-5 pointer-events-none" suppressHydrationWarning />
@@ -198,7 +215,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                   <MetaItem label="Reading Status" value={<ReadingStatusSelect />} />
                   <Separator className="bg-white/5" />
                   <MetaItem label="Status" value={manga.status} />
-                  <MetaItem label="Published" value={manga.published.prop.string} />
+                  <MetaItem label="Published" value={`${fromPublishDate} to ${toPublishDate}`} />
                   <MetaItem label="Authors" value={manga.authors.map(a => a.name).join(', ')} />
                   <MetaItem label="Chapters" value={manga.chapters?.toString() || "Unknown"} />
                   <MetaItem label="Volumes" value={manga.volumes?.toString() || "Unknown"} />
