@@ -19,14 +19,19 @@ import {
   Info
 } from "lucide-react";
 import { DetailActions, ReadingStatusSelect } from "./client-actions";
+import { z } from "zod";
+import { Manga } from "@/types/manga";
+
+// zod validation for the manga id
+const mangaIdSchema = z.coerce.number().int().positive();
+
 
 export default async function MangaDetail({ params }: { params: Promise<{ mangaId: string }> }) {
   const { mangaId } = await params;
-  const mangaService = new MangaService();
-  const response = await mangaService.getManga(Number(mangaId));
-  const manga = response.data;
+  const id = Number(mangaId);
+  const validId = mangaIdSchema.safeParse(id);
 
-  if (!manga) {
+  if (!validId.success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -40,6 +45,29 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
       </div>
     );
   }
+
+  const mangaService = new MangaService();
+  let manga: Manga;
+
+  try {
+    const response = await mangaService.getManga(Number(mangaId));
+    manga = response.data;
+  } catch (error) {
+    console.error(error);
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <h1 className="text-4xl font-black uppercase italic text-mango mb-4">Manga Not Found</h1>
+          <Link href="/">
+            <Button variant="outline" className="rounded-xl border-mango/20 hover:bg-mango/10">
+              Return Home
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
 
   // parse the published to and from dates into human-readable format
   const fromPublishDate = manga.published.from 

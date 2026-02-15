@@ -24,10 +24,17 @@ export function DetailActions() {
   const [isFavorite, setIsFavorite] = useState(false);
 
   const handleShare = useCallback(() => {
-    globalThis.navigator.clipboard.writeText(globalThis.location.href);
-    toast.success("Link copied to clipboard!", {
-      description: "You can now share this manga with others.",
-    });
+    globalThis.navigator.clipboard.writeText(globalThis.location.href)
+      .then(() => {
+        toast.success("Link copied to clipboard!", {
+          description: "You can now share this manga with others.",
+        });
+      })
+      .catch(() => {
+        toast.error("Failed to copy link", {
+          description: "Please copy the URL manually.",
+        });
+      });
   }, []);
 
   const handleFavorite = useCallback(() => {
@@ -79,7 +86,6 @@ export function DetailActions() {
 export function ReadingStatusSelect() {
   return (
     <div className="space-y-3">
-      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-mango/60"></div>
       <Select onValueChange={(val) => toast.info(`Status updated to: ${val}`)}>
         <SelectTrigger className="w-full h-12 bg-white/5 border-white/10 rounded-xl font-bold focus:ring-mango/50" suppressHydrationWarning>
           <SelectValue placeholder="Add to List" suppressHydrationWarning />

@@ -55,15 +55,21 @@ export function Navbar() {
               <div className="h-6 w-px bg-white/5 mx-2 hidden sm:block" />
 
               <SignedOut>
-                <Link href="/login">
-                  <button className="text-sm font-bold uppercase tracking-widest hover:text-mango transition-colors cursor-pointer">
-                    Sign In
-                  </button>
+                <Link 
+                  href="/login" 
+                  className="text-sm font-bold uppercase tracking-widest hover:text-mango transition-colors cursor-pointer"
+                  role="button"
+                  aria-label="Sign In"
+                >
+                  Sign In
                 </Link>
-                <Link href="/register">
-                  <button className="bg-mango text-white px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform cursor-pointer shadow-lg shadow-mango/20">
-                    Join
-                  </button>
+                <Link 
+                  href="/register" 
+                  className="bg-mango text-white px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform cursor-pointer shadow-lg shadow-mango/20"
+                  role="button"
+                  aria-label="Join"
+                >
+                  Join
                 </Link>
               </SignedOut>
               <SignedIn>
