@@ -17,7 +17,7 @@ export async function getAllManga(): Promise<Manga[]> {
   return rows.map((row): Manga => ({
     id: row.id,
     title: row.title,
-    genre: row.genre,
+    genres: row.genre,
     description: row.description,
     coverImageUrl: row.cover_image_url,
     officialUrl: row.official_url,
