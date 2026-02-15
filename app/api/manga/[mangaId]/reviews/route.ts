@@ -34,7 +34,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ mangaId
   } catch (error: any) {
     console.error("Error creating review:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to create review" },
+      { error: "Failed to create review" },
       { status: 500 }
     );
   }
