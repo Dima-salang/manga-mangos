@@ -7,6 +7,10 @@ const isPublicRoute = createRouteMatcher([
     '/api/manga(.*)',
     '/assistant(.*)',
     '/api/assistant(.*)',
+    '/browse',
+    '/search',
+    '/library',
+    '/assistant',
     '/'
 ]);
 
