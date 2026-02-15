@@ -21,8 +21,8 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en" className="dark">
-        <body className={`${outfit.variable} font-sans antialiased text-foreground bg-background`}>
+      <html lang="en" className="dark" suppressHydrationWarning>
+        <body className={`${outfit.variable} font-sans antialiased text-foreground bg-background`} suppressHydrationWarning>
           <header className="fixed top-0 right-0 p-6 z-50 flex items-center gap-4">
             <SignedOut>
               <Link href="/login">
