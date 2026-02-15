@@ -37,6 +37,11 @@ export default async function OnboardingPage() {
         redirect("/");
     }
 
+    if (!dbUser) {
+        console.error("User not found after creation/fetch attempt");
+        redirect("/login");
+    }
+
     // check whether there is a profile associated with the user
     const { error: profileError } = await supabaseAdmin
         .from("profiles")
@@ -46,11 +51,16 @@ export default async function OnboardingPage() {
 
     if (profileError?.code === "PGRST116") {
         // create the profile in the db
+        const usernameFallback = user.username || 
+            [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || 
+            user.emailAddresses[0]?.emailAddress || 
+            `user-${dbUser.id}`;
+
         const { error: newProfileError } = await supabaseAdmin
             .from("profiles")
             .insert({
                 user_id: dbUser.id,
-                username: user.username || `${user.firstName} ${user.lastName}`,
+                username: usernameFallback,
                 bio: "",
                 interests: [],
                 avatar_url: user.imageUrl || ""

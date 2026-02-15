@@ -20,6 +20,8 @@ interface Manga {
   description?: string;
 }
 
+const SKELETON_KEYS = ['sk-1', 'sk-2', 'sk-3', 'sk-4', 'sk-5', 'sk-6'];
+
 export default function BrowsePage() {
   const [trendingManga, setTrendingManga] = useState<JikanManga[]>([]);
   const [recommendedManga, setRecommendedManga] = useState<Manga[]>([]);
@@ -139,8 +141,8 @@ export default function BrowsePage() {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
             {isLoading ? (
-              new Array(6).fill(0).map((_, i) => (
-                <div key={i} className="aspect-[3/4] rounded-[1.5rem] bg-card/20 animate-pulse border border-white/5" />
+              SKELETON_KEYS.map((key) => (
+                <div key={key} className="aspect-[3/4] rounded-[1.5rem] bg-card/20 animate-pulse border border-white/5" />
               ))
             ) : (
               trendingManga.map(manga => (
@@ -177,7 +179,6 @@ function MangaCard({ manga }: { manga: Manga | JikanManga }) {
   // Normalize types
   const isJikan = (m: any): m is JikanManga => 'mal_id' in m;
   
-  const id = isJikan(manga) ? manga.mal_id : manga.id;
   const title = manga.title;
   const genres = isJikan(manga) ? manga.genres.map(g => g.name) : manga.genres;
   const rating = isJikan(manga) ? manga.score || 0 : manga.rating;
@@ -195,11 +196,13 @@ function MangaCard({ manga }: { manga: Manga | JikanManga }) {
             <div className="w-full h-full bg-neutral-900/50 flex items-center justify-center text-5xl grayscale group-hover:grayscale-0 transition-all duration-500">🥭</div>
           )}
           
-          {/* Genre Bagde */}
+          {/* Badges */}
           <div className="absolute top-4 left-4 flex gap-2">
-            <div className="bg-black/60 backdrop-blur-lg text-white text-[8px] font-black px-3 py-1.5 rounded-full uppercase tracking-[0.2em] border border-white/10 shadow-lg">
-              {genres[0]}
-            </div>
+            {genres && genres.length > 0 && (
+              <div className="bg-black/60 backdrop-blur-lg text-white text-[8px] font-black px-3 py-1.5 rounded-full uppercase tracking-[0.2em] border border-white/10 shadow-lg">
+                {genres[0]}
+              </div>
+            )}
             {isJikan(manga) && (
               <div className="bg-mango text-black text-[8px] font-black px-3 py-1.5 rounded-full uppercase tracking-[0.2em] shadow-lg">
                 {manga.type}
@@ -238,7 +241,7 @@ function MangaCard({ manga }: { manga: Manga | JikanManga }) {
                   ))}
                </div>
                <span className="text-[8px] font-black uppercase text-muted-foreground/60 tracking-widest">
-                 {views.toLocaleString()} Active Readers
+                 {views.toLocaleString()} {isJikan(manga) ? "Members" : "Active Readers"}
                </span>
             </div>
           </div>

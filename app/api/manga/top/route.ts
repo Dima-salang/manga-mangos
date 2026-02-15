@@ -1,14 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTopManga } from "@/lib/services/manga.service";
 import { MangaType, TopMangaFilter } from "@/types/manga";
+import { z } from "zod";
+
+const querySchema = z.object({
+  type: z.enum(MangaType).default(MangaType.MANGA),
+  filter: z.enum(TopMangaFilter).default(TopMangaFilter.BY_POPULARITY),
+  page: z.preprocess((val) => Number.parseInt(val as string, 10), z.number().min(1).default(1)),
+  limit: z.preprocess((val) => Number.parseInt(val as string, 10), z.number().min(1).max(25).default(25)),
+});
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
+  const rawParams = Object.fromEntries(searchParams.entries());
 
-  const type = (searchParams.get("type") as MangaType) || MangaType.MANGA;
-  const filter = (searchParams.get("filter") as TopMangaFilter) || TopMangaFilter.BY_POPULARITY;
-  const page = Number.parseInt(searchParams.get("page") || "1", 10);
-  const limit = Number.parseInt(searchParams.get("limit") || "25", 10);
+  const result = querySchema.safeParse(rawParams);
+  const { type, filter, page, limit } = result.success 
+    ? result.data 
+    : { 
+        type: MangaType.MANGA, 
+        filter: TopMangaFilter.BY_POPULARITY, 
+        page: 1, 
+        limit: 25 
+      };
 
   try {
     const data = await getTopManga(type, filter, page, limit);
