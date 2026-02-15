@@ -19,3 +19,7 @@ export const MANGA_DATA: Manga[] = [
   },
   // Template file for manga data, you can add more manga objects here
 ];
+
+
+
+// manga service
