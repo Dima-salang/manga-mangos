@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -13,7 +15,7 @@ export default function LandingPage() {
             MANGO
           </div>
           
-          <div className="relative z-10 max-w-3xl">
+          <div className="relative z-10">
             <h1 className="text-5xl md:text-7xl font-light mb-8 tracking-tight leading-[1.1] text-black">
               The Best <br/>
               <span className="font-black italic uppercase">Manga</span>
@@ -23,6 +25,26 @@ export default function LandingPage() {
             <p className="text-lg md:text-xl mb-12 text-black/80 max-w-xl leading-relaxed font-medium">
               Track and discover your next favorite manga.
             </p>
+
+              <div className="flex justify-center mb-12">
+                <div className="relative w-full max-w-xl">
+                  <input
+                    type="text"
+                    placeholder="Enter manga name..."
+                    className="w-full rounded-xl border border-black/20 bg-white/90 px-6 py-3 pr-12 text-black placeholder:text-black/40 shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                  />
+                  <button
+                    className="absolute right-2 top-1/2 -translate-y-1/2 hover:text-black p-1 focus:outline-none"
+                    onClick={() => {
+                      // TODO: Add search functionality
+                      console.log('Search triggered');
+                    }}
+                    aria-label="Search"
+                  >
+                    🔍
+                  </button>
+                </div>
+              </div>
             
             <div className="flex flex-wrap gap-5">
               <Button asChild size="lg" className="h-14 px-10 rounded-xl bg-black text-white font-bold uppercase tracking-wider hover:bg-neutral-900 hover:scale-[1.02] transition-all duration-300 shadow-xl shadow-black/20">
@@ -42,7 +64,9 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div></div>
+        <div>
+          {/* TODO: Write Website Info*/}
+        </div>
       </main>
     </div>
   );
