@@ -1,5 +1,5 @@
 import { MangaTypeFilter, TopMangaFilter, Manga, JikanResponse, MangaRecommendation, DB_MANGA } from '@/types/manga';
-import { LibraryItem } from '@/types/library';
+import { LibraryItem, LibraryStatus } from '@/types/library';
 import { mangaFetch } from '@/lib/external-api/external-api';
 import { supabaseAdmin } from '@/utils/supabase/server';
 
@@ -58,4 +58,90 @@ export class MangaService {
     return data as (LibraryItem & { manga: DB_MANGA })[];
   }
 
+  // get a specific library item
+  async getLibraryItem(userId: string, malId: number): Promise<LibraryItem | null> {
+    const { data, error } = await supabaseAdmin
+      .from('library_item')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('mal_id', malId)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    return data as LibraryItem | null;
+  }
+
+  // add manga to library
+  async addMangaToLibrary(userId: string, manga: Manga, status: LibraryStatus, favorite: boolean): Promise<void> {
+
+    // check if manga exists in the db
+    const mangaExists = await this.checkMangaExists(manga.mal_id);
+
+    let addedManga: DB_MANGA;
+
+    if (!mangaExists) {
+      // if it does not, we add the manga
+      addedManga = await this.addManga(manga);
+    } else {
+      addedManga = {
+        mal_id: manga.mal_id,
+        created_at: new Date(),
+        images: manga.images,
+        titles: manga.titles,
+      }
+    }
+
+    // add or update the manga in the library
+    const { error } = await supabaseAdmin
+      .from('library_item')
+      .upsert({
+          user_id: userId,
+          mal_id: addedManga.mal_id,
+          status,
+          favorite,
+      }, {
+        onConflict: 'user_id, mal_id'
+      });
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  async addManga(manga: Manga): Promise<DB_MANGA> {
+    // only get the mal_id, images, and titles
+    const db_manga: DB_MANGA = {
+      mal_id: manga.mal_id,
+      created_at: new Date(),
+      images: manga.images,
+      titles: manga.titles,
+    }
+
+    const { error } = await supabaseAdmin
+      .from('manga')
+      .insert(db_manga);
+
+    if (error) {
+      throw error;
+    }
+
+    return db_manga;
+  }
+
+  async checkMangaExists(malId: number): Promise<boolean> {
+    const { data, error } = await supabaseAdmin
+      .from("manga")
+      .select("mal_id")
+      .eq("mal_id", malId)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    return !!data;
+  }
 }
