@@ -37,7 +37,7 @@ export default function LandingPage() {
           <div className="absolute right-12 bottom-12 hidden lg:block">
             <div className="flex flex-col gap-4 items-end opacity-40 group-hover:opacity-60 transition-opacity duration-500">
               <div className="text-6xl font-black italic uppercase leading-none text-black">🥭</div>
-              <div className="text-[10px] font-black uppercase tracking-[0.5em] vertical-text text-black">MANGO_CORE</div>
+              <div className="text-[10px] font-black uppercase tracking-[0.5em] [writing-mode:vertical-rl] text-black">MANGO_CORE</div>
             </div>
           </div>
         </div>
