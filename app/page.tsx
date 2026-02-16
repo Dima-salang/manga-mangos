@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function LandingPage() {
   return (
@@ -6,7 +7,7 @@ export default function LandingPage() {
       <div className="fixed inset-0 manga-grid opacity-10 pointer-events-none" suppressHydrationWarning />
       
       <main className="max-w-7xl mx-auto px-6 py-4 relative z-10">
-        <div className="relative rounded-[2.5rem] p-12 md:p-20 mb-24 overflow-hidden border border-mango shadow-2xl bg-mango group">
+        <div className="relative rounded-[2.5rem] p-12 mb-24 overflow-hidden border border-mango shadow-2xl bg-mango group">
           <div className="absolute inset-0 manga-grid opacity-20 pointer-events-none mix-blend-overlay" />
           <div className="absolute top-0 right-0 p-12 text-black/5 text-[15rem] font-black italic select-none pointer-events-none group-hover:translate-x-8 transition-transform duration-1000">
             MANGO
@@ -20,15 +21,15 @@ export default function LandingPage() {
             </h1>
             
             <p className="text-lg md:text-xl mb-12 text-black/80 max-w-xl leading-relaxed font-medium">
-              Track and discover your favorite next favorite manga.
+              Track and discover your next favorite manga.
             </p>
             
             <div className="flex flex-wrap gap-5">
-              <Button href="/browse" size="lg" className="h-14 px-10 rounded-xl bg-black text-white font-bold uppercase tracking-wider hover:bg-neutral-900 hover:scale-[1.02] transition-all duration-300 shadow-xl shadow-black/20">
-                Browse Now
+              <Button asChild size="lg" className="h-14 px-10 rounded-xl bg-black text-white font-bold uppercase tracking-wider hover:bg-neutral-900 hover:scale-[1.02] transition-all duration-300 shadow-xl shadow-black/20">
+                <Link href="/browse">Browse Now</Link>
               </Button>
               <Button variant="outline" size="lg" className="h-14 px-10 rounded-xl border-black/10 bg-black/5 text-black font-bold uppercase tracking-wider hover:bg-black/10 transition-all">
-                Latest Updates
+                Latest Updates {/* TODO: Link to updates page */}
               </Button>
             </div>
           </div>
