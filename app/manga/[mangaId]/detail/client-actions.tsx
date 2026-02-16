@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { 
   Heart, 
   Share2, 
+  Loader2
 } from "lucide-react";
 import { 
   Tooltip, 
@@ -19,9 +20,18 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Manga } from "@/types/manga";
+import { LibraryItem, LibraryStatus } from "@/types/library";
+import { addMangaToLibraryAction } from "@/app/library/library";
 
-export function DetailActions() {
-  const [isFavorite, setIsFavorite] = useState(false);
+interface DetailActionsProps {
+  manga: Manga;
+  initialLibraryItem: LibraryItem | null;
+}
+
+export function DetailActions({ manga, initialLibraryItem }: DetailActionsProps) {
+  const [isFavorite, setIsFavorite] = useState(initialLibraryItem?.favorite || false);
+  const [isPending, startTransition] = useTransition();
 
   const handleShare = useCallback(() => {
     globalThis.navigator.clipboard.writeText(globalThis.location.href)
@@ -38,12 +48,28 @@ export function DetailActions() {
   }, []);
 
   const handleFavorite = useCallback(() => {
-    setIsFavorite(prev => !prev);
-    const setFavorite = !isFavorite;
-    toast.success(setFavorite ? "Added to favorites" : "Removed from favorites", {
-      description: setFavorite ? "Manga added to your library." : "Manga removed from your library.",
+    const newFavorite = !isFavorite;
+    
+    startTransition(async () => {
+      const result = await addMangaToLibraryAction(
+        manga, 
+        initialLibraryItem?.status || LibraryStatus.PLAN_TO_READ, 
+        newFavorite
+      );
+
+      if (result.success) {
+        setIsFavorite(newFavorite);
+        toast.success(newFavorite ? "Added to favorites" : "Removed from favorites", {
+          description: newFavorite ? "Manga added to your favorites." : "Manga removed from your favorites.",
+          icon: newFavorite ? <Heart className="w-4 h-4 fill-mango text-mango" /> : undefined
+        });
+      } else {
+        toast.error("Failed to update favorite status", {
+          description: result.error
+        });
+      }
     });
-  }, [isFavorite]);
+  }, [isFavorite, manga, initialLibraryItem]);
 
   return (
     <div className="flex items-center gap-4" suppressHydrationWarning>
@@ -65,14 +91,19 @@ export function DetailActions() {
           <Button 
             variant="ghost" 
             size="icon" 
+            disabled={isPending}
             className={`rounded-full border transition-all duration-300 ${
               isFavorite 
                 ? 'bg-mango/20 border-mango text-mango shadow-[0_0_15px_rgba(255,159,67,0.2)]' 
                 : 'bg-white/5 border-white/10 text-muted-foreground hover:bg-mango/10 hover:text-mango hover:border-mango/20'
-            }`}
+            } ${isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={handleFavorite}
           >
-            <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} suppressHydrationWarning />
+            {isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Heart className={`w-4 h-4 transition-transform duration-300 ${isFavorite ? 'fill-current scale-110' : 'group-hover:scale-110'}`} suppressHydrationWarning />
+            )}
           </Button>
         </TooltipTrigger>
         <TooltipContent className="bg-background border-mango/20 font-bold">
@@ -83,19 +114,55 @@ export function DetailActions() {
   );
 }
 
-export function ReadingStatusSelect() {
+interface ReadingStatusSelectProps {
+  manga: Manga;
+  initialLibraryItem: LibraryItem | null;
+}
+
+export function ReadingStatusSelect({ manga, initialLibraryItem }: ReadingStatusSelectProps) {
+  const [status, setStatus] = useState<LibraryStatus | "none">(initialLibraryItem?.status || "none");
+  const [isPending, startTransition] = useTransition();
+
+  const handleStatusChange = (val: LibraryStatus) => {
+    startTransition(async () => {
+      const result = await addMangaToLibraryAction(
+        manga, 
+        val, 
+        initialLibraryItem?.favorite || false
+      );
+
+      if (result.success) {
+        setStatus(val);
+        toast.success(`Status updated to: ${val.replaceAll('_', ' ')}`, {
+          description: "Your library has been updated.",
+          className: "bg-mango/10 border-mango/20 text-foreground font-bold"
+        });
+      } else {
+        toast.error("Failed to update status", {
+          description: result.error
+        });
+      }
+    });
+  };
+
   return (
     <div className="space-y-3">
-      <Select onValueChange={(val) => toast.info(`Status updated to: ${val}`)}>
-        <SelectTrigger className="w-full h-12 bg-white/5 border-white/10 rounded-xl font-bold focus:ring-mango/50" suppressHydrationWarning>
-          <SelectValue placeholder="Add to List" suppressHydrationWarning />
+      <Select 
+        defaultValue={status === "none" ? undefined : status} 
+        onValueChange={handleStatusChange}
+        disabled={isPending}
+      >
+        <SelectTrigger className="w-full h-12 bg-white/5 border-white/10 rounded-xl font-bold focus:ring-mango/50 relative overflow-hidden group" suppressHydrationWarning>
+          <div className="flex items-center gap-2">
+            {isPending ? <Loader2 className="w-3 h-3 animate-spin text-mango" /> : null}
+            <SelectValue placeholder="Add to List" suppressHydrationWarning />
+          </div>
+          <div className="absolute inset-0 bg-mango/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
         </SelectTrigger>
         <SelectContent className="bg-card border-white/10 rounded-xl backdrop-blur-xl">
-          <SelectItem value="reading" className="font-bold focus:bg-mango/10 transition-colors">Reading</SelectItem>
-          <SelectItem value="completed" className="font-bold focus:bg-mango/10 transition-colors">Completed</SelectItem>
-          <SelectItem value="on_hold" className="font-bold focus:bg-mango/10 transition-colors">On Hold</SelectItem>
-          <SelectItem value="dropped" className="font-bold focus:bg-mango/10 transition-colors">Dropped</SelectItem>
-          <SelectItem value="plan_to_read" className="font-bold focus:bg-mango/10 transition-colors">Plan to Read</SelectItem>
+          <SelectItem value={LibraryStatus.READING} className="font-bold focus:bg-mango/10 transition-colors">Reading</SelectItem>
+          <SelectItem value={LibraryStatus.COMPLETED} className="font-bold focus:bg-mango/10 transition-colors">Completed</SelectItem>
+          <SelectItem value={LibraryStatus.PLAN_TO_READ} className="font-bold focus:bg-mango/10 transition-colors">Plan to Read</SelectItem>
         </SelectContent>
       </Select>
     </div>

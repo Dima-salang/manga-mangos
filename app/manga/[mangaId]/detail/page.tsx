@@ -28,6 +28,8 @@ import {
 import { DetailActions, ReadingStatusSelect } from "./client-actions";
 import { z } from "zod";
 import { Manga, MangaRecommendation } from "@/types/manga";
+import { auth } from "@clerk/nextjs/server";
+import { LibraryItem } from "@/types/library";
 
 // zod validation for the manga id
 const mangaIdSchema = z.coerce.number().int().positive();
@@ -107,6 +109,17 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
     console.error("No recommendations found", error);
   }
 
+  // get current library status if logged in
+  const { userId } = await auth();
+  let libraryItem: LibraryItem | null = null;
+  if (userId) {
+    try {
+      libraryItem = await mangaService.getLibraryItem(userId, id);
+    } catch (error) {
+      console.error("Error fetching library item", error);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background relative selection:bg-mango/30" suppressHydrationWarning>
       <div className="fixed inset-0 manga-grid opacity-5 pointer-events-none" suppressHydrationWarning />
@@ -137,7 +150,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                 <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
                 Back to Browse
               </Link>
-              <DetailActions />
+              <DetailActions manga={manga} initialLibraryItem={libraryItem} />
             </div>
 
             <div className="flex flex-col md:flex-row gap-8 md:gap-16 items-start">
@@ -261,7 +274,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                 </h2>
 
                 <div className="space-y-6">
-                  <MetaItem label="Reading Status" value={<ReadingStatusSelect />} />
+                  <MetaItem label="Reading Status" value={<ReadingStatusSelect manga={manga} initialLibraryItem={libraryItem} />} />
                   <Separator className="bg-white/5" />
                   <MetaItem label="Status" value={manga.status} />
                   <MetaItem label="Published" value={`${fromPublishDate} to ${toPublishDate}`} />
