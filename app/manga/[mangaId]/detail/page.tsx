@@ -11,6 +11,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import {
   Star,
   Users,
   Trophy,
@@ -333,39 +340,46 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                   More like this
                 </h2>
               </div>
-              <div className="hidden md:flex items-center gap-4 text-muted-foreground/40 text-[10px] font-black uppercase tracking-widest">
-                <span>Scroll to explore</span>
-                <div className="w-12 h-[1px] bg-muted-foreground/20" />
-              </div>
             </div>
 
-            <ScrollArea className="w-full whitespace-nowrap pb-8">
-              <div className="flex gap-6">
-                {recommendations.slice(0, 15).map((rec) => (
-                  <Link 
-                    key={rec.entry.mal_id} 
-                    href={`/manga/${rec.entry.mal_id}/detail`}
-                    className="inline-block group/rec w-[180px] shrink-0"
-                  >
-                    <div className="relative aspect-[3/4.2] rounded-2xl overflow-hidden mb-4 border border-white/5 group-hover/rec:border-mango/50 transition-colors duration-500 bg-neutral-900/50">
-                      <Image
-                        src={rec.entry.images.webp.large_image_url || rec.entry.images.jpg.large_image_url}
-                        alt={rec.entry.title}
-                        fill
-                        className="object-cover group-hover/rec:scale-110 transition-transform duration-700"
-                        sizes="180px"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover/rec:opacity-100 transition-opacity duration-500 flex items-end p-4">
-                         <span className="text-[10px] font-black uppercase text-mango tracking-widest">View Detail</span>
-                      </div>
-                    </div>
-                    <h3 className="text-sm font-bold uppercase tracking-tight text-foreground group-hover/rec:text-mango transition-colors line-clamp-2 whitespace-normal leading-tight">
-                      {rec.entry.title}
-                    </h3>
-                  </Link>
-                ))}
-              </div>
-            </ScrollArea>
+            <div className="relative px-12">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-6">
+                  {recommendations.slice(0, 15).map((rec) => (
+                    <CarouselItem key={rec.entry.mal_id} className="pl-6 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/5">
+                      <Link 
+                        href={`/manga/${rec.entry.mal_id}/detail`}
+                        className="block group/rec"
+                      >
+                        <div className="relative aspect-[3/4.2] rounded-2xl overflow-hidden mb-4 border border-white/5 group-hover/rec:border-mango/50 transition-colors duration-500 bg-neutral-900/50">
+                          <Image
+                            src={rec.entry.images.webp.large_image_url || rec.entry.images.jpg.large_image_url}
+                            alt={rec.entry.title}
+                            fill
+                            className="object-cover group-hover/rec:scale-110 transition-transform duration-700"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 20vw"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover/rec:opacity-100 transition-opacity duration-500 flex items-end p-4">
+                             <span className="text-[10px] font-black uppercase text-mango tracking-widest">View Detail</span>
+                          </div>
+                        </div>
+                        <h3 className="text-sm font-bold uppercase tracking-tight text-foreground group-hover/rec:text-mango transition-colors line-clamp-2 leading-tight">
+                          {rec.entry.title}
+                        </h3>
+                      </Link>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden md:flex -left-12 bg-background/50 border-white/5 hover:bg-mango hover:text-black transition-all" />
+                <CarouselNext className="hidden md:flex -right-12 bg-background/50 border-white/5 hover:bg-mango hover:text-black transition-all" />
+              </Carousel>
+            </div>
           </section>
         )}
       </main>
