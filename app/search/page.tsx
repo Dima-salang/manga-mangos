@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Manga, JikanResponse, MangaTypeFilter, TopMangaFilter } from "@/types/manga";
+import { Manga, JikanResponse } from "@/types/manga";
 
 const GENRES = [
   "Action", "Adventure", "Cars", "Comedy", "Dementia", "Demons", "Drama", "Ecchi",
@@ -16,25 +16,67 @@ const GENRES = [
   "Thriller", "Vampire",
 ];
 
-// Map Jikan API status to our filter values
-function getStatusFilterValue(status: string): "ongoing" | "finished" | "coming-soon" | null {
-  if (!status) return null;
-  const s = status.toLowerCase();
-  if (s === "publishing" || s === "on hiatus") return "ongoing";
-  if (s === "finished" || s === "discontinued") return "finished";
-  if (s === "not yet published") return "coming-soon";
-  return null;
-}
+// Map genre names to Jikan genre IDs
+const GENRE_MAP: Record<string, number> = {
+  "Action": 1,
+  "Adventure": 2,
+  "Cars": 3,
+  "Comedy": 4,
+  "Dementia": 5,
+  "Demons": 6,
+  "Drama": 8,
+  "Ecchi": 9,
+  "Fantasy": 10,
+  "Game": 11,
+  "Harem": 35,
+  "Historical": 13,
+  "Horror": 14,
+  "Isekai": 62,
+  "Josei": 43,
+  "Kids": 15,
+  "Magic": 16,
+  "Martial Arts": 17,
+  "Mecha": 18,
+  "Military": 38,
+  "Music": 19,
+  "Mystery": 7,
+  "Parody": 20,
+  "Police": 39,
+  "Psychological": 40,
+  "Romance": 22,
+  "Samurai": 21,
+  "School": 23,
+  "Sci-Fi": 24,
+  "Seinen": 42,
+  "Shoujo": 25,
+  "Shoujo Ai": 26,
+  "Shounen": 27,
+  "Shounen Ai": 28,
+  "Slice of Life": 36,
+  "Space": 29,
+  "Sports": 30,
+  "Super Power": 31,
+  "Supernatural": 37,
+  "Thriller": 41,
+  "Vampire": 32,
+};
 
 export default function SearchPage() {
   const [mangaList, setMangaList] = useState<Manga[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [pagination, setPagination] = useState<JikanResponse<Manga[]>["pagination"] | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [type, setType] = useState("all");
   const [status, setStatus] = useState("all");
-  const [rated, setRated] = useState("all");
-  const [score, setScore] = useState("all");
+  const [minScore, setMinScore] = useState("");
+  const [maxScore, setMaxScore] = useState("");
+  const [sfw, setSfw] = useState(false);
   const [language, setLanguage] = useState("all");
-  const [sort, setSort] = useState("default");
+  const [orderBy, setOrderBy] = useState("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+  const [excludedGenres, setExcludedGenres] = useState<string[]>([]);
+  const [letter, setLetter] = useState("");
   const [startYear, setStartYear] = useState("");
   const [startMonth, setStartMonth] = useState("");
   const [startDay, setStartDay] = useState("");
@@ -42,108 +84,149 @@ export default function SearchPage() {
   const [endMonth, setEndMonth] = useState("");
   const [endDay, setEndDay] = useState("");
 
-  // Fetch manga from same API as home page (manga database)
+  // Build query params for API
+  const buildSearchParams = useCallback(() => {
+    const params = new URLSearchParams();
+    
+    params.append("page", currentPage.toString());
+    params.append("limit", "25");
+    
+    // Type filter
+    if (type !== "all") {
+      params.append("type", type);
+    }
+    
+    // Status filter
+    if (status !== "all") {
+      params.append("status", status);
+    }
+    
+    // Score filters
+    if (minScore) {
+  params.append("min_score", minScore);
+}
+if (maxScore) {
+  params.append("max_score", maxScore);
+}
+    
+    // SFW filter
+    if (sfw) {
+      params.append("sfw", "true");
+    }
+    
+    // Language filter (server-side only)
+    if (language !== "all") {
+      params.append("language", language);
+    }
+    
+    // Order and sort (direct API parameters)
+    if (orderBy) {
+      params.append("order_by", orderBy);
+    }
+    if (sortOrder) {
+      params.append("sort", sortOrder);
+    }
+    
+    // Map genre names to IDs
+    if (selectedGenres.length > 0) {
+      const genreIds = selectedGenres
+        .map((g) => GENRE_MAP[g])
+        .filter((id) => id !== undefined)
+        .join(",");
+      if (genreIds) {
+        params.append("genres", genreIds);
+      }
+    }
+    
+    // Excluded genres
+    if (excludedGenres.length > 0) {
+      const genreIds = excludedGenres
+        .map((g) => GENRE_MAP[g])
+        .filter((id) => id !== undefined)
+        .join(",");
+      if (genreIds) {
+        params.append("genres_exclude", genreIds);
+      }
+    }
+    
+    // Letter filter
+    if (letter && letter.length === 1) {
+      params.append("letter", letter.toUpperCase());
+    }
+    
+    // Build date range filter
+    if (startYear || startMonth || startDay) {
+      const dateParts = [];
+      if (startYear) dateParts.push(startYear.padStart(4, "0"));
+      if (startMonth) dateParts.push(startMonth.padStart(2, "0"));
+      if (startDay) dateParts.push(startDay.padStart(2, "0"));
+      if (dateParts.length > 0) {
+        params.append("start_date", dateParts.join("-"));
+      }
+    }
+    
+    if (endYear || endMonth || endDay) {
+      const dateParts = [];
+      if (endYear) dateParts.push(endYear.padStart(4, "0"));
+      if (endMonth) dateParts.push(endMonth.padStart(2, "0"));
+      if (endDay) dateParts.push(endDay.padStart(2, "0"));
+      if (dateParts.length > 0) {
+        params.append("end_date", dateParts.join("-"));
+      }
+    }
+    
+    return params.toString();
+  }, [currentPage, type, status, minScore, maxScore, sfw, language, orderBy, sortOrder, selectedGenres, excludedGenres, letter, startYear, startMonth, startDay, endYear, endMonth, endDay]);
+
+  // Fetch manga from search API with filters
   useEffect(() => {
     async function loadManga() {
       setIsLoading(true);
       try {
-        const [res1, res2] = await Promise.all([
-          fetch(`/api/manga/top?type=${MangaTypeFilter.MANGA}&filter=${TopMangaFilter.BY_POPULARITY}&page=1&limit=25`),
-          fetch(`/api/manga/top?type=${MangaTypeFilter.MANGA}&filter=${TopMangaFilter.FAVORITE}&page=1&limit=25`),
-        ]);
-        const data1: JikanResponse<Manga[]> = await res1.json();
-        const data2: JikanResponse<Manga[]> = await res2.json();
-        const combined = [...(data1.data || []), ...(data2.data || [])];
-        const byId = new Map(combined.map((m) => [m.mal_id, m]));
-        setMangaList(Array.from(byId.values()));
+        const queryString = buildSearchParams();
+        const response = await fetch(`/api/manga/search?${queryString}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch: ${response.status}`);
+        }
+        
+        const data: JikanResponse<Manga[]> = await response.json();
+        setMangaList(data.data || []);
+        setPagination(data.pagination);
       } catch (e) {
         console.error("Failed to load manga for search:", e);
         setMangaList([]);
+        setPagination(null);
       } finally {
         setIsLoading(false);
       }
     }
     loadManga();
-  }, []);
+  }, [buildSearchParams]);
 
-  const toggleGenre = (genre: string) => {
-    setSelectedGenres((prev) =>
-      prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre]
-    );
-  };
-
-  const applyFilters = () => {
-    // Filters are applied in useMemo below
-  };
-
-  const filteredAndSortedManga = useMemo(() => {
-    let list = [...mangaList];
-
-    // Status: Ongoing, Finished, Coming soon
-    if (status !== "all") {
-      list = list.filter((m) => {
-        const value = getStatusFilterValue(m.status);
-        return value === status;
+  const toggleGenre = (genre: string, exclude: boolean = false) => {
+    if (exclude) {
+      setExcludedGenres((prev) => {
+        const newGenres = prev.includes(genre) 
+          ? prev.filter((g) => g !== genre)
+          : [...prev, genre];
+        setCurrentPage(1);
+        return newGenres;
+      });
+    } else {
+      setSelectedGenres((prev) => {
+        const newGenres = prev.includes(genre) 
+          ? prev.filter((g) => g !== genre)
+          : [...prev, genre];
+        setCurrentPage(1);
+        return newGenres;
       });
     }
+  };
 
-    // Genre filter: manga must include ALL selected genres
-    if (selectedGenres.length > 0) {
-      const genreNames = (m: Manga) => m.genres.map((g) => g.name);
-      list = list.filter((m) =>
-        selectedGenres.every((g) => genreNames(m).includes(g))
-      );
-    }
-
-    // Score filter (1–10)
-    if (score !== "all") {
-      const minScore = Number(score);
-      list = list.filter((m) => (m.score ?? 0) >= minScore);
-    }
-
-    // Language: only show manga that have English or Japanese (title as proxy for translation)
-    if (language === "english") {
-      list = list.filter((m) => m.title_english != null && m.title_english.trim() !== "");
-    }
-    if (language === "japanese") {
-      list = list.filter((m) => m.title_japanese != null && m.title_japanese.trim() !== "");
-    }
-
-    // Sort
-    switch (sort) {
-      case "recently-added":
-      case "newest":
-        list.sort((a, b) => b.mal_id - a.mal_id);
-        break;
-      case "recently-updated":
-        list.sort((a, b) => b.mal_id - a.mal_id);
-        break;
-      case "score":
-      case "rating":
-        list.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-        break;
-      case "name-az":
-      case "title":
-        list.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case "released-date":
-        list.sort((a, b) => {
-          const dateA = a.published?.from ? new Date(a.published.from).getTime() : 0;
-          const dateB = b.published?.from ? new Date(b.published.from).getTime() : 0;
-          return dateB - dateA;
-        });
-        break;
-      case "most-read":
-      case "most-watched":
-      case "popularity":
-        list.sort((a, b) => (b.members ?? 0) - (a.members ?? 0));
-        break;
-      default:
-        break;
-    }
-
-    return list;
-  }, [mangaList, status, selectedGenres, score, language, sort]);
+  const handleFilterChange = () => {
+    setCurrentPage(1); // Reset to first page when filters change
+  };
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -158,30 +241,48 @@ export default function SearchPage() {
         <section className="mb-8">
           <div className="flex flex-wrap items-center gap-4 mb-4">
             <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Type</span>
+              <select value={type} onChange={(e) => { setType(e.target.value); handleFilterChange(); }} className="select-filter" aria-label="Type">
+                <option value="all">All</option>
+                <option value="manga">Manga</option>
+                <option value="novel">Novel</option>
+                <option value="lightnovel">Light Novel</option>
+                <option value="oneshot">One-shot</option>
+                <option value="doujin">Doujinshi</option>
+                <option value="manhwa">Manhwa</option>
+                <option value="manhua">Manhua</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Status</span>
-              <select value={status} onChange={(e) => setStatus(e.target.value)} className="select-filter" aria-label="Status">
+              <select value={status} onChange={(e) => { setStatus(e.target.value); handleFilterChange(); }} className="select-filter" aria-label="Status">
                 <option value="all">All</option>
-                <option value="ongoing">Ongoing</option>
-                <option value="finished">Finished</option>
-                <option value="coming-soon">Coming soon</option>
+                <option value="publishing">Publishing</option>
+                <option value="complete">Complete</option>
+                <option value="hiatus">Hiatus</option>
+                <option value="discontinued">Discontinued</option>
+                <option value="upcoming">Upcoming</option>
               </select>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Rated</span>
-              <select value={rated} onChange={(e) => setRated(e.target.value)} className="select-filter" aria-label="Rated">
-                <option value="all">All</option>
-                <option value="g">G</option>
-                <option value="pg">PG</option>
-                <option value="pg-13">PG-13</option>
-                <option value="r">R</option>
-                <option value="r+">R+</option>
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Min Score</span>
+              <select value={minScore} onChange={(e) => { setMinScore(e.target.value); handleFilterChange(); }} className="select-filter" aria-label="Min Score">
+                <option value="">Any</option>
+                <option value="1">1+</option>
+                <option value="2">2+</option>
+                <option value="3">3+</option>
+                <option value="4">4+</option>
+                <option value="5">5+</option>
+                <option value="6">6+</option>
+                <option value="7">7+</option>
+                <option value="8">8+</option>
+                <option value="9">9+</option>
               </select>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Score</span>
-              <select value={score} onChange={(e) => setScore(e.target.value)} className="select-filter" aria-label="Score">
-                <option value="all">All</option>
-                <option value="1">1</option>
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Max Score</span>
+              <select value={maxScore} onChange={(e) => { setMaxScore(e.target.value); handleFilterChange(); }} className="select-filter" aria-label="Max Score">
+                <option value="">Any</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
                 <option value="4">4</option>
@@ -194,37 +295,57 @@ export default function SearchPage() {
               </select>
             </div>
             <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">SFW</span>
+              <input type="checkbox" checked={sfw} onChange={(e) => { setSfw(e.target.checked); handleFilterChange(); }} className="w-4 h-4" />
+            </div>
+            <div className="flex items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Language</span>
-              <select value={language} onChange={(e) => setLanguage(e.target.value)} className="select-filter" aria-label="Language">
+              <select value={language} onChange={(e) => { setLanguage(e.target.value); handleFilterChange(); }} className="select-filter" aria-label="Language">
                 <option value="all">All</option>
                 <option value="english">English</option>
                 <option value="japanese">Japanese</option>
               </select>
             </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Letter</span>
+              <input type="text" maxLength={1} placeholder="A-Z" value={letter} onChange={(e) => { setLetter(e.target.value.toUpperCase().replace(/[^A-Z]/g, "")); handleFilterChange(); }} className="input-filter w-16" />
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-6">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Start Date</span>
-              <input type="text" placeholder="Year" value={startYear} onChange={(e) => setStartYear(e.target.value)} className="input-filter w-16" />
-              <input type="text" placeholder="Month" value={startMonth} onChange={(e) => setStartMonth(e.target.value)} className="input-filter w-16" />
-              <input type="text" placeholder="Day" value={startDay} onChange={(e) => setStartDay(e.target.value)} className="input-filter w-14" />
+              <input type="text" placeholder="Year" value={startYear} onChange={(e) => { setStartYear(e.target.value); handleFilterChange(); }} className="input-filter w-16" />
+              <input type="text" placeholder="Month" value={startMonth} onChange={(e) => { setStartMonth(e.target.value); handleFilterChange(); }} className="input-filter w-16" />
+              <input type="text" placeholder="Day" value={startDay} onChange={(e) => { setStartDay(e.target.value); handleFilterChange(); }} className="input-filter w-14" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">End Date</span>
-              <input type="text" placeholder="Year" value={endYear} onChange={(e) => setEndYear(e.target.value)} className="input-filter w-16" />
-              <input type="text" placeholder="Month" value={endMonth} onChange={(e) => setEndMonth(e.target.value)} className="input-filter w-16" />
-              <input type="text" placeholder="Day" value={endDay} onChange={(e) => setEndDay(e.target.value)} className="input-filter w-14" />
+              <input type="text" placeholder="Year" value={endYear} onChange={(e) => { setEndYear(e.target.value); handleFilterChange(); }} className="input-filter w-16" />
+              <input type="text" placeholder="Month" value={endMonth} onChange={(e) => { setEndMonth(e.target.value); handleFilterChange(); }} className="input-filter w-16" />
+              <input type="text" placeholder="Day" value={endDay} onChange={(e) => { setEndDay(e.target.value); handleFilterChange(); }} className="input-filter w-14" />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Order By</span>
+              <select value={orderBy} onChange={(e) => { setOrderBy(e.target.value); handleFilterChange(); }} className="select-filter" aria-label="Order By">
+                <option value="">Default</option>
+                <option value="mal_id">ID</option>
+                <option value="title">Title</option>
+                <option value="start_date">Start Date</option>
+                <option value="end_date">End Date</option>
+                <option value="chapters">Chapters</option>
+                <option value="volumes">Volumes</option>
+                <option value="score">Score</option>
+                <option value="scored_by">Scored By</option>
+                <option value="rank">Rank</option>
+                <option value="popularity">Popularity</option>
+              </select>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Sort</span>
-              <select value={sort} onChange={(e) => setSort(e.target.value)} className="select-filter" aria-label="Sort">
-                <option value="default">Default</option>
-                <option value="recently-added">Recently Added</option>
-                <option value="recently-updated">Recently Updated</option>
-                <option value="score">Score</option>
-                <option value="name-az">Name A-Z</option>
-                <option value="released-date">Released Date</option>
-                <option value="most-read">Most Read</option>
+              <select value={sortOrder} onChange={(e) => { setSortOrder(e.target.value as "asc" | "desc" | ""); handleFilterChange(); }} className="select-filter" aria-label="Sort">
+                <option value="">Default</option>
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
               </select>
             </div>
           </div>
@@ -232,13 +353,13 @@ export default function SearchPage() {
 
         {/* Genre tags */}
         <section className="mb-8">
-          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Genre</h2>
-          <div className="flex flex-wrap gap-2">
+          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Genres (Include)</h2>
+          <div className="flex flex-wrap gap-2 mb-4">
             {GENRES.map((genre) => (
               <button
                 key={genre}
                 type="button"
-                onClick={() => toggleGenre(genre)}
+                onClick={() => toggleGenre(genre, false)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   selectedGenres.includes(genre)
                     ? "bg-mango text-white"
@@ -249,17 +370,28 @@ export default function SearchPage() {
               </button>
             ))}
           </div>
+          <h2 className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">Genres (Exclude)</h2>
+          <div className="flex flex-wrap gap-2">
+            {GENRES.map((genre) => (
+              <button
+                key={`exclude-${genre}`}
+                type="button"
+                onClick={() => toggleGenre(genre, true)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  excludedGenres.includes(genre)
+                    ? "bg-red-500/20 text-red-400 border border-red-500/40"
+                    : "bg-white/5 text-foreground border border-white/10 hover:border-red-500/40 hover:bg-white/10"
+                }`}
+              >
+                {genre}
+              </button>
+            ))}
+          </div>
         </section>
 
         <div className="flex items-center gap-4 mb-8">
-          <Button
-            onClick={applyFilters}
-            className="bg-mango hover:bg-mango/90 text-white font-bold uppercase tracking-widest rounded-lg px-8 py-3"
-          >
-            Filter
-          </Button>
           <span className="text-sm text-muted-foreground">
-            {filteredAndSortedManga.length} result{filteredAndSortedManga.length !== 1 ? "s" : ""}
+            {pagination ? `${pagination.items.total.toLocaleString()} result${pagination.items.total !== 1 ? "s" : ""}` : "Loading…"}
           </span>
         </div>
 
@@ -268,14 +400,39 @@ export default function SearchPage() {
           {isLoading ? (
             <p className="col-span-full text-muted-foreground text-center py-12">Loading manga…</p>
           ) : (
-            filteredAndSortedManga.map((manga) => (
+            mangaList.map((manga) => (
               <MangaCard key={manga.mal_id} manga={manga} />
             ))
           )}
         </section>
 
-        {!isLoading && filteredAndSortedManga.length === 0 && (
+        {!isLoading && mangaList.length === 0 && (
           <p className="text-muted-foreground text-center py-12">No manga match your filters. Try adjusting or clearing some filters.</p>
+        )}
+
+        {/* Pagination */}
+        {pagination && pagination.last_visible_page > 1 && (
+          <div className="flex justify-center items-center gap-4 mt-8">
+            <Button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1 || isLoading}
+              variant="outline"
+              className="bg-card border-white/10"
+            >
+              Previous
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Page {currentPage} of {pagination.last_visible_page}
+            </span>
+            <Button
+              onClick={() => setCurrentPage((p) => Math.min(pagination.last_visible_page, p + 1))}
+              disabled={currentPage >= pagination.last_visible_page || isLoading}
+              variant="outline"
+              className="bg-card border-white/10"
+            >
+              Next
+            </Button>
+          </div>
         )}
       </main>
     </div>
