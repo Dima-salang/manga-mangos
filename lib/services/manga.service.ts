@@ -1,5 +1,7 @@
-import { MangaTypeFilter, TopMangaFilter, Manga, JikanResponse, MangaRecommendation } from '@/types/manga';
+import { MangaTypeFilter, TopMangaFilter, Manga, JikanResponse, DB_MANGA } from '@/types/manga';
+import { LibraryItem } from '@/types/library';
 import { mangaFetch } from '@/lib/external-api/external-api';
+import { supabaseAdmin } from '@/utils/supabase/server';
 
 
 export async function getTopManga(
@@ -34,9 +36,26 @@ export class MangaService {
     return await mangaFetch<JikanResponse<Manga>>(`manga/${id}/full`);
   }
 
-
   // get manga recommendations
   async getMangaRecommendations(id: number): Promise<JikanResponse<MangaRecommendation[]>> {
     return await mangaFetch<JikanResponse<MangaRecommendation[]>>(`manga/${id}/recommendations`);
   }
+
+  // get library items with manga details
+  async getLibraryWithManga(userId: string): Promise<(LibraryItem & { manga: DB_MANGA })[]> {
+    const { data, error } = await supabaseAdmin
+      .from('library_item')
+      .select(`
+        *,
+        manga:mal_id (*)
+      `)
+      .eq('user_id', userId);
+
+    if (error) {
+      throw error;
+    }
+
+    return data as (LibraryItem & { manga: DB_MANGA })[];
+  }
+
 }
