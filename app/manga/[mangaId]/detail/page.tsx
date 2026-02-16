@@ -11,6 +11,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import {
   Star,
   Users,
   Trophy,
@@ -20,17 +27,19 @@ import {
 } from "lucide-react";
 import { DetailActions, ReadingStatusSelect } from "./client-actions";
 import { z } from "zod";
-import { Manga } from "@/types/manga";
+import { Manga, MangaRecommendation } from "@/types/manga";
 
 // zod validation for the manga id
 const mangaIdSchema = z.coerce.number().int().positive();
 
 
 export default async function MangaDetail({ params }: { params: Promise<{ mangaId: string }> }) {
+  // get the manga detail
   const { mangaId } = await params;
   const id = Number(mangaId);
   const validId = mangaIdSchema.safeParse(id);
 
+  // if the manga id is not valid, return not found
   if (!validId.success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -49,6 +58,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
   const mangaService = new MangaService();
   let manga: Manga;
 
+  // try the response
   try {
     const response = await mangaService.getManga(Number(mangaId));
     manga = response.data;
@@ -85,6 +95,17 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
         year: 'numeric'
       })
     : "Present";
+
+
+  // get the manga recommendations
+  let recommendations: MangaRecommendation[] = [];
+  try {
+    const response = await mangaService.getMangaRecommendations(Number(mangaId));
+    recommendations = response.data;
+  } catch (error) {
+    // render not found recommendations in the ui
+    console.error("No recommendations found", error);
+  }
 
   return (
     <div className="min-h-screen bg-background relative selection:bg-mango/30" suppressHydrationWarning>
@@ -244,10 +265,50 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                   <Separator className="bg-white/5" />
                   <MetaItem label="Status" value={manga.status} />
                   <MetaItem label="Published" value={`${fromPublishDate} to ${toPublishDate}`} />
-                  <MetaItem label="Authors" value={manga.authors.map(a => a.name).join(', ')} />
+                  <MetaItem 
+                    label="Authors" 
+                    value={
+                      <div className="flex flex-wrap gap-x-2 gap-y-1">
+                        {manga.authors.map((a, i) => (
+                          <div key={a.mal_id} className="inline-flex items-center gap-1 group/link">
+                            <a 
+                              href={a.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="hover:text-mango transition-colors relative"
+                            >
+                              {a.name}
+                              <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-mango transition-all group-hover/link:w-full" />
+                            </a>
+                            {i < manga.authors.length - 1 && <span className="text-muted-foreground/20 ml-1">/</span>}
+                          </div>
+                        ))}
+                      </div>
+                    } 
+                  />
                   <MetaItem label="Chapters" value={manga.chapters?.toString() || "Unknown"} />
                   <MetaItem label="Volumes" value={manga.volumes?.toString() || "Unknown"} />
-                  <MetaItem label="Serialization" value={manga.serializations.map(s => s.name).join(', ')} />
+                  <MetaItem 
+                    label="Serialization" 
+                    value={
+                      <div className="flex flex-wrap gap-x-2 gap-y-1">
+                        {manga.serializations.map((s, i) => (
+                          <div key={s.mal_id} className="inline-flex items-center gap-1 group/link">
+                            <a 
+                              href={s.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="hover:text-mango transition-colors italic relative"
+                            >
+                              {s.name}
+                              <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-mango transition-all group-hover/link:w-full" />
+                            </a>
+                            {i < manga.serializations.length - 1 && <span className="text-muted-foreground/20 ml-1">/</span>}
+                          </div>
+                        ))}
+                      </div>
+                    } 
+                  />
                 </div>
 
               </div>
@@ -266,6 +327,61 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
             </div>
           </div>
         </div>
+
+        {recommendations.length > 0 && (
+          <section className="max-w-7xl mx-auto px-4 py-24 border-t border-white/5">
+            <div className="flex items-end justify-between mb-12">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-mango font-black uppercase tracking-[0.3em] text-[10px]">
+                  <div className="w-8 h-[2px] bg-mango" />
+                  <span>Curated for you</span>
+                </div>
+                <h2 className="text-4xl md:text-5xl font-black italic uppercase tracking-tighter">
+                  More like this
+                </h2>
+              </div>
+            </div>
+
+            <div className="relative px-12">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-6">
+                  {recommendations.slice(0, 15).map((rec) => (
+                    <CarouselItem key={rec.entry.mal_id} className="pl-6 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/5">
+                      <Link 
+                        href={`/manga/${rec.entry.mal_id}/detail`}
+                        className="block group/rec"
+                      >
+                        <div className="relative aspect-[3/4.2] rounded-2xl overflow-hidden mb-4 border border-white/5 group-hover/rec:border-mango/50 transition-colors duration-500 bg-neutral-900/50">
+                          <Image
+                            src={rec.entry.images.webp.large_image_url || rec.entry.images.jpg.large_image_url}
+                            alt={rec.entry.title}
+                            fill
+                            className="object-cover group-hover/rec:scale-110 transition-transform duration-700"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 20vw"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover/rec:opacity-100 transition-opacity duration-500 flex items-end p-4">
+                             <span className="text-[10px] font-black uppercase text-mango tracking-widest">View Detail</span>
+                          </div>
+                        </div>
+                        <h3 className="text-sm font-bold uppercase tracking-tight text-foreground group-hover/rec:text-mango transition-colors line-clamp-2 leading-tight">
+                          {rec.entry.title}
+                        </h3>
+                      </Link>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden md:flex -left-12 bg-background/50 border-white/5 hover:bg-mango hover:text-black transition-all" />
+                <CarouselNext className="hidden md:flex -right-12 bg-background/50 border-white/5 hover:bg-mango hover:text-black transition-all" />
+              </Carousel>
+            </div>
+          </section>
+        )}
       </main>
 
       <footer className="py-24 border-t border-white/5 opacity-30 select-none pointer-events-none overflow-hidden">
