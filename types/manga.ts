@@ -1,13 +1,15 @@
 import {z} from "zod";
 
 // DB manga
-export const MangaSchema = z.object({
+export const DB_MangaSchema = z.object({
   mal_id: z.number(),
   created_at: z.string(),
-  images: z.json(),
-  titles: z.json()
+  images: z.any(),
+  titles: z.any()
 });
 
+
+export type DB_MANGA = z.infer<typeof DB_MangaSchema>;
 
 
 // Jikan-specific Manga interface for external API results
