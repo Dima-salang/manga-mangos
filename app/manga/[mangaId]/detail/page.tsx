@@ -244,10 +244,50 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                   <Separator className="bg-white/5" />
                   <MetaItem label="Status" value={manga.status} />
                   <MetaItem label="Published" value={`${fromPublishDate} to ${toPublishDate}`} />
-                  <MetaItem label="Authors" value={manga.authors.map(a => a.name).join(', ')} />
+                  <MetaItem 
+                    label="Authors" 
+                    value={
+                      <div className="flex flex-wrap gap-x-2 gap-y-1">
+                        {manga.authors.map((a, i) => (
+                          <div key={a.mal_id} className="inline-flex items-center gap-1 group/link">
+                            <a 
+                              href={a.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="hover:text-mango transition-colors relative"
+                            >
+                              {a.name}
+                              <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-mango transition-all group-hover/link:w-full" />
+                            </a>
+                            {i < manga.authors.length - 1 && <span className="text-muted-foreground/20 ml-1">/</span>}
+                          </div>
+                        ))}
+                      </div>
+                    } 
+                  />
                   <MetaItem label="Chapters" value={manga.chapters?.toString() || "Unknown"} />
                   <MetaItem label="Volumes" value={manga.volumes?.toString() || "Unknown"} />
-                  <MetaItem label="Serialization" value={manga.serializations.map(s => s.name).join(', ')} />
+                  <MetaItem 
+                    label="Serialization" 
+                    value={
+                      <div className="flex flex-wrap gap-x-2 gap-y-1">
+                        {manga.serializations.map((s, i) => (
+                          <div key={s.mal_id} className="inline-flex items-center gap-1 group/link">
+                            <a 
+                              href={s.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="hover:text-mango transition-colors italic relative"
+                            >
+                              {s.name}
+                              <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-mango transition-all group-hover/link:w-full" />
+                            </a>
+                            {i < manga.serializations.length - 1 && <span className="text-muted-foreground/20 ml-1">/</span>}
+                          </div>
+                        ))}
+                      </div>
+                    } 
+                  />
                 </div>
 
               </div>
