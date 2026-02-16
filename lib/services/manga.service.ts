@@ -1,4 +1,4 @@
-import { MangaTypeFilter, TopMangaFilter, Manga, JikanResponse, DB_MANGA } from '@/types/manga';
+import { MangaTypeFilter, TopMangaFilter, Manga, JikanResponse, MangaRecommendation, DB_MANGA } from '@/types/manga';
 import { LibraryItem } from '@/types/library';
 import { mangaFetch } from '@/lib/external-api/external-api';
 import { supabaseAdmin } from '@/utils/supabase/server';
