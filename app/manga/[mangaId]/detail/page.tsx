@@ -25,9 +25,11 @@ import {
   ChevronLeft,
   Info
 } from "lucide-react";
-import { DetailActions, ReadingStatusSelect } from "./client-actions";
+import { DetailActions, ReadingStatusSelect, MangaLibraryProvider } from "./client-actions";
 import { z } from "zod";
 import { Manga, MangaRecommendation } from "@/types/manga";
+import { auth } from "@clerk/nextjs/server";
+import { LibraryItem } from "@/types/library";
 
 // zod validation for the manga id
 const mangaIdSchema = z.coerce.number().int().positive();
@@ -107,6 +109,17 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
     console.error("No recommendations found", error);
   }
 
+  // get current library status if logged in
+  const { userId } = await auth();
+  let libraryItem: LibraryItem | null = null;
+  if (userId) {
+    try {
+      libraryItem = await mangaService.getLibraryItem(userId, id);
+    } catch (error) {
+      console.error("Error fetching library item", error);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background relative selection:bg-mango/30" suppressHydrationWarning>
       <div className="fixed inset-0 manga-grid opacity-5 pointer-events-none" suppressHydrationWarning />
@@ -126,7 +139,9 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           </div>
+        </div>
 
+        <MangaLibraryProvider manga={manga} initialLibraryItem={libraryItem}>
           <div className="max-w-7xl mx-auto px-4 h-full relative z-10 flex flex-col justify-end pb-12 md:pb-20">
             <div className="flex justify-between items-center mb-8">
               <Link
@@ -215,7 +230,6 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
               </div>
             </div>
           </div>
-        </div>
 
         {/* Content Section */}
         <div className="max-w-7xl mx-auto px-4 py-20">
@@ -382,6 +396,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
             </div>
           </section>
         )}
+        </MangaLibraryProvider>
       </main>
 
       <footer className="py-24 border-t border-white/5 opacity-30 select-none pointer-events-none overflow-hidden">
