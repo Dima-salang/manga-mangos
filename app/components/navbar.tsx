@@ -9,9 +9,12 @@ import { NavbarActions } from './navbar-context';
 export function Navbar() {
   const pathname = usePathname();
 
-  const navLinks = [
-    { name: 'Browse', href: '/browse' },
+  const publicLinks = [
+    { name: 'Browse', href: '/' },
     { name: 'Search', href: '/search' },
+  ];
+
+  const protectedLinks = [
     { name: 'Library', href: '/library' },
     { name: 'Assistant', href: '/assistant' },
   ];
@@ -31,7 +34,7 @@ export function Navbar() {
           {/* Main Navigation */}
           <div className="hidden md:flex items-center gap-10">
             <ul className="flex gap-10 font-black text-[10px] uppercase tracking-[0.2em]">
-              {navLinks.map((link) => (
+              {publicLinks.map((link) => (
                 <li key={link.href}>
                   <Link 
                     href={link.href} 
@@ -44,6 +47,21 @@ export function Navbar() {
                   </Link>
                 </li>
               ))}
+              <SignedIn>
+                {protectedLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link 
+                      href={link.href} 
+                      className={cn(
+                        "transition-colors hover:text-mango",
+                        pathname === link.href ? "text-mango" : "text-muted-foreground/60"
+                      )}
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </SignedIn>
             </ul>
           </div>
 
