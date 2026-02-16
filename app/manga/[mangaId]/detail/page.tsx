@@ -25,7 +25,7 @@ import {
   ChevronLeft,
   Info
 } from "lucide-react";
-import { DetailActions, ReadingStatusSelect } from "./client-actions";
+import { DetailActions, ReadingStatusSelect, MangaLibraryProvider } from "./client-actions";
 import { z } from "zod";
 import { Manga, MangaRecommendation } from "@/types/manga";
 import { auth } from "@clerk/nextjs/server";
@@ -139,7 +139,9 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           </div>
+        </div>
 
+        <MangaLibraryProvider manga={manga} initialLibraryItem={libraryItem}>
           <div className="max-w-7xl mx-auto px-4 h-full relative z-10 flex flex-col justify-end pb-12 md:pb-20">
             <div className="flex justify-between items-center mb-8">
               <Link
@@ -150,7 +152,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                 <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
                 Back to Browse
               </Link>
-              <DetailActions manga={manga} initialLibraryItem={libraryItem} />
+              <DetailActions />
             </div>
 
             <div className="flex flex-col md:flex-row gap-8 md:gap-16 items-start">
@@ -228,7 +230,6 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
               </div>
             </div>
           </div>
-        </div>
 
         {/* Content Section */}
         <div className="max-w-7xl mx-auto px-4 py-20">
@@ -274,7 +275,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                 </h2>
 
                 <div className="space-y-6">
-                  <MetaItem label="Reading Status" value={<ReadingStatusSelect manga={manga} initialLibraryItem={libraryItem} />} />
+                  <MetaItem label="Reading Status" value={<ReadingStatusSelect />} />
                   <Separator className="bg-white/5" />
                   <MetaItem label="Status" value={manga.status} />
                   <MetaItem label="Published" value={`${fromPublishDate} to ${toPublishDate}`} />
@@ -395,6 +396,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
             </div>
           </section>
         )}
+        </MangaLibraryProvider>
       </main>
 
       <footer className="py-24 border-t border-white/5 opacity-30 select-none pointer-events-none overflow-hidden">

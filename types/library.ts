@@ -17,8 +17,8 @@ export const LibrarySchema = z.object({
 export const LibraryItemSchema = z.object({
   id: z.number(),
   mal_id: z.number(),
-  user_id: z.number(),
-  status: z.enum(LibraryStatus),
+  user_id: z.string(),
+  status: z.nativeEnum(LibraryStatus),
   favorite: z.boolean(),
   created_at: z.string(),
 });

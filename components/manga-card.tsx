@@ -14,7 +14,7 @@ interface MangaCardProps {
 export function MangaCard({ manga }: MangaCardProps) {
   const title = manga.title;
   const genres = manga.genres.map(g => g.name);
-  const rating = manga.score || 0;
+  const ratingDisplay = manga.score ?? "N/A";
   const members = manga.members || 0;
   const image = manga.images.webp.large_image_url;
   const description = manga.synopsis;
@@ -62,7 +62,7 @@ export function MangaCard({ manga }: MangaCardProps) {
               </h3>
               <div className="bg-white/5 px-2 py-1 rounded-lg border border-white/5 flex items-center gap-1.5">
                 <span className="text-mango text-[10px]">★</span>
-                <span className="text-foreground font-black text-[10px]">{rating}</span>
+                <span className="text-foreground font-black text-[10px]">{ratingDisplay}</span>
               </div>
             </div>
 

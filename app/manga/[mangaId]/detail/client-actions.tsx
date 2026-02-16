@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useTransition } from "react";
+import { useState, useCallback, useTransition, createContext, useContext, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { 
   Heart, 
@@ -24,14 +24,106 @@ import { Manga } from "@/types/manga";
 import { LibraryItem, LibraryStatus } from "@/types/library";
 import { addMangaToLibraryAction } from "@/app/library/library";
 
-interface DetailActionsProps {
-  manga: Manga;
-  initialLibraryItem: LibraryItem | null;
+interface MangaLibraryContextType {
+  isFavorite: boolean;
+  status: LibraryStatus | "none";
+  isPending: boolean;
+  toggleFavorite: () => void;
+  updateStatus: (newStatus: LibraryStatus) => void;
 }
 
-export function DetailActions({ manga, initialLibraryItem }: DetailActionsProps) {
+const MangaLibraryContext = createContext<MangaLibraryContextType | null>(null);
+
+export function MangaLibraryProvider({ 
+  manga, 
+  initialLibraryItem, 
+  children 
+}: { 
+  manga: Manga; 
+  initialLibraryItem: LibraryItem | null; 
+  children: React.ReactNode 
+}) {
   const [isFavorite, setIsFavorite] = useState(initialLibraryItem?.favorite || false);
+  const [status, setStatus] = useState<LibraryStatus | "none">(initialLibraryItem?.status || "none");
   const [isPending, startTransition] = useTransition();
+
+  const toggleFavorite = useCallback(() => {
+    const newFavorite = !isFavorite;
+    // Use the current live status, or default to PLAN_TO_READ if not in library yet
+    const currentStatus = status === "none" ? LibraryStatus.PLAN_TO_READ : status;
+    
+    startTransition(async () => {
+      const result = await addMangaToLibraryAction(
+        manga.mal_id, 
+        currentStatus, 
+        newFavorite
+      );
+
+      if (result.success) {
+        setIsFavorite(newFavorite);
+        // If it was "none", it's now in library with currentStatus
+        if (status === "none") {
+          setStatus(currentStatus);
+        }
+        toast.success(newFavorite ? "Added to favorites" : "Removed from favorites", {
+          description: newFavorite ? "Manga added to your favorites." : "Manga removed from your favorites.",
+          icon: newFavorite ? <Heart className="w-4 h-4 fill-mango text-mango" /> : undefined
+        });
+      } else {
+        toast.error("Failed to update favorite status", {
+          description: result.error
+        });
+      }
+    });
+  }, [isFavorite, status, manga.mal_id]);
+
+  const updateStatus = useCallback((newStatus: LibraryStatus) => {
+    startTransition(async () => {
+      const result = await addMangaToLibraryAction(
+        manga.mal_id, 
+        newStatus, 
+        isFavorite
+      );
+
+      if (result.success) {
+        setStatus(newStatus);
+        toast.success(`Status updated to: ${newStatus.replaceAll('_', ' ')}`, {
+          description: "Your library has been updated.",
+          className: "bg-mango/10 border-mango/20 text-foreground font-bold"
+        });
+      } else {
+        toast.error("Failed to update status", {
+          description: result.error
+        });
+      }
+    });
+  }, [isFavorite, manga.mal_id]);
+
+  const contextValue = useMemo(() => ({ 
+    isFavorite, 
+    status, 
+    isPending, 
+    toggleFavorite, 
+    updateStatus 
+  }), [isFavorite, status, isPending, toggleFavorite, updateStatus]);
+
+  return (
+    <MangaLibraryContext.Provider value={contextValue}>
+      {children}
+    </MangaLibraryContext.Provider>
+  );
+}
+
+function useMangaLibrary() {
+  const context = useContext(MangaLibraryContext);
+  if (!context) {
+    throw new Error("useMangaLibrary must be used within a MangaLibraryProvider");
+  }
+  return context;
+}
+
+export function DetailActions() {
+  const { isFavorite, isPending, toggleFavorite } = useMangaLibrary();
 
   const handleShare = useCallback(() => {
     globalThis.navigator.clipboard.writeText(globalThis.location.href)
@@ -46,30 +138,6 @@ export function DetailActions({ manga, initialLibraryItem }: DetailActionsProps)
         });
       });
   }, []);
-
-  const handleFavorite = useCallback(() => {
-    const newFavorite = !isFavorite;
-    
-    startTransition(async () => {
-      const result = await addMangaToLibraryAction(
-        manga, 
-        initialLibraryItem?.status || LibraryStatus.PLAN_TO_READ, 
-        newFavorite
-      );
-
-      if (result.success) {
-        setIsFavorite(newFavorite);
-        toast.success(newFavorite ? "Added to favorites" : "Removed from favorites", {
-          description: newFavorite ? "Manga added to your favorites." : "Manga removed from your favorites.",
-          icon: newFavorite ? <Heart className="w-4 h-4 fill-mango text-mango" /> : undefined
-        });
-      } else {
-        toast.error("Failed to update favorite status", {
-          description: result.error
-        });
-      }
-    });
-  }, [isFavorite, manga, initialLibraryItem]);
 
   return (
     <div className="flex items-center gap-4" suppressHydrationWarning>
@@ -97,7 +165,7 @@ export function DetailActions({ manga, initialLibraryItem }: DetailActionsProps)
                 ? 'bg-mango/20 border-mango text-mango shadow-[0_0_15px_rgba(255,159,67,0.2)]' 
                 : 'bg-white/5 border-white/10 text-muted-foreground hover:bg-mango/10 hover:text-mango hover:border-mango/20'
             } ${isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
-            onClick={handleFavorite}
+            onClick={toggleFavorite}
           >
             {isPending ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -114,42 +182,14 @@ export function DetailActions({ manga, initialLibraryItem }: DetailActionsProps)
   );
 }
 
-interface ReadingStatusSelectProps {
-  manga: Manga;
-  initialLibraryItem: LibraryItem | null;
-}
-
-export function ReadingStatusSelect({ manga, initialLibraryItem }: ReadingStatusSelectProps) {
-  const [status, setStatus] = useState<LibraryStatus | "none">(initialLibraryItem?.status || "none");
-  const [isPending, startTransition] = useTransition();
-
-  const handleStatusChange = (val: LibraryStatus) => {
-    startTransition(async () => {
-      const result = await addMangaToLibraryAction(
-        manga, 
-        val, 
-        initialLibraryItem?.favorite || false
-      );
-
-      if (result.success) {
-        setStatus(val);
-        toast.success(`Status updated to: ${val.replaceAll('_', ' ')}`, {
-          description: "Your library has been updated.",
-          className: "bg-mango/10 border-mango/20 text-foreground font-bold"
-        });
-      } else {
-        toast.error("Failed to update status", {
-          description: result.error
-        });
-      }
-    });
-  };
+export function ReadingStatusSelect() {
+  const { status, isPending, updateStatus } = useMangaLibrary();
 
   return (
     <div className="space-y-3">
       <Select 
-        defaultValue={status === "none" ? undefined : status} 
-        onValueChange={handleStatusChange}
+        value={status === "none" ? "" : status} 
+        onValueChange={(val) => updateStatus(val as LibraryStatus)}
         disabled={isPending}
       >
         <SelectTrigger className="w-full h-12 bg-white/5 border-white/10 rounded-xl font-bold focus:ring-mango/50 relative overflow-hidden group" suppressHydrationWarning>

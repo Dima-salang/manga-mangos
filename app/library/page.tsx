@@ -15,7 +15,8 @@ import {
   LayoutGrid,
   Heart
 } from "lucide-react";
-import { LibraryStatus } from "@/types/library";
+import { LibraryItem, LibraryStatus } from "@/types/library";
+import { DB_MANGA } from "@/types/manga";
 
 export default async function LibraryPage() {
   const { userId } = await auth();
@@ -25,7 +26,25 @@ export default async function LibraryPage() {
   }
 
   const mangaService = new MangaService();
-  const libraryItems = await mangaService.getLibraryWithManga(userId);
+  let libraryItems: (LibraryItem & { manga: DB_MANGA })[] = [];
+
+  try {
+    libraryItems = await mangaService.getLibraryWithManga(userId);
+  } catch (error) {
+    console.error("Error fetching library items:", error);
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4 px-4">
+          <div className="text-6xl animate-bounce">🥭</div>
+          <h1 className="text-2xl font-black uppercase italic tracking-tighter">Something went wrong</h1>
+          <p className="text-muted-foreground max-w-md mx-auto">We couldn't load your library at the moment. This might be due to a connection issue with Supabase.</p>
+          <Link href="/" className="inline-block text-[10px] font-black uppercase tracking-[0.3em] text-mango hover:underline underline-offset-8">
+            Return to Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // Group items by status
   const reading = libraryItems.filter(item => item.status === LibraryStatus.READING);
@@ -134,7 +153,7 @@ function LibraryTabTrigger({ value, label, count, icon }: { value: string, label
   );
 }
 
-function LibraryGrid({ items, emptyMessage = "Nothing found in this section." }: { items: any[], emptyMessage?: string }) {
+function LibraryGrid({ items, emptyMessage = "Nothing found in this section." }: { items: (LibraryItem & { manga: DB_MANGA })[], emptyMessage?: string }) {
   if (items.length === 0) {
     return (
       <div className="py-32 flex flex-col items-center justify-center text-center space-y-6 opacity-40">
@@ -158,10 +177,10 @@ function LibraryGrid({ items, emptyMessage = "Nothing found in this section." }:
   );
 }
 
-function MangaLibraryCard({ item }: { item: any }) {
+function MangaLibraryCard({ item }: { item: LibraryItem & { manga: DB_MANGA } }) {
   const manga = item.manga;
   const image = manga.images?.webp?.large_image_url || manga.images?.jpg?.large_image_url;
-  const title = manga.title || (manga.titles && manga.titles[0]?.title) || "Unknown Title";
+  const title = (manga.titles as any[])?.[0]?.title || "Unknown Title";
 
   return (
     <Link href={`/manga/${manga.mal_id}/detail`} className="group block">

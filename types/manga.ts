@@ -3,7 +3,7 @@ import {z} from "zod";
 // DB manga
 export const DB_MangaSchema = z.object({
   mal_id: z.number(),
-  created_at: z.date(),
+  created_at: z.coerce.date(),
   images: z.any(),
   titles: z.any()
 });

@@ -76,72 +76,35 @@ export class MangaService {
 
   // add manga to library
   async addMangaToLibrary(userId: string, manga: Manga, status: LibraryStatus, favorite: boolean): Promise<void> {
-
-    // check if manga exists in the db
-    const mangaExists = await this.checkMangaExists(manga.mal_id);
-
-    let addedManga: DB_MANGA;
-
-    if (!mangaExists) {
-      // if it does not, we add the manga
-      addedManga = await this.addManga(manga);
-    } else {
-      addedManga = {
+    // attempt to upsert the manga row
+    const { error: mangaError } = await supabaseAdmin
+      .from('manga')
+      .upsert({
         mal_id: manga.mal_id,
-        created_at: new Date(),
         images: manga.images,
         titles: manga.titles,
-      }
+      }, {
+        onConflict: 'mal_id'
+      });
+
+    if (mangaError) {
+      throw mangaError;
     }
 
     // add or update the manga in the library
-    const { error } = await supabaseAdmin
+    const { error: libraryError } = await supabaseAdmin
       .from('library_item')
       .upsert({
           user_id: userId,
-          mal_id: addedManga.mal_id,
+          mal_id: manga.mal_id,
           status,
           favorite,
       }, {
         onConflict: 'user_id, mal_id'
       });
 
-    if (error) {
-      throw error;
+    if (libraryError) {
+      throw libraryError;
     }
-  }
-
-  async addManga(manga: Manga): Promise<DB_MANGA> {
-    // only get the mal_id, images, and titles
-    const db_manga: DB_MANGA = {
-      mal_id: manga.mal_id,
-      created_at: new Date(),
-      images: manga.images,
-      titles: manga.titles,
-    }
-
-    const { error } = await supabaseAdmin
-      .from('manga')
-      .insert(db_manga);
-
-    if (error) {
-      throw error;
-    }
-
-    return db_manga;
-  }
-
-  async checkMangaExists(malId: number): Promise<boolean> {
-    const { data, error } = await supabaseAdmin
-      .from("manga")
-      .select("mal_id")
-      .eq("mal_id", malId)
-      .maybeSingle();
-
-    if (error) {
-      throw error;
-    }
-
-    return !!data;
   }
 }
