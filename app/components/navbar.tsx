@@ -13,6 +13,7 @@ export function Navbar() {
     { name: 'Browse', href: '/browse' },
     { name: 'Search', href: '/search' },
     { name: 'Library', href: '/library' },
+    { name: 'Profile', href: '/dashboard' },
     { name: 'Assistant', href: '/assistant' },
   ];
 
