@@ -1,4 +1,4 @@
-import { MangaTypeFilter, TopMangaFilter, Manga, JikanResponse } from '@/types/manga';
+import { MangaTypeFilter, TopMangaFilter, Manga, JikanResponse, MangaRecommendation } from '@/types/manga';
 import { mangaFetch } from '@/lib/external-api/external-api';
 
 
@@ -36,7 +36,7 @@ export class MangaService {
 
 
   // get manga recommendations
-  async getMangaRecommendations(id: number): Promise<JikanResponse<Manga[]>> {
-    return await mangaFetch<JikanResponse<Manga[]>>(`manga/${id}/recommendations`);
+  async getMangaRecommendations(id: number): Promise<JikanResponse<MangaRecommendation[]>> {
+    return await mangaFetch<JikanResponse<MangaRecommendation[]>>(`manga/${id}/recommendations`);
   }
 }
