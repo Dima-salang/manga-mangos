@@ -83,6 +83,7 @@ export default function SearchPage() {
   const [endYear, setEndYear] = useState("");
   const [endMonth, setEndMonth] = useState("");
   const [endDay, setEndDay] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Build query params for API
   const buildSearchParams = useCallback(() => {
@@ -90,6 +91,11 @@ export default function SearchPage() {
     
     params.append("page", currentPage.toString());
     params.append("limit", "25");
+    
+    // Search query
+    if (searchQuery.trim()) {
+      params.append("q", searchQuery.trim());
+    }
     
     // Type filter
     if (type !== "all") {
@@ -176,7 +182,7 @@ if (maxScore) {
     }
     
     return params.toString();
-  }, [currentPage, type, status, minScore, maxScore, sfw, language, orderBy, sortOrder, selectedGenres, excludedGenres, letter, startYear, startMonth, startDay, endYear, endMonth, endDay]);
+  }, [currentPage, type, status, minScore, maxScore, sfw, language, orderBy, sortOrder, selectedGenres, excludedGenres, letter, startYear, startMonth, startDay, endYear, endMonth, endDay, searchQuery]);
 
   // Fetch manga from search API with filters
   useEffect(() => {
@@ -236,6 +242,27 @@ if (maxScore) {
         <h1 className="text-3xl font-black italic uppercase tracking-tight mb-8">
           <span className="text-mango">/</span> Advanced Search
         </h1>
+
+        {/* Search Bar */}
+        <section className="mb-8">
+          <div className="max-w-2xl mx-auto">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search manga by title, author, or keywords..."
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); handleFilterChange(); }}
+                className="w-full bg-card border border-white/10 rounded-xl px-6 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-mango/50 focus:border-mango/40 transition-all placeholder:text-muted-foreground/60"
+                aria-label="Search manga"
+              />
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Filter row */}
         <section className="mb-8">
