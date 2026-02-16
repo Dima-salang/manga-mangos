@@ -11,6 +11,7 @@ const isPublicRoute = createRouteMatcher([
     '/search',
     '/library',
     '/assistant',
+    '/dashboard',
     '/'
 ]);
 
