@@ -24,7 +24,7 @@ export default function LandingPage() {
             </p>
             
             <div className="flex flex-wrap gap-5">
-              <Button size="lg" className="h-14 px-10 rounded-xl bg-black text-white font-bold uppercase tracking-wider hover:bg-neutral-900 hover:scale-[1.02] transition-all duration-300 shadow-xl shadow-black/20">
+              <Button href="/browse" size="lg" className="h-14 px-10 rounded-xl bg-black text-white font-bold uppercase tracking-wider hover:bg-neutral-900 hover:scale-[1.02] transition-all duration-300 shadow-xl shadow-black/20">
                 Browse Now
               </Button>
               <Button variant="outline" size="lg" className="h-14 px-10 rounded-xl border-black/10 bg-black/5 text-black font-bold uppercase tracking-wider hover:bg-black/10 transition-all">
@@ -40,6 +40,8 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
+
+        <div></div>
       </main>
     </div>
   );
