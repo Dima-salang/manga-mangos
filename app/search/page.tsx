@@ -202,11 +202,14 @@ function SearchContent() {
     if (excludeIds) params.append("genres_exclude", excludeIds);
 
     const buildDateStr = (y: string, m: string, d: string) => {
-      const parts = [];
-      if (y) parts.push(y.padStart(4, "0"));
+      if (!y) return null;
+      if (d && !m) return null;
+      
+      const parts = [y.padStart(4, "0")];
       if (m) parts.push(m.padStart(2, "0"));
       if (d) parts.push(d.padStart(2, "0"));
-      return parts.length > 0 ? parts.join("-") : null;
+      
+      return parts.join("-");
     };
 
     const startDate = buildDateStr(startYear, startMonth, startDay);
