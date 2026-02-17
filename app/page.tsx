@@ -32,7 +32,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background relative selection:bg-primary/30" suppressHydrationWarning>
+    <div className="min-h-screen bg-background relative selection:bg-primary/30 animate-in fade-in slide-in-from-left duration-1000" suppressHydrationWarning>
       <div className="fixed inset-0 manga-grid opacity-10 pointer-events-none" suppressHydrationWarning />
       
       <main className="max-w-7xl mx-auto px-6 py-4 relative z-10">
@@ -102,7 +102,7 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="justify-center max-w-3xl mx-auto" >
+        <div className="justify-center max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom duration-1500">
           <h2 className="text-center text-5xl font-black uppercase tracking-tight mb-8">
             About MangaMangos
           </h2>
