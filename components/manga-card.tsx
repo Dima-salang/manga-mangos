@@ -49,7 +49,7 @@ export function MangaCard({ manga }: MangaCardProps) {
             </div>
 
             <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/90 via-black/40 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-               <Button className="w-full bg-mango text-black font-black uppercase text-[10px] tracking-widest rounded-xl h-12 hover:bg-white transition-colors border-0">
+               <Button className="cursor-pointer w-full bg-mango text-black font-black uppercase text-[10px] tracking-widest rounded-xl h-12 hover:bg-white transition-colors border-0">
                   VIEW DETAILS
                </Button>
             </div>
