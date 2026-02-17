@@ -19,6 +19,11 @@ export default function MangaLibraryCard({ item }: { item: LibraryItem & { manga
   const image = manga.images?.webp?.large_image_url || manga.images?.jpg?.large_image_url;
   const title = (manga.titles as any[])?.[0]?.title || "Unknown Title";
   const [isPending, startTransition] = useTransition();
+  const statusLabels: Record<LibraryStatus, string> = {
+    [LibraryStatus.READING]: 'Reading',
+    [LibraryStatus.PLAN_TO_READ]: 'Plan to Read',
+    [LibraryStatus.COMPLETED]: 'Completed',
+  };
 
   const handleRemove = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -62,12 +67,15 @@ export default function MangaLibraryCard({ item }: { item: LibraryItem & { manga
             
             {/* Status Indicator Overlay */}
             <div className="absolute top-4 left-4">
-               {item.status === LibraryStatus.READING && (
-                 <div className="bg-mango text-black text-[8px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-xl flex items-center gap-2">
-                   <div className="w-1.5 h-1.5 bg-black rounded-full animate-pulse" />
-                   Reading
-                 </div>
-               )}
+              {item.status && (
+                <div className="bg-mango text-black text-[8px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-xl flex items-center gap-2">
+                  {/* Optional pulse only for READING */}
+                  {item.status === LibraryStatus.READING && (
+                    <div className="w-1.5 h-1.5 bg-black rounded-full animate-pulse" />
+                  )}
+                  {statusLabels[item.status]}
+                </div>
+              )}
             </div>
 
             {/* Favorite Indicator */}
