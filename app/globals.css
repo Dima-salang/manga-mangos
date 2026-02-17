@@ -153,3 +153,11 @@
     background: linear-gradient(135deg, rgba(255, 159, 67, 0.05) 0%, transparent 100%);
   }
 }
+
+.select-filter {
+  @apply bg-card border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-mango/50 focus:border-mango/40 transition-all;
+}
+
+.input-filter {
+  @apply bg-card border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-mango/50 focus:border-mango/40 transition-all;
+}
