@@ -36,9 +36,18 @@ export async function GET(req: NextRequest) {
   }
 
   const mangaService = new MangaService();
+  const validatedParams = new URLSearchParams();
+  
+  const searchData = parseResult.data as Record<string, any>;
+  for (const key in searchData) {
+    const value = searchData[key];
+    if (value !== undefined && value !== null && key !== "language") {
+      validatedParams.append(key, String(value));
+    }
+  }
 
   try {
-    const data = await mangaService.getSearchResults(searchParams);
+    const data = await mangaService.getSearchResults(validatedParams);
     
     const language = parseResult.data.language;
     if (language && language !== "all" && data.data) {
