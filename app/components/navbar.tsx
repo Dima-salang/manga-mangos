@@ -11,8 +11,8 @@ export function Navbar() {
   const pathname = usePathname();
 
   const publicLinks = [
-    { name: 'Browse', href: '/' },
     { name: 'Search', href: '/search' },
+    { name: 'Browse', href: '/browse' },
   ];
 
   const protectedLinks = [
