@@ -84,6 +84,16 @@ export default function SearchPage() {
   const [endMonth, setEndMonth] = useState("");
   const [endDay, setEndDay] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Build query params for API
   const buildSearchParams = useCallback(() => {
@@ -93,8 +103,8 @@ export default function SearchPage() {
     params.append("limit", "25");
     
     // Search query
-    if (searchQuery.trim()) {
-      params.append("q", searchQuery.trim());
+    if (debouncedQuery.trim()) {
+      params.append("q", debouncedQuery.trim());
     }
     
     // Type filter
@@ -182,7 +192,7 @@ if (maxScore) {
     }
     
     return params.toString();
-  }, [currentPage, type, status, minScore, maxScore, sfw, language, orderBy, sortOrder, selectedGenres, excludedGenres, letter, startYear, startMonth, startDay, endYear, endMonth, endDay, searchQuery]);
+  }, [currentPage, type, status, minScore, maxScore, sfw, language, orderBy, sortOrder, selectedGenres, excludedGenres, letter, startYear, startMonth, startDay, endYear, endMonth, endDay, debouncedQuery]);
 
   // Fetch manga from search API with filters
   useEffect(() => {
@@ -209,6 +219,10 @@ if (maxScore) {
     }
     loadManga();
   }, [buildSearchParams]);
+
+  const isDebouncing = searchQuery !== debouncedQuery;
+  const isSearching = isLoading || isDebouncing;
+  const searchMessage = isDebouncing ? "Waiting to search…" : "Loading manga…";
 
   const toggleGenre = (genre: string, exclude: boolean = false) => {
     if (exclude) {
@@ -424,8 +438,10 @@ if (maxScore) {
 
         {/* Results grid */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {isLoading ? (
-            <p className="col-span-full text-muted-foreground text-center py-12">Loading manga…</p>
+          {isSearching ? (
+            <p className="col-span-full text-muted-foreground text-center py-12">
+              {searchMessage}
+            </p>
           ) : (
             mangaList.map((manga) => (
               <MangaCard key={manga.mal_id} manga={manga} />
@@ -433,7 +449,7 @@ if (maxScore) {
           )}
         </section>
 
-        {!isLoading && mangaList.length === 0 && (
+        {!isSearching && mangaList.length === 0 && (
           <p className="text-muted-foreground text-center py-12">No manga match your filters. Try adjusting or clearing some filters.</p>
         )}
 
