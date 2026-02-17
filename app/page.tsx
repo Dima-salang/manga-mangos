@@ -2,8 +2,20 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+
+  const handleSearch = (e?: React.SubmitEvent) => {
+    e?.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background relative selection:bg-primary/30" suppressHydrationWarning>
       <div className="fixed inset-0 manga-grid opacity-10 pointer-events-none" suppressHydrationWarning />
@@ -27,23 +39,22 @@ export default function LandingPage() {
             </p>
 
               <div className="flex justify-center mb-12">
-                <div className="relative w-full max-w-xl">
+                <form onSubmit={handleSearch} className="relative w-full max-w-xl">
                   <input
                     type="text"
                     placeholder="Enter manga name..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full rounded-xl border border-black/20 bg-white/90 px-6 py-3 pr-12 text-black placeholder:text-black/40 shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
                   />
                   <button
+                    type="submit"
                     className="absolute right-2 top-1/2 -translate-y-1/2 hover:text-black p-1 focus:outline-none"
-                    onClick={() => {
-                      // TODO: Add search functionality
-                      console.log('Search triggered');
-                    }}
                     aria-label="Search"
                   >
                     🔍
                   </button>
-                </div>
+                </form>
               </div>
             
             <div className="flex flex-wrap gap-5">
