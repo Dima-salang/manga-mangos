@@ -1,3 +1,17 @@
+import {z} from "zod";
+
+// DB manga
+export const DB_MangaSchema = z.object({
+  mal_id: z.number(),
+  created_at: z.coerce.date(),
+  images: z.any(),
+  titles: z.any()
+});
+
+
+export type DB_MANGA = z.infer<typeof DB_MangaSchema>;
+
+
 // Jikan-specific Manga interface for external API results
 export interface Manga {
   mal_id: number;
@@ -81,10 +95,32 @@ export interface Manga {
     url: string;
   }>;
 }
+ 
+export interface MangaRecommendation {
+  entry: {
+    mal_id: number;
+    url: string;
+    images: {
+      jpg: {
+        image_url: string;
+        small_image_url: string;
+        large_image_url: string;
+      };
+      webp: {
+        image_url: string;
+        small_image_url: string;
+        large_image_url: string;
+      };
+    };
+    title: string;
+  };
+  url?: string;
+  votes?: number;
+}
 
 export interface JikanResponse<T> {
   data: T;
-  pagination: {
+  pagination?: {
     last_visible_page: number;
     has_next_page: boolean;
     current_page: number;
