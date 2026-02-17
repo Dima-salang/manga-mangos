@@ -23,6 +23,7 @@ import {
   PaginationPrevious 
 } from "@/components/ui/pagination";
 import { Manga, JikanResponse } from "@/types/manga";
+import { MangaCard, MangaCardSkeleton } from "@/components/manga-card";
 import { Search, SlidersHorizontal, Star, Users, ArrowUp } from "lucide-react";
 
 const GENRES = [
@@ -558,8 +559,8 @@ function SearchContent() {
         {/* Results grid */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8">
           {isSearching ? (
-             Array.from({ length: 10 }).map((_, i) => (
-                <div key={`skeleton-${i}`} className="aspect-[3/4.2] bg-white/[0.02] animate-pulse rounded-[2rem] border border-white/5" />
+             ["sk1", "sk2", "sk3", "sk4", "sk5", "sk6", "sk7", "sk8", "sk9", "sk10", "sk11", "sk12"].map((id) => (
+                <MangaCardSkeleton key={id} />
              ))
           ) : (
             mangaList.map((manga) => (
@@ -668,53 +669,3 @@ function SearchContent() {
   );
 }
 
-function MangaCard({ manga }: { readonly manga: Manga }) {
-  const image = manga.images?.webp?.large_image_url ?? manga.images?.jpg?.large_image_url;
-  const genreName = manga.genres?.[0]?.name;
-  const rating = manga.score ?? 0;
-  const members = manga.members ?? 0;
-
-  return (
-    <Link href={`/manga/${manga.mal_id}/detail`}>
-      <Card className="group relative overflow-hidden border border-white/5 bg-card/20 backdrop-blur-md hover:border-mango/40 transition-all duration-500 hover:-translate-y-2 cursor-pointer rounded-[2rem] shadow-lg hover:shadow-mango/5">
-        <CardContent className="p-0">
-          <div className="aspect-[3/4.2] relative m-2 overflow-hidden rounded-[1.8rem]">
-            {image ? (
-              <Image src={image} alt={manga.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
-            ) : (
-              <div className="w-full h-full bg-neutral-900/50 flex items-center justify-center text-5xl grayscale group-hover:grayscale-0 transition-all duration-500">🥭</div>
-            )}
-            {genreName && (
-              <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white text-[9px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider border border-white/10">
-                {genreName}
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-4">
-              <Button className="w-full bg-mango text-white font-black uppercase text-[10px] tracking-widest rounded-xl h-12 shadow-xl shadow-mango/20">READ ENTRY</Button>
-            </div>
-          </div>
-          <div className="px-6 pb-6 pt-3">
-            <h3 className="font-black italic text-lg mb-1.5 line-clamp-1 group-hover:text-mango transition-colors tracking-tight leading-tight uppercase">
-              {manga.title}
-            </h3>
-            <p className="text-[11px] text-muted-foreground mb-4 line-clamp-2 leading-relaxed font-bold opacity-40 uppercase tracking-tight">
-              {manga.synopsis ?? ""}
-            </p>
-            <div className="flex justify-between items-center pt-4 border-t border-white/5">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-lg bg-mango/10 flex items-center justify-center">
-                  <Star className="w-3 h-3 text-mango fill-mango" />
-                </div>
-                <span className="text-foreground font-black text-xs italic">{rating}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                 <Users className="w-3 h-3 text-muted-foreground/40" />
-                 <span className="text-[9px] font-black uppercase text-muted-foreground/40 tracking-widest">{members.toLocaleString()}</span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
-  );
-}
