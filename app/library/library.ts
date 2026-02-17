@@ -34,3 +34,24 @@ export async function addMangaToLibraryAction(malId: number, status: LibraryStat
     return { success: false, error: message };
   }
 }
+
+export async function removeMangaFromLibraryAction(malId: number) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { success: false, error: "You must be logged in to remove manga from your library" };
+  }
+
+  const mangaService = new MangaService();
+  
+  try {
+    await mangaService.removeMangaFromLibrary(userId, malId);
+    revalidatePath(`/manga/${malId}/detail`);
+    revalidatePath("/library");
+    return { success: true };
+  } catch (error) {
+    console.error("Error removing manga from library:", error);
+    const message = error instanceof Error ? error.message : "Failed to remove manga";
+    return { success: false, error: message };
+  }
+}
