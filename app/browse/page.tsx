@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -12,9 +11,6 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-
-
-
 
 export default function BrowsePage() {
   const [trendingManga, setTrendingManga] = useState<Manga[]>([]);
@@ -33,7 +29,7 @@ export default function BrowsePage() {
         filter = TopMangaFilter.FAVORITE;
       }
       
-      const response = await fetch(`/api/manga/top?type=${MangaTypeFilter.MANGA}&filter=${filter}&limit=6`);
+      const response = await fetch(`/api/manga/top?type=${MangaTypeFilter.MANGA}&filter=${filter}&limit=8`);
       
       if (!response.ok) {
         const text = await response.text();
@@ -53,12 +49,9 @@ export default function BrowsePage() {
     }
   };
 
-
-
   return (
     <div className="min-h-screen bg-background relative selection:bg-primary/30" suppressHydrationWarning>
       <div className="fixed inset-0 manga-grid opacity-10 pointer-events-none" suppressHydrationWarning />
-
 
       <main className="max-w-7xl mx-auto px-4 py-12 relative z-10">
         {/* Sections */}
@@ -81,9 +74,9 @@ export default function BrowsePage() {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {isLoading ? (
-              ['s1', 's2', 's3', 's4', 's5', 's6'].map((key) => (
+              ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8'].map((key) => (
                 <MangaCardSkeleton key={key} />
               ))
             ) : (
@@ -100,9 +93,8 @@ export default function BrowsePage() {
               <span className="text-mango mr-2">/</span>Recommended
             </h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-            { /* placeholder */}
-            {trendingManga.slice(0, 3).map(manga => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {trendingManga.slice(0, 4).map(manga => (
               <MangaCard key={`rec-${manga.mal_id}`} manga={manga} />
             ))}
           </div>
