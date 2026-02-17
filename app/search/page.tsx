@@ -118,7 +118,7 @@ function SearchContent() {
   const [status, setStatus] = useState("all");
   const [minScore, setMinScore] = useState("");
   const [maxScore, setMaxScore] = useState("");
-  const [sfw, setSfw] = useState(false);
+  const [sfw, setSfw] = useState(true);
   const [language, setLanguage] = useState("all");
   const [orderBy, setOrderBy] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
