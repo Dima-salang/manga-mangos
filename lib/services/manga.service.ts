@@ -113,4 +113,16 @@ export class MangaService {
       throw libraryError;
     }
   }
+
+  async removeMangaFromLibrary(userId: string, malId: number): Promise<void> {
+    const { error: libraryError } = await supabaseAdmin
+      .from('library_item')
+      .delete()
+      .eq('user_id', userId)
+      .eq('mal_id', malId);
+
+    if (libraryError) {
+      throw libraryError;
+    }
+  }
 }
