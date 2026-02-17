@@ -102,8 +102,88 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div>
-          {/* TODO: Write Website Info*/}
+        <div className="justify-center max-w-3xl mx-auto" >
+          <h2 className="text-center text-5xl font-black uppercase tracking-tight mb-8">
+            About MangaMangos
+          </h2>
+          <p className="text-justify text-lg md:text-xl mb-12 font-black/80 leading-relaxed font-medium">
+            MangaMangos is an AI-powered manga review and discovery platform. It does not host or stream manga. Instead, it centralizes community reviews, ratings, summaries, and recommendations, then redirects readers to official, legal publishers.
+          </p>
+
+          <h2 className="text-center text-3xl font-black uppercase tracking-tight mb-8">
+            What is MangaMangos?
+          </h2>
+          <p className="text-justify text-lg md:text-xl mb-4 font-black/80 leading-relaxed font-medium">
+            MangaMangos is a community-driven manga hub enhanced by an AI assistant.<br></br>
+            Users can:
+          </p>
+          <ul className="mx-auto mb-16 list-disc list-inside text-lg md:text-xl space-y-2">
+            <li>Browse manga by genre, rating, and trends</li>
+            <li>Read and write reviews</li>
+            <li>Maintain personal reading lists</li>
+            <li>Get AI-generated summaries and recommendations</li>
+            <li>Access verified links to legal manga sources</li>
+          </ul>
+
+          <h2 className="text-center text-3xl font-black uppercase tracking-tight mb-8">
+            Does MangaMangos host manga chapters?
+          </h2>
+          <p className="text-center text-lg md:text-xl mb-12 font-black/80 leading-relaxed font-medium">
+            <span className="font-bold text-2xl">No.</span><br></br>
+            MangaMangos does not upload, mirror, or distribute manga files.<br></br>
+            All reading happens on external, official publisher platforms.
+          </p>
+
+          <h2 className="text-center text-3xl font-black uppercase tracking-tight mb-8">
+            Where does MangaMangos link readers to?
+          </h2>
+          <p className="text-justify text-lg md:text-xl mb-4 font-black/80 leading-relaxed font-medium">
+            MangaMangos guides users toward established, legal publishers such as:
+          </p>
+          <ul className="mx-auto mb-12 list-disc list-inside text-lg md:text-xl space-y-2">
+            <li>VIZ Media</li>
+            <li>Webtoon</li>
+            <li>Manga Plus</li>
+          </ul>
+
+          <h2 className="text-center text-3xl font-black uppercase tracking-tight mb-8">
+            Is MangaMangos safe to use?
+          </h2>
+          <p className="text-justify text-lg md:text-xl mb-4 font-black/80 leading-relaxed font-medium">
+            Yes, with standard web precautions.
+          </p>
+          <ul className="mx-auto mb-12 list-disc list-inside text-lg md:text-xl space-y-2">
+            <li>No forced downloads</li>
+            <li>No sketchy players or embeds</li>
+            <li>No third-party streaming scripts</li>
+          </ul>
+          <p className="text-justify text-lg md:text-xl mb-12 font-black/80 leading-relaxed font-medium">
+            Account security and data handling follow modern web standards. You are not exposed to the risks you would find on pirate streaming sites.
+          </p>
+
+          <h2 className="text-center text-3xl font-black uppercase tracking-tight mb-8">
+            Do I need to install an app?
+          </h2>
+          <p className="text-center text-lg md:text-xl mb-12 font-black/80 leading-relaxed font-medium">
+            <span className="font-bold text-2xl">No.</span><br></br>
+            MangaMangos is fully web-based, responsive, and works on desktop and mobile browsers. Any app claiming to be “official” is fake.
+          </p>
+
+          <h2 className="text-center text-3xl font-black uppercase tracking-tight mb-8">
+            Is MangaMangos free?
+          </h2>
+          <p className="text-center text-lg md:text-xl mb-12 font-black/80 leading-relaxed font-medium">
+            <span className="font-bold text-2xl">Yes.</span><br></br>
+            Core features: reviews, discovery, AI summaries, and legal redirects, are available without payment.
+          </p>
+
+          <h2 className="text-center text-3xl font-black uppercase tracking-tight mb-8">
+            What if a manga title is missing?
+          </h2>
+          <p className="text-center text-lg md:text-xl mb-12 font-black/80 leading-relaxed font-medium">
+            Missing titles can be requested.<br></br>
+            If a manga exists on a legal platform, it can be indexed and linked.
+          </p>
         </div>
       </main>
     </div>

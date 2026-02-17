@@ -38,7 +38,7 @@ export default async function LibraryPage() {
           <div className="text-6xl animate-bounce">🥭</div>
           <h1 className="text-2xl font-black uppercase italic tracking-tighter">Something went wrong</h1>
           <p className="text-muted-foreground max-w-md mx-auto">We couldn't load your library at the moment. This might be due to a connection issue with Supabase.</p>
-          <Link href="/" className="inline-block text-[10px] font-black uppercase tracking-[0.3em] text-mango hover:underline underline-offset-8">
+          <Link href="/browse" className="inline-block text-[10px] font-black uppercase tracking-[0.3em] text-mango hover:underline underline-offset-8">
             Return to Home
           </Link>
         </div>
@@ -160,7 +160,7 @@ function LibraryGrid({ items, emptyMessage = "Nothing found in this section." }:
         <div className="text-8xl grayscale animate-pulse">🥭</div>
         <div className="space-y-2">
           <p className="text-xl font-black italic uppercase tracking-tighter">{emptyMessage}</p>
-          <Link href="/" className="inline-block text-[10px] font-black uppercase tracking-[0.3em] text-mango hover:underline underline-offset-8">
+          <Link href="/browse" className="inline-block text-[10px] font-black uppercase tracking-[0.3em] text-mango hover:underline underline-offset-8">
             Browse New Manga
           </Link>
         </div>
