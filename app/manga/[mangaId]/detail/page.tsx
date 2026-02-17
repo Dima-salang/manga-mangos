@@ -47,7 +47,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <h1 className="text-4xl font-black uppercase italic text-mango mb-4">Manga Not Found</h1>
-          <Link href="/">
+          <Link href="/browse">
             <Button variant="outline" className="rounded-xl border-mango/20 hover:bg-mango/10">
               Return Home
             </Button>
@@ -70,7 +70,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <h1 className="text-4xl font-black uppercase italic text-mango mb-4">Manga Not Found</h1>
-          <Link href="/">
+          <Link href="/browse">
             <Button variant="outline" className="rounded-xl border-mango/20 hover:bg-mango/10">
               Return Home
             </Button>

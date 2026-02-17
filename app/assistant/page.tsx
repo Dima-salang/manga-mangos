@@ -143,7 +143,7 @@ export default function AssistantPage() {
             <main className="relative z-10 w-full max-w-6xl mx-auto flex-1 flex flex-col px-4 pb-4 md:pb-8 overflow-hidden">
                 <header className="mb-4 md:mb-8 animate-in fade-in slide-in-from-top-4 duration-700 shrink-0">
                     <div className="flex justify-between items-center mb-4">
-                        <Link href="/" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 hover:text-mango transition-all group">
+                        <Link href="/browse" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/60 hover:text-mango transition-all group">
                             <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-1" suppressHydrationWarning />
                             Back to Home
                         </Link>
