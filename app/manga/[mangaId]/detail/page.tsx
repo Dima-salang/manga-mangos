@@ -132,7 +132,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                 src={manga.images.webp.large_image_url}
                 alt=""
                 fill
-                className="object-cover blur-3xl opacity-20 scale-110"
+                className="object-cover blur-1xl opacity-20 scale-110"
                 priority
                 suppressHydrationWarning
               />
@@ -200,7 +200,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
 
                 {manga.title_japanese && (
                   <p className="text-xl md:text-2xl font-serif italic text-muted-foreground/60 mb-8">
-                    {manga.title_japanese}
+                    🇯🇵 {manga.title_japanese}
                   </p>
                 )}
 
@@ -238,7 +238,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
               <section>
                 <div className="flex items-center gap-3 mb-8">
                   <h2 className="text-3xl font-black italic uppercase tracking-tight">
-                    <span className="text-mango">/</span>Synopsis
+                    <span className="text-mango">/</span> Synopsis
                   </h2>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -247,7 +247,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                     <TooltipContent>Plot summary and premise</TooltipContent>
                   </Tooltip>
                 </div>
-                <ScrollArea className="h-[300px] md:h-auto rounded-[2rem]">
+                <ScrollArea className="h-[300px]">
                   <div className="prose prose-invert max-w-none" suppressHydrationWarning>
                     <p className="text-lg leading-relaxed text-muted-foreground font-medium">
                       {manga.synopsis || "No synopsis available."}
