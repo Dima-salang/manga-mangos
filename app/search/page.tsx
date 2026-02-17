@@ -400,7 +400,8 @@ function SearchContent() {
 
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase tracking-widest opacity-50">Content</Label>
-              <div className="flex items-center gap-3 h-10 px-4 bg-card/50 border border-white/10 rounded-lg">
+              <div className={`flex items-center gap-3 h-10 px-4 border border-white/10 rounded-lg
+      ${sfw ? 'bg-card/50' : 'bg-red-800/20'}`}>
                 <Checkbox id="sfw-filter" checked={sfw} onCheckedChange={(checked) => { setSfw(!!checked); handleFilterChange(); }} />
                 <Label htmlFor="sfw-filter" className="text-xs font-bold uppercase tracking-widest cursor-pointer">SFW Only</Label>
               </div>
