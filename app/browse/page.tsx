@@ -3,7 +3,6 @@
 
 import { useState, useEffect } from 'react';
 import { Manga, JikanResponse, MangaTypeFilter, TopMangaFilter } from '@/types/manga';
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { MangaCard, MangaCardSkeleton } from "@/components/manga-card";
 import { 
