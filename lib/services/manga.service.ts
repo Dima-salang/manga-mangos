@@ -31,6 +31,12 @@ export class MangaService {
     return getTopManga(type, filter, page, limit);
   }
 
+
+  // search manga
+  async getSearchResults(queryParams: URLSearchParams): Promise<JikanResponse<Manga[]>> {
+    return await mangaFetch<JikanResponse<Manga[]>>(`manga?${queryParams.toString()}`);
+  }
+
   // get a specific manga
   async getManga(id: number): Promise<JikanResponse<Manga>> {
     return await mangaFetch<JikanResponse<Manga>>(`manga/${id}/full`);

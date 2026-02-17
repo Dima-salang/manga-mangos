@@ -1,9 +1,36 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Kbd } from "@/components/ui/kbd";
+import { Search } from "lucide-react";
 import Link from "next/link";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    };
+    globalThis.addEventListener("keydown", handleKeyDown);
+    return () => globalThis.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const handleSearch = (e?: React.SyntheticEvent) => {
+    e?.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background relative selection:bg-primary/30" suppressHydrationWarning>
       <div className="fixed inset-0 manga-grid opacity-10 pointer-events-none" suppressHydrationWarning />
@@ -26,24 +53,35 @@ export default function LandingPage() {
               Track and discover your next favorite manga.
             </p>
 
-              <div className="flex justify-center mb-12">
-                <div className="relative w-full max-w-xl">
-                  <input
-                    type="text"
-                    placeholder="Enter manga name..."
-                    className="w-full rounded-xl border border-black/20 bg-white/90 px-6 py-3 pr-12 text-black placeholder:text-black/40 shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                  />
-                  <button
-                    className="absolute right-2 top-1/2 -translate-y-1/2 hover:text-black p-1 focus:outline-none"
-                    onClick={() => {
-                      // TODO: Replace with actual search element
-                      console.log('Search triggered');
-                    }}
-                    aria-label="Search"
-                  >
-                    🔍
-                  </button>
-                </div>
+              <div className="flex justify-start mb-16">
+                <form onSubmit={handleSearch} className="relative w-full max-w-2xl group/search">
+                  {/* Decorative focus glow */}
+                  <div className="absolute -inset-1 bg-black/20 rounded-2xl blur-xl opacity-0 group-focus-within/search:opacity-100 transition duration-700" />
+                  
+                  <div className="relative">
+                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-black/40 group-focus-within/search:text-black transition-colors" />
+                    <Input
+                      ref={inputRef}
+                      type="text"
+                      placeholder="Search for manga..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full h-16 rounded-2xl border-black/10 bg-white/90 pl-14 pr-20 text-black text-xl font-bold placeholder:text-black/30 placeholder:italic transition-all shadow-2xl focus-visible:ring-black/10 focus-visible:border-black/20"
+                    />
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-3">
+                      <Kbd className="bg-black/5 border-black/10 text-black/40 text-[10px] h-7 px-2 font-black">
+                        <span className="text-xs opacity-40">⌘</span>K
+                      </Kbd>
+                      <button
+                        type="submit"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-black/5 transition-colors"
+                        aria-label="Search"
+                      >
+                         <span className="text-xl rotate-90 scale-x-[-1] inline-block opacity-40 group-focus-within/search:opacity-100 transition-opacity">↳</span>
+                      </button>
+                    </div>
+                  </div>
+                </form>
               </div>
             
             <div className="flex flex-wrap gap-5">
