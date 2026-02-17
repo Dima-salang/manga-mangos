@@ -15,6 +15,7 @@ export function Navbar() {
     { name: 'Library', href: '/library' },
     { name: 'Profile', href: '/dashboard' },
     { name: 'Assistant', href: '/assistant' },
+    { name: 'Profile', href: '/dashboard' },
   ];
 
   return (
