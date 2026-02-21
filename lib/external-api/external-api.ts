@@ -31,6 +31,10 @@ export async function mangaFetch<T>(
   });
 
   if (!res.ok) {
+    if (res.status === 429 && retries > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      return mangaFetch(path, retries - 1);
+    }
     let errorMessage = res.statusText;
     try {
       const data = await res.json();
