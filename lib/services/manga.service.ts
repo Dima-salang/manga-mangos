@@ -25,11 +25,11 @@ export async function getTopManga(
   });
 
   // check the cache
-  const cachedTopManga = await redis.get<string>(
+  const cachedTopManga = await redis.get<JikanResponse<Manga[]>>(
     `topManga:${queryParams.toString()}`,
   );
   if (cachedTopManga) {
-    return JSON.parse(cachedTopManga) as JikanResponse<Manga[]>;
+    return cachedTopManga;
   }
 
   const response = await mangaFetch<JikanResponse<Manga[]>>(
@@ -87,9 +87,11 @@ export class MangaService {
     userId: string,
   ): Promise<(LibraryItem & { manga: DB_MANGA })[]> {
     // check the cache
-    const cachedLibrary = await redis.get<string>(`libraryWithManga:${userId}`);
+    const cachedLibrary = await redis.get<
+      (LibraryItem & { manga: DB_MANGA })[]
+    >(`libraryWithManga:${userId}`);
     if (cachedLibrary) {
-      return JSON.parse(cachedLibrary) as (LibraryItem & { manga: DB_MANGA })[];
+      return cachedLibrary;
     }
 
     console.log("Fetching library with manga for user:", userId);
