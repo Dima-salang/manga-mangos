@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode, useMemo } from "react";
+import { useUser } from "@clerk/nextjs";
 
 interface Message {
     role: "user" | "model";
@@ -11,6 +12,9 @@ interface ChatContextType {
     history: Message[];
     isLoading: boolean;
     isOpen: boolean;
+    user: ReturnType<typeof useUser>["user"];
+    isSignedIn: boolean | undefined;
+    isLoaded: boolean;
     setIsOpen: (open: boolean) => void;
     sendMessage: (message: string, systemPrompt?: string) => Promise<void>;
     clearHistory: () => void;
@@ -22,6 +26,10 @@ export function ChatProvider({ children }: { readonly children: ReactNode }) {
     const [history, setHistory] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+
+    const { isSignedIn, user, isLoaded } = useUser();
+    
+
 
     const sendMessage = async (userMessage: string, systemPrompt?: string) => {
         if (!userMessage.trim() || isLoading) return;
@@ -35,13 +43,18 @@ export function ChatProvider({ children }: { readonly children: ReactNode }) {
         setIsLoading(true);
 
         try {
+            // Provide context about the user if available
+            const userContext = user ? `\n\nYou are talking to ${user.firstName || user.username || 'a user'}.` : '';
+            console.log(userContext);
+            
             const response = await fetch("/api/assistant", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
                     message: userMessage, 
+                    userId: user?.id,
                     history: history,
-                    systemInstruction: systemPrompt?.trim() || undefined
+                    systemInstruction: (systemPrompt?.trim() || "") + userContext || undefined
                 }),
             });
 
@@ -106,10 +119,13 @@ export function ChatProvider({ children }: { readonly children: ReactNode }) {
         history,
         isLoading,
         isOpen,
+        user,
+        isSignedIn,
+        isLoaded,
         setIsOpen,
         sendMessage,
         clearHistory
-    }), [history, isLoading, isOpen]);
+    }), [history, isLoading, isOpen, user, isSignedIn, isLoaded]);
 
     return (
         <ChatContext.Provider value={value}>
