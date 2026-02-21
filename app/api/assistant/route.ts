@@ -5,12 +5,12 @@ import { MangaService } from "@/lib/services/manga.service";
 
 // zod validation
 const assistantSchema = z.object({
-  message: z.string(),
+  message: z.string().min(1, "Message cannot be empty"),
   userId: z.string().optional(),
   history: z
     .array(
       z.object({
-        role: z.string(),
+        role: z.enum(["user", "model"]),
         parts: z.array(
           z.object({
             text: z.string(),
@@ -135,15 +135,12 @@ export async function POST(req: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          console.log("Stream started with gemini-2.5-flash");
           for await (const chunk of result) {
             const text = chunk.text;
             if (text) {
-              console.log(`Stream chunk received: ${text.length} characters`);
               controller.enqueue(encoder.encode(text));
             }
           }
-          console.log("Stream completed successfully");
         } catch (e: any) {
           console.error("Critical Stream Error:", e);
           const errorMessage = `\n\n[Error]: ${e.message || "The AI encountered an issue during streaming."}`;
@@ -160,7 +157,12 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.error("AI Assistant Error:", error);
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ error: "Invalid request", details: error.issues }),
+        { status: 400 },
+      );
+    }
     return new Response(
       JSON.stringify({ error: "Failed to generate response" }),
       { status: 500 },
