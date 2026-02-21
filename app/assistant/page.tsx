@@ -16,12 +16,11 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { useChat } from "@/components/assistant/ChatContext";
+import { PERSONA_CONFIGS } from "@/types/chat";
 
 export default function AssistantPage() {
-    const { history, isLoading, sendMessage, clearHistory } = useChat();
+    const { history, isLoading, sendMessage, clearHistory, user, persona, setPersona } = useChat();
     const [input, setInput] = useState("");
-    const [systemPrompt, setSystemPrompt] = useState("");
-    const [showAdvanced, setShowAdvanced] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -51,7 +50,7 @@ export default function AssistantPage() {
         setInput("");
         if (textareaRef.current) textareaRef.current.style.height = 'auto';
         
-        await sendMessage(userMessage, systemPrompt);
+        await sendMessage(userMessage);
     };
 
     return (
@@ -87,38 +86,48 @@ export default function AssistantPage() {
                             </h1>
                             <div className="absolute -top-4 -right-8 w-12 h-12 border-t-2 border-r-2 border-mango/20 hidden md:block" />
                         </div>
-                        <div className="flex flex-col items-start md:items-end gap-2">
-                             <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => setShowAdvanced(!showAdvanced)}
-                                className={cn(
-                                    "text-[9px] font-black uppercase tracking-[0.2em] rounded-full px-4 h-8 bg-white/5 border-white/5 transition-all hover:border-mango/30",
-                                    showAdvanced ? "text-mango border-mango/20 shadow-[0_0_15px_rgba(255,159,67,0.1)]" : "text-muted-foreground/40"
-                                )}
-                            >
-                                {showAdvanced ? "Hide Controls" : "Custom Instructions"}
-                            </Button>
-                        </div>
                     </div>
 
-                    {showAdvanced && (
-                        <div className="mt-6 p-6 bg-mango/5 border-l-2 border-mango rounded-r-3xl animate-in slide-in-from-left-4 fade-in duration-500">
-                            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-mango mb-4 flex items-center gap-2">
-                                <Sparkles className="w-3 h-3" suppressHydrationWarning />
-                                System Configuration
-                            </h3>
-                            <textarea 
-                                value={systemPrompt}
-                                onChange={(e) => setSystemPrompt(e.target.value)}
-                                placeholder="Specify assistant personality, response style, or knowledge constraints..."
-                                className="w-full bg-black/40 border border-white/5 rounded-2xl p-4 text-xs font-mono text-foreground placeholder:text-muted-foreground/20 focus:border-mango/30 outline-none transition-colors min-h-[80px] resize-none"
-                            />
-                            <p className="mt-2 text-[10px] text-muted-foreground/40 italic font-medium">
-                                Note: Custom instructions will override the default Mango Assistant personality.
-                            </p>
-                        </div>
-                    )}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+                        {PERSONA_CONFIGS.map((p) => (
+                            <button
+                                key={p.id}
+                                onClick={() => setPersona(p.id)}
+                                className={cn(
+                                    "flex flex-col items-center gap-3 p-4 rounded-3xl border transition-all duration-500 group/p relative overflow-hidden",
+                                    persona === p.id 
+                                        ? "bg-mango/10 border-mango/40 shadow-[0_0_30px_rgba(255,159,67,0.15)] ring-1 ring-mango/50" 
+                                        : "bg-white/[0.02] border-white/5 hover:border-white/20 hover:bg-white/[0.05]"
+                                )}
+                            >
+                                <div className={cn(
+                                    "w-12 h-12 rounded-2xl flex items-center justify-center text-3xl shadow-xl relative overflow-hidden transition-transform duration-500 group-hover/p:scale-110 group-hover/p:rotate-3",
+                                    persona === p.id ? "scale-110" : "grayscale opacity-50 group-hover/p:grayscale-0 group-hover/p:opacity-100"
+                                )}>
+                                    <div className={cn("absolute inset-0 bg-gradient-to-br opacity-20", p.color)} />
+                                    <span className="relative z-10">{p.emoji}</span>
+                                </div>
+                                <div className="text-center space-y-0.5 relative z-10">
+                                    <h4 className={cn(
+                                        "text-[10px] font-black uppercase tracking-widest transition-colors",
+                                        persona === p.id ? "text-mango" : "text-muted-foreground"
+                                    )}>
+                                        {p.name}
+                                    </h4>
+                                    <p className="text-[8px] font-bold text-muted-foreground/40 italic line-clamp-1 group-hover/p:text-muted-foreground/60 transition-colors">
+                                        {p.description}
+                                    </p>
+                                </div>
+                                {persona === p.id && (
+                                    <div className="absolute top-2 right-2">
+                                        <Sparkles className="w-3 h-3 text-mango animate-pulse" />
+                                    </div>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+
+
                 </header>
 
                 <div className="flex-1 min-h-0 bg-card/10 backdrop-blur-2xl border border-white/5 rounded-[2.5rem] overflow-hidden flex flex-col shadow-[0_32px_128px_-16px_rgba(0,0,0,0.5)] relative group">
@@ -142,7 +151,7 @@ export default function AssistantPage() {
                                 <div className="space-y-4 max-w-sm">
                                     <h2 className="text-2xl font-black italic uppercase tracking-tighter text-foreground">Manga Mangos Assistant</h2>
                                     <p className="text-muted-foreground font-medium italic text-sm leading-relaxed px-8">
-                                        Ready to help with your manga questions, series recommendations, and more.
+                                        Ready to help{user?.firstName ? ` you, ${user.firstName},` : ""} with your manga questions, series recommendations, and more.
                                     </p>
                                 </div>
                             </div>
@@ -192,8 +201,9 @@ export default function AssistantPage() {
                                                 )}
                                             </div>
                                             <div className="flex items-center gap-3 px-4 font-black uppercase italic tracking-[0.4em] text-[8px] opacity-20 group-hover/msg:opacity-60 transition-opacity">
+                                                <span className="shrink-0">{msg.role === "user" ? (user?.firstName || user?.username || "You") : "Assistant"}</span>
                                                 <div className="h-[1px] flex-1 bg-current" />
-                                                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                                <span className="shrink-0">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
                                             </div>
                                         </div>
                                     </div>
