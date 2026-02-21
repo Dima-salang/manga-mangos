@@ -17,6 +17,8 @@ import remarkGfm from "remark-gfm";
 import { useChat } from "./ChatContext";
 import { PERSONA_CONFIGS } from "@/types/chat";
 
+import { PersonaAvatar } from "./PersonaAvatar";
+
 export function AssistantSidebar() {
     const { history, isLoading, isOpen, setIsOpen, sendMessage, clearHistory, user, persona, setPersona } = useChat();
     const pathname = usePathname();
@@ -71,7 +73,12 @@ export function AssistantSidebar() {
                 title="Mango Assistant"
             >
                 <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                <Bot className="w-7 h-7 text-black" />
+                <PersonaAvatar 
+                    src={activePersona.avatar}
+                    alt={activePersona.name}
+                    fallbackIcon={Bot}
+                    className="w-8 h-8 rounded-lg"
+                />
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-black rounded-full border-2 flex items-center justify-center" style={{ borderColor: activePersona.accent }}>
                     <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: activePersona.accent }} />
                 </div>
@@ -84,8 +91,13 @@ export function AssistantSidebar() {
             {/* Header */}
             <header className="p-6 border-b border-white/5 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-500" style={{ backgroundColor: activePersona.accent }}>
-                        <Bot className="w-6 h-6 text-black" />
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-500 overflow-hidden relative" style={{ backgroundColor: activePersona.accent }}>
+                        <PersonaAvatar 
+                            src={activePersona.avatar}
+                            alt={activePersona.name}
+                            fallbackIcon={Bot}
+                            className="p-0.5"
+                        />
                     </div>
                     <div>
                         <h3 className="text-sm font-black italic uppercase tracking-wider text-foreground">{activePersona.name} Assistant</h3>
@@ -135,7 +147,12 @@ export function AssistantSidebar() {
                                 persona === p.id ? "ring-2 ring-offset-2 ring-offset-background" : ""
                             )} style={{ ringColor: persona === p.id ? p.accent : 'transparent' } as any}>
                                 <div className={cn("absolute inset-0 bg-gradient-to-br opacity-20", p.color)} />
-                                <span className="relative z-10 group-hover/p:scale-110 transition-transform">{p.emoji}</span>
+                                <PersonaAvatar 
+                                    src={p.avatar}
+                                    alt={p.name}
+                                    fallbackEmoji={p.emoji}
+                                    className="z-10 group-hover/p:scale-110 transition-transform"
+                                />
                             </div>
                             <span className={cn(
                                 "text-[8px] font-black uppercase tracking-widest transition-colors duration-500",
@@ -162,8 +179,13 @@ export function AssistantSidebar() {
                 
                 {history.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-6">
-                        <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-transform duration-700 hover:rotate-6">
-                            <Bot className="w-8 h-8 transition-colors duration-500" style={{ color: activePersona.accent }} />
+                        <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-transform duration-700 hover:rotate-6 overflow-hidden relative shadow-2xl">
+                            <PersonaAvatar 
+                                src={activePersona.avatar}
+                                alt={activePersona.name}
+                                fallbackIcon={Bot}
+                                className="p-2"
+                            />
                         </div>
                         <div className="space-y-2">
                             <h4 className="text-lg font-black italic uppercase text-foreground">{activePersona.name} Assistant</h4>
@@ -197,7 +219,7 @@ export function AssistantSidebar() {
                                 )}
                             >
                                 <div className={cn(
-                                    "w-8 h-8 rounded-lg shrink-0 flex items-center justify-center border transition-all duration-500",
+                                    "w-8 h-8 rounded-lg shrink-0 flex items-center justify-center border transition-all duration-500 overflow-hidden relative",
                                     msg.role === "user" 
                                         ? "border-white/20 text-black translate-y-2" 
                                         : "bg-white/5 border-white/5 translate-y-2"
@@ -205,7 +227,13 @@ export function AssistantSidebar() {
                                     backgroundColor: msg.role === "user" ? activePersona.accent : undefined,
                                     color: msg.role === "model" ? activePersona.accent : undefined
                                 }}>
-                                    {msg.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                                    {msg.role === "user" ? <User className="w-4 h-4" /> : (
+                                        <PersonaAvatar 
+                                            src={activePersona.avatar}
+                                            alt={activePersona.name}
+                                            fallbackIcon={Bot}
+                                        />
+                                    )}
                                 </div>
                                 <div className={cn(
                                     "max-w-[85%] space-y-2",
