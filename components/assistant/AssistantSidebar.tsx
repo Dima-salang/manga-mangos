@@ -6,16 +6,18 @@ import {
     Bot, 
     User, 
     X, 
-    Trash2
+    Trash2,
+    Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useChat } from "./ChatContext";
+import { PERSONA_CONFIGS } from "@/types/chat";
 
 export function AssistantSidebar() {
-    const { history, isLoading, isOpen, setIsOpen, sendMessage, clearHistory, user } = useChat();
+    const { history, isLoading, isOpen, setIsOpen, sendMessage, clearHistory, user, persona, setPersona } = useChat();
     const [input, setInput] = useState("");
     const scrollRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -104,6 +106,43 @@ export function AssistantSidebar() {
                 </div>
             </header>
 
+            {/* Persona Selector */}
+            <div className="px-6 py-4 bg-white/[0.02] border-b border-white/5 shrink-0 overflow-x-auto scrollbar-hide">
+                <div className="flex gap-2 min-w-max">
+                    {PERSONA_CONFIGS.map((p) => (
+                        <button
+                            key={p.id}
+                            onClick={() => setPersona(p.id)}
+                            className={cn(
+                                "flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all duration-300 group/p relative",
+                                persona === p.id 
+                                    ? "bg-white/10 scale-105" 
+                                    : "hover:bg-white/5 opacity-40 hover:opacity-100"
+                            )}
+                        >
+                            <div className={cn(
+                                "w-10 h-10 rounded-lg flex items-center justify-center text-lg shadow-lg relative overflow-hidden",
+                                persona === p.id ? "ring-2 ring-mango/50 ring-offset-2 ring-offset-background" : ""
+                            )}>
+                                <div className={cn("absolute inset-0 bg-gradient-to-br opacity-20", p.color)} />
+                                <span className="relative z-10 group-hover/p:scale-110 transition-transform">{p.emoji}</span>
+                            </div>
+                            <span className={cn(
+                                "text-[8px] font-black uppercase tracking-widest",
+                                persona === p.id ? "text-mango" : "text-muted-foreground"
+                            )}>
+                                {p.name}
+                            </span>
+                            {persona === p.id && (
+                                <div className="absolute -top-1 -right-1">
+                                    <Sparkles className="w-3 h-3 text-mango animate-pulse" />
+                                </div>
+                            )}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             {/* Chat Body */}
             <div 
                 ref={scrollRef}
@@ -119,7 +158,7 @@ export function AssistantSidebar() {
                         <div className="space-y-2">
                             <h4 className="text-lg font-black italic uppercase text-foreground">Mango Assistant</h4>
                             <p className="text-xs text-muted-foreground font-medium italic leading-relaxed">
-                                Curious about a manga? Looking for recommendations? I'm here to help!
+                                Curious about a manga? Looking for recommendations? I'm here to help{user?.firstName ? `, ${user.firstName}` : "" }!
                             </p>
                         </div>
                         <div className="grid grid-cols-1 gap-2 w-full max-w-[240px]">
@@ -180,7 +219,7 @@ export function AssistantSidebar() {
                                         )}
                                     </div>
                                     <span className="text-[8px] font-black uppercase tracking-[0.3em] opacity-20 block px-2">
-                                        {msg.role === "user" ? "User" : "Assistant"}
+                                        {msg.role === "user" ? (user?.firstName || user?.username || "You") : "Assistant"}
                                     </span>
                                 </div>
                             </div>
