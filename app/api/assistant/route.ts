@@ -1,10 +1,12 @@
 import { NextRequest } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
+import { MangaService } from "@/lib/services/manga.service";
 
 // zod validation
 const assistantSchema = z.object({
     message: z.string(),
+    userId: z.string().optional(),
     history: z.array(z.object({
         role: z.string(),
         parts: z.array(z.object({
@@ -14,9 +16,35 @@ const assistantSchema = z.object({
     systemInstruction: z.string().optional()
 });
 
+async function getLibraryContext(userId: string) {
+    try {
+        const mangaService = new MangaService();
+        const libraryItems = await mangaService.getLibraryWithManga(userId);
+        
+        if (!libraryItems || libraryItems.length === 0) return "";
+
+        const reading = libraryItems.filter(i => i.status === "reading").map(i => i.manga.titles[0]?.title || "Unknown").slice(0, 3);
+        const completed = libraryItems.filter(i => i.status === "completed").map(i => i.manga.titles[0]?.title || "Unknown").slice(0, 3);
+        const planToRead = libraryItems.filter(i => i.status === "plan_to_read").map(i => i.manga.titles[0]?.title || "Unknown").slice(0, 3);
+        const favorites = libraryItems.filter(i => i.favorite).map(i => i.manga.titles[0]?.title || "Unknown").slice(0, 3);
+
+        return `
+USER LIBRARY CONTEXT:
+The user is currently READING: ${reading.join(", ") || "None"}.
+The user has COMPLETED: ${completed.join(", ") || "None"}.
+The user PLANS TO READ: ${planToRead.join(", ") || "None"}.
+The user has FAVORITES: ${favorites.join(", ") || "None"}.
+Use this info to provide tailored recommendations. Don't repeat it back unless asked.
+`;
+    } catch (e) {
+        console.error("Failed to fetch library context:", e);
+        return "";
+    }
+}
+
 export async function POST(req: NextRequest) {
     try {
-        const { message, history, systemInstruction } = assistantSchema.parse(await req.json());
+        const { message, userId, history, systemInstruction } = assistantSchema.parse(await req.json());
 
 
         if (!process.env.GEMINI_API_KEY) {
@@ -27,7 +55,13 @@ export async function POST(req: NextRequest) {
             apiKey: process.env.GEMINI_API_KEY,
         });
 
-        const defaultSystemInstruction = "You are the MangaMangos Assistant, a helpful and enthusiastic AI built for manga fans. You provide recommendations, answer questions about manga, and have a deep knowledge of various genres. Your tone is professional yet 'cool' and 'manga-inspired'. Use emojis like 🥭, 📚, and ✨ sparingly.";
+        let finalSystemInstruction = systemInstruction || "You are the MangaMangos Assistant, a helpful and enthusiastic AI built for manga fans. You provide recommendations, answer questions about manga, and have a deep knowledge of various genres. Your tone is professional yet 'cool' and 'manga-inspired'. Use emojis like 🥭, 📚, and ✨ sparingly.";
+
+        // Inject library context if userId is provided
+        if (userId) {
+            const libraryContext = await getLibraryContext(userId);
+            finalSystemInstruction += libraryContext;
+        }
 
         const result = await mangosAI.models.generateContentStream({
             model: "gemini-2.5-flash-lite",
@@ -39,7 +73,7 @@ export async function POST(req: NextRequest) {
                 { role: "user", parts: [{ text: message }] }
             ],
             config: {
-                systemInstruction: systemInstruction || defaultSystemInstruction,
+                systemInstruction: finalSystemInstruction,
                 tools: [{ googleSearch: {} }]
             }
         });
