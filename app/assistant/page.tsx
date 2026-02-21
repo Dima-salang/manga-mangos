@@ -15,17 +15,13 @@ import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-interface Message {
-    role: "user" | "model";
-    parts: { text: string }[];
-}
+import { useChat } from "@/components/assistant/ChatContext";
 
 export default function AssistantPage() {
+    const { history, isLoading, sendMessage, clearHistory } = useChat();
     const [input, setInput] = useState("");
     const [systemPrompt, setSystemPrompt] = useState("");
     const [showAdvanced, setShowAdvanced] = useState(false);
-    const [history, setHistory] = useState<Message[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -55,83 +51,7 @@ export default function AssistantPage() {
         setInput("");
         if (textareaRef.current) textareaRef.current.style.height = 'auto';
         
-        const newHistory: Message[] = [
-            ...history,
-            { role: "user", parts: [{ text: userMessage }] }
-        ];
-        
-        setHistory(newHistory);
-        setIsLoading(true);
-
-        try {
-            const response = await fetch("/api/assistant", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    message: userMessage, 
-                    history: history,
-                    systemInstruction: systemPrompt.trim() || undefined
-                }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || `Failed to get response (${response.status})`);
-            }
-
-            // Check if it is a JSON response (like an error) instead of a stream
-            const contentType = response.headers.get("Content-Type");
-            if (contentType?.includes("application/json")) {
-                const data = await response.json();
-                throw new Error(data.error || "Received unexpected non-stream response");
-            }
-
-            const reader = response.body?.getReader();
-            const decoder = new TextDecoder();
-            let accumulatedText = "";
-
-            // Add an empty model message to start streaming into
-            setHistory(prev => [...prev, { role: "model", parts: [{ text: "" }] }]);
-
-            if (!reader) throw new Error("Stream reader not available");
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                const chunk = decoder.decode(value, { stream: true });
-                accumulatedText += chunk;
-
-                setHistory(prev => {
-                    const lastMessage = prev.at(-1);
-                    if (lastMessage?.role === "model") {
-                        return [
-                            ...prev.slice(0, -1),
-                            { ...lastMessage, parts: [{ text: accumulatedText }] }
-                        ];
-                    }
-                    return prev;
-                });
-            }
-
-        } catch (error: any) {
-            console.error("Chat Error:", error);
-            setHistory(prev => {
-                // Remove the empty model message if it exists at the end
-                const last = prev.at(-1);
-                const base = (last?.role === "model" && !last.parts[0].text) ? prev.slice(0, -1) : prev;
-                return [
-                    ...base, 
-                    { role: "model", parts: [{ text: `[System Error]: ${error.message || "Failed to connect to the assistant."}` }] }
-                ];
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const clearHistory = () => {
-        setHistory([]);
+        await sendMessage(userMessage, systemPrompt);
     };
 
     return (
