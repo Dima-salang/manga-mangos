@@ -1,9 +1,23 @@
 import { NextRequest } from "next/server";
 import { GoogleGenAI } from "@google/genai";
+import { z } from "zod";
+
+// zod validation
+const assistantSchema = z.object({
+    message: z.string(),
+    history: z.array(z.object({
+        role: z.string(),
+        parts: z.array(z.object({
+            text: z.string()
+        }))
+    })).optional(),
+    systemInstruction: z.string().optional()
+});
 
 export async function POST(req: NextRequest) {
     try {
-        const { message, history, systemInstruction } = await req.json();
+        const { message, history, systemInstruction } = assistantSchema.parse(await req.json());
+
 
         if (!process.env.GEMINI_API_KEY) {
             return new Response(JSON.stringify({ error: "API key not configured" }), { status: 500 });
@@ -61,6 +75,6 @@ export async function POST(req: NextRequest) {
 
     } catch (error: any) {
         console.error("AI Assistant Error:", error);
-        return new Response(JSON.stringify({ error: error.message || "Failed to generate response" }), { status: 500 });
+        return new Response(JSON.stringify({ error: "Failed to generate response" }), { status: 500 });
     }
 }
