@@ -1,40 +1,32 @@
-import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { createReview } from '@/lib/services/review.service';
-import { z } from 'zod';
+import { NextResponse } from 'next/server';
 
-const reviewSchema = z.object({
-  userId: z.string().uuid().or(z.string().min(1)), // Handle both UUID and string IDs
-  rating: z.number().min(1).max(5),
-  reviewText: z.string().min(1).max(1000),
-});
+export async function POST(request: Request) {
+  const { userId } = await auth();
+  
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
-export async function POST(req: Request, { params }: { params: Promise<{ mangaId: string }> }) {
   try {
-    const { mangaId } = await params;
-    const body = await req.json();
-    
-    const result = reviewSchema.safeParse(body);
-    if (!result.success) {
+    const body = await request.json();
+    const { mangaId, rating, reviewText } = body;
+
+    if (!mangaId || !rating || !reviewText) {
       return NextResponse.json(
-        { error: "Invalid review data", details: result.error.format() },
+        { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    const { userId, rating, reviewText } = result.data;
-
-    await createReview(
-      userId,
-      mangaId,
-      rating,
-      reviewText
-    );
-
-    return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error("Error creating review:", error);
+    await createReview(userId, mangaId, rating, reviewText);
+    
+    return NextResponse.json({ success: true }, { status: 201 });
+  } catch (error) {
+    console.error('Error creating review:', error);
     return NextResponse.json(
-      { error: "Failed to create review" },
+      { error: 'Failed to create review' },
       { status: 500 }
     );
   }
