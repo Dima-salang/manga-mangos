@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { rate } from "@/utils/upstash-redis/redis";
 
 const BASE_URL = "https://api.jikan.moe/v4/"
 
@@ -10,7 +11,18 @@ const jikanErrorSchema = z.object({
     report_url: z.string().optional()
 });
 
-export async function mangaFetch<T>(path: string): Promise<T> {
+export async function mangaFetch<T>(path: string, retries: number = 3): Promise<T> {
+    const { success } = await rate.limit("jikan");
+
+    // if the api is rate limited, retry after a second
+    if (!success) {
+        if (retries > 0) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            return mangaFetch(path, retries - 1);
+        }
+        throw new Error("API is rate limited. Please try again after a while.");
+    }
+    
     const res = await fetch(`${BASE_URL}${path}`)
     
     if (!res.ok) {
