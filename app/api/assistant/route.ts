@@ -53,9 +53,9 @@ You must always prioritize:
 async function getLibraryContext(userId: string) {
   try {
     // check the cache
-    const cachedLibrary = await redis.get(`library:${userId}`);
+    const cachedLibrary = await redis.get<string>(`libraryContext:${userId}`);
     if (cachedLibrary) {
-      return cachedLibrary as string;
+      return cachedLibrary;
     }
 
     const mangaService = new MangaService();
@@ -90,7 +90,9 @@ Use this info to provide tailored recommendations. Don't repeat it back unless a
 `;
 
     // cache the library context for 24 hours
-    await redis.set(`library:${userId}`, libraryContext, { ex: 60 * 60 * 24 });
+    await redis.set(`libraryContext:${userId}`, libraryContext, {
+      ex: 60 * 60 * 24,
+    });
 
     return libraryContext;
   } catch (e) {
