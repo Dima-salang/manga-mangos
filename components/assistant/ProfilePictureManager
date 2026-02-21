@@ -1,0 +1,149 @@
+"use client";
+
+import { useState, useRef } from "react";
+import { Upload, X, Image as ImageIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+interface ProfilePictureManagerProps {
+  currentImage: string | null;
+  emoji: string;
+  onImageChange: (imageUrl: string | null) => void;
+  accentColor: string;
+}
+
+export function ProfilePictureManager({ 
+  currentImage, 
+  emoji, 
+  onImageChange, 
+  accentColor 
+}: ProfilePictureManagerProps) {
+  const [isUploading, setIsUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(currentImage);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file (PNG, JPG, etc.)');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size must be less than 5MB');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setPreviewUrl(result);
+        onImageChange(result);
+        setIsUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image');
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setPreviewUrl(null);
+    onImageChange(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-4">
+        <div className="relative group">
+          <div className={cn(
+            "w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden border-2 transition-all duration-300",
+            previewUrl ? "border-white/20" : "border-dashed border-white/10"
+          )} style={{ borderColor: previewUrl ? `${accentColor}66` : undefined }}>
+            {previewUrl ? (
+              <img 
+                src={previewUrl} 
+                alt="Profile" 
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-2xl">{emoji}</span>
+            )}
+          </div>
+          
+          {previewUrl && (
+            <Button
+              size="sm"
+              variant="destructive"
+              className="absolute -top-2 -right-2 w-6 h-6 p-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={handleRemoveImage}
+            >
+              <X className="w-3 h-3" />
+            </Button>
+          )}
+        </div>
+
+        <div className="flex-1 space-y-2">
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleUploadClick}
+              disabled={isUploading}
+              className="text-xs"
+              style={{ borderColor: `${accentColor}33`, color: accentColor }}
+            >
+              {isUploading ? (
+                <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+              ) : (
+                <Upload className="w-3 h-3 mr-2" />
+              )}
+              {previewUrl ? "Change" : "Upload"} PNG
+            </Button>
+            
+            {previewUrl && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={handleRemoveImage}
+                className="text-xs text-muted-foreground hover:text-destructive"
+              >
+                <X className="w-3 h-3 mr-1" />
+                Remove
+              </Button>
+            )}
+          </div>
+          
+          <p className="text-[10px] text-muted-foreground">
+            {previewUrl ? "Click to change or remove image" : "Upload a PNG image (max 5MB)"}
+          </p>
+        </div>
+      </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
+    </div>
+  );
+}
