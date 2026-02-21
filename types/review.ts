@@ -5,4 +5,7 @@ export interface Review {
   rating: number;
   reviewText: string;
   createdAt: Date;
+  upvotes?: number;
+  downvotes?: number;
+  userVote?: 'up' | 'down' | null;
 }
