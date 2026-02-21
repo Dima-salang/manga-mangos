@@ -2,6 +2,7 @@ import { MangaTypeFilter, TopMangaFilter, Manga, JikanResponse, MangaRecommendat
 import { LibraryItem, LibraryStatus } from '@/types/library';
 import { mangaFetch } from '@/lib/external-api/external-api';
 import { supabaseAdmin } from '@/utils/supabase/server';
+import { redis } from '@/utils/upstash-redis/redis';
 
 
 export async function getTopManga(
@@ -49,6 +50,7 @@ export class MangaService {
 
   // get library items with manga details
   async getLibraryWithManga(userId: string): Promise<(LibraryItem & { manga: DB_MANGA })[]> {
+    console.log("Fetching library with manga for user:", userId);
     const { data, error } = await supabaseAdmin
       .from('library_item')
       .select(`
@@ -112,6 +114,9 @@ export class MangaService {
     if (libraryError) {
       throw libraryError;
     }
+
+    // clear the cache
+    await redis.del(`library:${userId}`);
   }
 
   async removeMangaFromLibrary(userId: string, malId: number): Promise<void> {
@@ -124,5 +129,8 @@ export class MangaService {
     if (libraryError) {
       throw libraryError;
     }
+
+    // clear the cache
+    await redis.del(`library:${userId}`);
   }
 }

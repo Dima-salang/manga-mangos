@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 import { MangaService } from "@/lib/services/manga.service";
+import { redis } from "@/utils/upstash-redis/redis";
 
 // zod validation
 const assistantSchema = z.object({
@@ -51,6 +52,12 @@ You must always prioritize:
 
 async function getLibraryContext(userId: string) {
   try {
+    // check the cache
+    const cachedLibrary = await redis.get(`library:${userId}`);
+    if (cachedLibrary) {
+      return cachedLibrary as string;
+    }
+
     const mangaService = new MangaService();
     const libraryItems = await mangaService.getLibraryWithManga(userId);
 
@@ -73,7 +80,7 @@ async function getLibraryContext(userId: string) {
       .map((i) => i.manga.titles[0]?.title || "Unknown")
       .slice(0, 3);
 
-    return `
+    const libraryContext = `
 USER LIBRARY CONTEXT:
 The user is currently READING: ${reading.join(", ") || "None"}.
 The user has COMPLETED: ${completed.join(", ") || "None"}.
@@ -81,6 +88,11 @@ The user PLANS TO READ: ${planToRead.join(", ") || "None"}.
 The user has FAVORITES: ${favorites.join(", ") || "None"}.
 Use this info to provide tailored recommendations. Don't repeat it back unless asked.
 `;
+
+    // cache the library context for 24 hours
+    await redis.set(`library:${userId}`, libraryContext, { ex: 60 * 60 * 24 });
+
+    return libraryContext;
   } catch (e) {
     console.error("Failed to fetch library context:", e);
     return "";
