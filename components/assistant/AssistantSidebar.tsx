@@ -15,7 +15,7 @@ import remarkGfm from "remark-gfm";
 import { useChat } from "./ChatContext";
 
 export function AssistantSidebar() {
-    const { history, isLoading, isOpen, setIsOpen, sendMessage, clearHistory } = useChat();
+    const { history, isLoading, isOpen, setIsOpen, sendMessage, clearHistory, user } = useChat();
     const [input, setInput] = useState("");
     const scrollRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
