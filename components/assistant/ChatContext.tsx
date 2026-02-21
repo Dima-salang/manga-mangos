@@ -48,7 +48,6 @@ export function ChatProvider({ children }: { readonly children: ReactNode }) {
         try {
             // Provide context about the user if available
             const userContext = user ? `\n\nYou are talking to ${user.firstName || user.username || 'a user'}.` : '';
-            console.log(userContext);
             
             const response = await fetch("/api/assistant", {
                 method: "POST",

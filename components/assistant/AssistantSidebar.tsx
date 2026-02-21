@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { 
     Send, 
     Bot, 
@@ -18,6 +19,7 @@ import { PERSONA_CONFIGS } from "@/types/chat";
 
 export function AssistantSidebar() {
     const { history, isLoading, isOpen, setIsOpen, sendMessage, clearHistory, user, persona, setPersona } = useChat();
+    const pathname = usePathname();
     const [input, setInput] = useState("");
     const scrollRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -44,6 +46,11 @@ export function AssistantSidebar() {
     useEffect(() => {
         scrollToBottom();
     }, [history]);
+
+    // Don't render the sidebar if we are on the assistant page
+    if (pathname?.startsWith("/assistant")) {
+        return null;
+    }
 
     const handleSend = async () => {
         if (!input.trim() || isLoading) return;
