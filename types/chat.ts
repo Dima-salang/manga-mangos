@@ -131,6 +131,8 @@ export const PERSONA_CONFIGS = [
     emoji: "🥭",
     description: "Helpful and enthusiastic guide",
     color: "from-orange-400 to-mango",
+    accent: "#FF9F43",
+    glow: "rgba(255, 159, 67, 0.15)",
   },
   {
     id: "KUROHANA",
@@ -138,6 +140,8 @@ export const PERSONA_CONFIGS = [
     emoji: "🥀",
     description: "Sharp-tongued but secretly thoughtful",
     color: "from-purple-600 to-indigo-600",
+    accent: "#8B5CF6",
+    glow: "rgba(139, 92, 246, 0.15)",
   },
   {
     id: "AOYAMA",
@@ -145,6 +149,8 @@ export const PERSONA_CONFIGS = [
     emoji: "👓",
     description: "Calm and analytical manga scholar",
     color: "from-blue-600 to-cyan-600",
+    accent: "#3B82F6",
+    glow: "rgba(59, 130, 246, 0.15)",
   },
   {
     id: "MIMI",
@@ -152,6 +158,8 @@ export const PERSONA_CONFIGS = [
     emoji: "🎀",
     description: "Energetic and emotional fairy guide",
     color: "from-pink-500 to-rose-500",
+    accent: "#EC4899",
+    glow: "rgba(236, 72, 153, 0.15)",
   },
   {
     id: "GREMLIN",
@@ -159,6 +167,8 @@ export const PERSONA_CONFIGS = [
     emoji: "👾",
     description: "Chaotic, meme-aware, and playful",
     color: "from-emerald-500 to-teal-500",
+    accent: "#10B981",
+    glow: "rgba(16, 185, 129, 0.15)",
   },
   {
     id: "OJII",
@@ -166,5 +176,7 @@ export const PERSONA_CONFIGS = [
     emoji: "👴",
     description: "Nostalgic manga historian",
     color: "from-amber-700 to-orange-900",
+    accent: "#D97706",
+    glow: "rgba(217, 119, 6, 0.15)",
   },
 ] as const;
