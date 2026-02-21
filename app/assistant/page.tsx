@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
     Send, 
     Bot, 
@@ -17,6 +17,7 @@ import remarkGfm from "remark-gfm";
 
 import { useChat } from "@/components/assistant/ChatContext";
 import { PERSONA_CONFIGS } from "@/types/chat";
+import { PersonaAvatar } from "@/components/assistant/PersonaAvatar";
 
 export default function AssistantPage() {
     const { history, isLoading, sendMessage, clearHistory, user, persona, setPersona } = useChat();
@@ -125,7 +126,13 @@ export default function AssistantPage() {
                                     persona === p.id ? "scale-110" : "grayscale opacity-50 group-hover/p:grayscale-0 group-hover/p:opacity-100"
                                 )}>
                                     <div className={cn("absolute inset-0 bg-gradient-to-br opacity-20", p.color)} />
-                                    <span className="relative z-10">{p.emoji}</span>
+                                    <PersonaAvatar 
+                                        src={p.avatar}
+                                        alt={p.name}
+                                        fallbackEmoji={p.emoji}
+                                        emojiClassName="text-2xl"
+                                        fallbackIconClassName="p-2"
+                                    />
                                 </div>
                                 <div className="text-center space-y-0.5 relative z-10">
                                     <h4 className={cn(
@@ -161,8 +168,13 @@ export default function AssistantPage() {
                             <div className="h-full flex flex-col items-center justify-center text-center space-y-12 py-20">
                                 <div className="relative group/bot">
                                     <div className="absolute -inset-4 rounded-[2.5rem] blur-2xl opacity-0 group-hover/bot:opacity-100 transition-opacity duration-700" style={{ backgroundColor: activePersona.glow }} />
-                                    <div className="w-20 h-20 rounded-[2rem] bg-black/40 flex items-center justify-center border border-white/10 shadow-2xl relative z-10 transform group-hover/bot:rotate-12 transition-transform duration-500">
-                                        <Bot className="w-10 h-10" style={{ color: activePersona.accent }} suppressHydrationWarning />
+                                    <div className="w-24 h-24 rounded-[2.5rem] bg-black/40 flex items-center justify-center border border-white/10 shadow-2xl relative z-10 transform group-hover/bot:rotate-12 transition-transform duration-500 overflow-hidden">
+                                        <PersonaAvatar 
+                                            src={activePersona.avatar}
+                                            alt={activePersona.name}
+                                            fallbackIcon={Bot}
+                                            fallbackIconClassName="p-2"
+                                        />
                                     </div>
                                     <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center shadow-lg border-4 border-background z-20" style={{ backgroundColor: activePersona.accent }}>
                                         <div className="w-2 h-2 bg-black rounded-full animate-pulse" />
@@ -195,7 +207,14 @@ export default function AssistantPage() {
                                             backgroundColor: msg.role === "user" ? activePersona.accent : undefined,
                                             color: msg.role === "model" ? activePersona.accent : undefined
                                         }}>
-                                            {msg.role === "user" ? <User className="w-6 h-6" suppressHydrationWarning /> : <Bot className="w-6 h-6" suppressHydrationWarning />}
+                                            {msg.role === "user" ? <User className="w-6 h-6" suppressHydrationWarning /> : (
+                                                <PersonaAvatar 
+                                                    src={activePersona.avatar}
+                                                    alt={activePersona.name}
+                                                    fallbackIcon={Bot}
+                                                    fallbackIconClassName="p-2"
+                                                />
+                                            )}
                                         </div>
                                         <div className={cn(
                                             "max-w-[85%] md:max-w-[70%] space-y-3",
