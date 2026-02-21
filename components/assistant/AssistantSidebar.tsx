@@ -24,6 +24,8 @@ export function AssistantSidebar() {
     const scrollRef = useRef<HTMLDivElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+    const activePersona = PERSONA_CONFIGS.find(p => p.id === persona) || PERSONA_CONFIGS[0];
+
     const scrollToBottom = (force = false) => {
         if (!scrollRef.current) return;
         const scrollContainer = scrollRef.current;
@@ -64,13 +66,14 @@ export function AssistantSidebar() {
         return (
             <button
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-6 right-6 w-14 h-14 rounded-2xl bg-mango flex items-center justify-center shadow-[0_8px_32px_rgba(255,159,67,0.4)] hover:shadow-[0_12px_48px_rgba(255,159,67,0.6)] hover:scale-110 active:scale-95 transition-all duration-300 z-50 group"
+                style={{ backgroundColor: activePersona.accent, boxShadow: `0 8px 32px ${activePersona.glow}` }}
+                className="fixed bottom-6 right-6 w-14 h-14 rounded-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 z-50 group"
                 title="Mango Assistant"
             >
                 <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
                 <Bot className="w-7 h-7 text-black" />
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-black rounded-full border-2 border-mango flex items-center justify-center">
-                    <div className="w-1.5 h-1.5 bg-mango rounded-full animate-pulse" />
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-black rounded-full border-2 flex items-center justify-center" style={{ borderColor: activePersona.accent }}>
+                    <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: activePersona.accent }} />
                 </div>
             </button>
         );
@@ -81,11 +84,11 @@ export function AssistantSidebar() {
             {/* Header */}
             <header className="p-6 border-b border-white/5 flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-mango flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-500" style={{ backgroundColor: activePersona.accent }}>
                         <Bot className="w-6 h-6 text-black" />
                     </div>
                     <div>
-                        <h3 className="text-sm font-black italic uppercase tracking-wider text-foreground">Mango Assistant</h3>
+                        <h3 className="text-sm font-black italic uppercase tracking-wider text-foreground">{activePersona.name} Assistant</h3>
                         <div className="flex items-center gap-1.5">
                             <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Online</span>
@@ -128,21 +131,21 @@ export function AssistantSidebar() {
                             )}
                         >
                             <div className={cn(
-                                "w-10 h-10 rounded-lg flex items-center justify-center text-lg shadow-lg relative overflow-hidden",
-                                persona === p.id ? "ring-2 ring-mango/50 ring-offset-2 ring-offset-background" : ""
-                            )}>
+                                "w-10 h-10 rounded-lg flex items-center justify-center text-lg shadow-lg relative overflow-hidden transition-all duration-500",
+                                persona === p.id ? "ring-2 ring-offset-2 ring-offset-background" : ""
+                            )} style={{ ringColor: persona === p.id ? p.accent : 'transparent' } as any}>
                                 <div className={cn("absolute inset-0 bg-gradient-to-br opacity-20", p.color)} />
                                 <span className="relative z-10 group-hover/p:scale-110 transition-transform">{p.emoji}</span>
                             </div>
                             <span className={cn(
-                                "text-[8px] font-black uppercase tracking-widest",
-                                persona === p.id ? "text-mango" : "text-muted-foreground"
-                            )}>
+                                "text-[8px] font-black uppercase tracking-widest transition-colors duration-500",
+                                persona === p.id ? "" : "text-muted-foreground"
+                            )} style={{ color: persona === p.id ? p.accent : undefined }}>
                                 {p.name}
                             </span>
                             {persona === p.id && (
                                 <div className="absolute -top-1 -right-1">
-                                    <Sparkles className="w-3 h-3 text-mango animate-pulse" />
+                                    <Sparkles className="w-3 h-3 animate-pulse" style={{ color: p.accent }} />
                                 </div>
                             )}
                         </button>
@@ -159,11 +162,11 @@ export function AssistantSidebar() {
                 
                 {history.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-6">
-                        <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center">
-                            <Bot className="w-8 h-8 text-mango" />
+                        <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center transition-transform duration-700 hover:rotate-6">
+                            <Bot className="w-8 h-8 transition-colors duration-500" style={{ color: activePersona.accent }} />
                         </div>
                         <div className="space-y-2">
-                            <h4 className="text-lg font-black italic uppercase text-foreground">Mango Assistant</h4>
+                            <h4 className="text-lg font-black italic uppercase text-foreground">{activePersona.name} Assistant</h4>
                             <p className="text-xs text-muted-foreground font-medium italic leading-relaxed">
                                 Curious about a manga? Looking for recommendations? I'm here to help{user?.firstName ? `, ${user.firstName}` : "" }!
                             </p>
@@ -174,11 +177,11 @@ export function AssistantSidebar() {
                                     key={suggestion}
                                     onClick={() => {
                                         setInput(suggestion);
-                                        // Auto-send could be added here
                                     }}
-                                    className="text-[10px] font-black uppercase tracking-widest p-3 rounded-xl bg-white/5 border border-white/5 hover:border-mango/30 hover:bg-mango/5 text-muted-foreground/60 transition-all text-left"
+                                    className="text-[10px] font-black uppercase tracking-widest p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/[0.08] text-muted-foreground/60 transition-all text-left group/suggest"
+                                    style={{ '--hover-border': activePersona.accent } as any}
                                 >
-                                    {suggestion}
+                                    <span className="group-hover/suggest:text-foreground transition-colors">{suggestion}</span>
                                 </button>
                             ))}
                         </div>
@@ -196,32 +199,38 @@ export function AssistantSidebar() {
                                 <div className={cn(
                                     "w-8 h-8 rounded-lg shrink-0 flex items-center justify-center border transition-all duration-500",
                                     msg.role === "user" 
-                                        ? "bg-mango border-white/20 text-black translate-y-2" 
-                                        : "bg-white/5 border-white/5 text-muted-foreground translate-y-2"
-                                )}>
-                                    {msg.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4 text-mango" />}
+                                        ? "border-white/20 text-black translate-y-2" 
+                                        : "bg-white/5 border-white/5 translate-y-2"
+                                )} style={{ 
+                                    backgroundColor: msg.role === "user" ? activePersona.accent : undefined,
+                                    color: msg.role === "model" ? activePersona.accent : undefined
+                                }}>
+                                    {msg.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                                 </div>
                                 <div className={cn(
                                     "max-w-[85%] space-y-2",
                                     msg.role === "user" ? "text-right" : "text-left"
                                 )}>
                                     <div className={cn(
-                                        "p-4 rounded-2xl text-xs leading-relaxed tracking-tight relative overflow-hidden",
+                                        "p-4 rounded-2xl text-xs leading-relaxed tracking-tight relative overflow-hidden transition-colors duration-500",
                                         msg.role === "user" 
-                                            ? "bg-mango/[0.05] border border-mango/10 text-foreground font-bold rounded-tr-none" 
+                                            ? "text-foreground font-bold rounded-tr-none" 
                                             : "bg-white/[0.03] border border-white/5 text-muted-foreground/90 font-medium rounded-tl-none"
-                                    )}>
+                                    )} style={{ 
+                                        backgroundColor: msg.role === "user" ? activePersona.glow : undefined,
+                                        borderColor: msg.role === "user" ? `${activePersona.accent}33` : undefined 
+                                    }}>
                                         {msg.parts[0].text ? (
-                                            <div className="prose prose-invert prose-xs max-w-none prose-p:leading-relaxed prose-pre:bg-black/40 prose-code:text-mango">
+                                            <div className="prose prose-invert prose-xs max-w-none prose-p:leading-relaxed prose-pre:bg-black/40" style={{ '--tw-prose-code': activePersona.accent } as any}>
                                                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                                     {msg.parts[0].text}
                                                 </ReactMarkdown>
                                             </div>
                                         ) : (
                                             <div className="flex gap-1.5 p-1">
-                                                <div className="w-2 h-2 bg-mango/40 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                                                <div className="w-2 h-2 bg-mango/40 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                                                <div className="w-2 h-2 bg-mango/40 rounded-full animate-bounce" />
+                                                <div className="w-2 h-2 rounded-full animate-bounce [animation-delay:-0.3s]" style={{ backgroundColor: activePersona.accent }} />
+                                                <div className="w-2 h-2 rounded-full animate-bounce [animation-delay:-0.15s]" style={{ backgroundColor: activePersona.accent }} />
+                                                <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: activePersona.accent }} />
                                             </div>
                                         )}
                                     </div>
@@ -238,9 +247,9 @@ export function AssistantSidebar() {
             {/* Input Footer */}
             <footer className="p-6 shrink-0 bg-gradient-to-t from-background via-background to-transparent pt-10">
                 <div className="relative group/input">
-                    <div className="absolute -inset-1 bg-mango/20 rounded-[1.5rem] blur-xl opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-1000" />
+                    <div className="absolute -inset-1 rounded-[1.5rem] blur-xl opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-1000" style={{ backgroundColor: activePersona.glow }} />
                     
-                    <div className="relative flex items-end gap-3 bg-black/40 border border-white/10 rounded-[1.5rem] p-2 pr-3 transition-all duration-300 focus-within:border-mango/40">
+                    <div className="relative flex items-end gap-3 bg-black/40 border border-white/10 rounded-[1.5rem] p-2 pr-3 transition-all duration-300 group-focus-within/input:border-opacity-100" style={{ borderColor: `${activePersona.accent}33` }}>
                         <textarea 
                             ref={textareaRef}
                             value={input}
@@ -263,7 +272,8 @@ export function AssistantSidebar() {
                             <Button 
                                 onClick={handleSend}
                                 disabled={!input.trim() || isLoading}
-                                className="rounded-xl bg-mango text-black font-black uppercase tracking-widest text-[8px] h-10 w-10 p-0 hover:scale-105 active:scale-95 transition-all disabled:opacity-20"
+                                className="rounded-xl text-black font-black uppercase tracking-widest text-[8px] h-10 w-10 p-0 hover:scale-105 active:scale-95 transition-all disabled:opacity-20"
+                                style={{ backgroundColor: activePersona.accent }}
                             >
                                 {isLoading ? (
                                     <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
