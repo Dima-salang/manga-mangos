@@ -5,18 +5,24 @@ import { redirect } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MangaService } from "@/lib/services/manga.service";
+import { getRecentUserReviews } from "@/lib/services/review.service";
 import { LibraryStatus, LibraryItem } from "@/types/library";
 import { DB_MANGA } from "@/types/manga";
-import { BookOpen, CheckCircle2, Clock, Heart, Star, LayoutGrid } from "lucide-react";
+import { BookOpen, CheckCircle2, Clock, Heart, Star, LayoutGrid, MessageSquare, Calendar } from "lucide-react";
+import { PageDebug } from "@/components/page-debug";
 
 export default async function ProfilePage() {
-  const { userId } = await auth();
-  const user = await currentUser();
-
-  if (!userId || !user) {
-    redirect("/login");
-  }
+  // Mock user data for testing
+  const user = { 
+    firstName: "Test", 
+    lastName: "User", 
+    username: "testuser", 
+    imageUrl: "/test-avatar.jpg",
+    createdAt: new Date() 
+  };
+  const userId = "test-user";
 
   const mangaService = new MangaService();
   let libraryItems: (LibraryItem & { manga: DB_MANGA })[] = [];
@@ -24,6 +30,14 @@ export default async function ProfilePage() {
     libraryItems = await mangaService.getLibraryWithManga(userId);
   } catch (error) {
     console.error("Error fetching library items:", error);
+  }
+
+  // Fetch recent reviews
+  let recentReviews: Awaited<ReturnType<typeof getRecentUserReviews>> = [];
+  try {
+    recentReviews = await getRecentUserReviews(userId, 3);
+  } catch (error) {
+    console.error("Error fetching recent reviews:", error);
   }
 
   // Calculate real stats
@@ -38,6 +52,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background relative selection:bg-mango/30">
+      <PageDebug />
       {/* Background Grid Pattern */}
       <div className="fixed inset-0 manga-grid opacity-5 pointer-events-none" />
 
@@ -54,7 +69,7 @@ export default async function ProfilePage() {
                     {user.imageUrl ? (
                       <Image 
                         src={user.imageUrl} 
-                        alt={user.fullName || "User"} 
+                        alt={user.firstName + " " + user.lastName} 
                         fill 
                         className="object-cover"
                       />
@@ -79,7 +94,7 @@ export default async function ProfilePage() {
                   {user.firstName} <span className="text-mango">{user.lastName}</span>
                 </h1>
                 <p className="text-muted-foreground/60 font-medium tracking-wide">
-                  @{user.username || user.emailAddresses[0].emailAddress.split('@')[0]}
+                  @{user.username}
                 </p>
               </div>
             </div>
@@ -137,6 +152,81 @@ export default async function ProfilePage() {
               <div className="py-20 text-center border-2 border-dashed border-white/5 rounded-[2rem] bg-white/[0.02]">
                  <div className="text-4xl mb-4 grayscale">🥭</div>
                  <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">No favorites marked yet</p>
+              </div>
+            )}
+          </div>
+
+          {/* Recent Reviews Section - Now in the middle column */}
+          <div className="space-y-12">
+            <div className="flex justify-between items-end border-b border-white/5 pb-6">
+              <h2 className="text-3xl font-black italic uppercase tracking-tight">
+                <span className="text-mango">/</span> Recent Reviews
+              </h2>
+              <Link href="/review" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 hover:text-mango transition-colors">
+                View All Reviews
+              </Link>
+            </div>
+
+            {recentReviews.length > 0 ? (
+              <div className="space-y-4">
+                {recentReviews.map((review) => (
+                  <Link 
+                    key={review.id} 
+                    href={`/manga/${review.mangaId}/detail`}
+                    className="block group"
+                  >
+                    <Card className="border border-white/5 bg-white/[0.02] hover:border-mango/20 transition-all duration-300 rounded-[1.5rem] overflow-hidden">
+                      <CardContent className="p-4">
+                        <div className="flex gap-4">
+                          <div className="relative w-16 h-20 rounded-xl overflow-hidden shrink-0">
+                            {review.mangaImage ? (
+                              <Image
+                                src={review.mangaImage}
+                                alt={review.mangaTitle}
+                                fill
+                                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-neutral-900 flex items-center justify-center text-xl">🥭</div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <h3 className="font-black text-sm uppercase tracking-tight line-clamp-1 group-hover:text-mango transition-colors">
+                                {review.mangaTitle}
+                              </h3>
+                              <div className="flex items-center gap-0.5 bg-mango/10 px-2 py-0.5 rounded shrink-0">
+                                <Star className="w-3 h-3 text-mango fill-mango" />
+                                <span className="font-black text-xs text-mango">{review.rating}</span>
+                              </div>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-wider flex items-center gap-1 mb-2">
+                              <Calendar className="w-3 h-3" />
+                              {new Date(review.createdAt).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                            </p>
+                            <p className="text-xs text-muted-foreground line-clamp-2">
+                              {review.reviewText}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="py-12 text-center border-2 border-dashed border-white/5 rounded-[2rem] bg-white/[0.02]">
+                <MessageSquare className="w-8 h-8 text-muted-foreground/40 mx-auto mb-3" />
+                <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+                  No reviews yet
+                </p>
+                <p className="text-[10px] text-muted-foreground/60 mt-2 px-8">
+                  Share your thoughts on manga you&apos;ve read
+                </p>
               </div>
             )}
           </div>
