@@ -19,6 +19,7 @@ const assistantSchema = z.object({
       }),
     )
     .optional(),
+  systemInstruction: z.string().optional(),
 });
 
 const GLOBAL_SYSTEM_RULES = `You are an AI assistant integrated into the Manga-Mangos platform.
@@ -92,6 +93,7 @@ export async function POST(req: NextRequest) {
       message,
       userId,
       history,
+      systemInstruction: incomingSystemInstruction,
     } = assistantSchema.parse(await req.json());
 
     if (!process.env.GEMINI_API_KEY) {
@@ -108,7 +110,8 @@ export async function POST(req: NextRequest) {
     let finalSystemInstruction =
       GLOBAL_SYSTEM_RULES +
       "\n\n" +
-      "You are the MangaMangos Assistant, a helpful and enthusiastic AI built for manga fans.";
+      (incomingSystemInstruction ||
+        "You are the MangaMangos Assistant, a helpful and enthusiastic AI built for manga fans.");
 
     // Inject library context if userId is provided
     if (userId) {
@@ -120,7 +123,7 @@ export async function POST(req: NextRequest) {
       model: "gemini-2.5-flash-lite",
       contents: [
         ...(history || []).map((h: any) => ({
-          role: h.role === "assistant" ? "model" : h.role,
+          role: h.role,
           parts: h.parts,
         })),
         { role: "user", parts: [{ text: message }] },
@@ -135,15 +138,18 @@ export async function POST(req: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
+          console.log("Stream started with gemini-2.5-flash");
           for await (const chunk of result) {
             const text = chunk.text;
             if (text) {
+              console.log(`Stream chunk received: ${text.length} characters`);
               controller.enqueue(encoder.encode(text));
             }
           }
+          console.log("Stream completed successfully");
         } catch (e: any) {
           console.error("Critical Stream Error:", e);
-          const errorMessage = `\n\n[Error]: ${e.message || "The AI encountered an issue during streaming."}`;
+          const errorMessage = `\n\n[Error]: The AI encountered an issue during streaming.`;
           controller.enqueue(encoder.encode(errorMessage));
         } finally {
           controller.close();
