@@ -28,6 +28,10 @@ export const PersonaAvatar = ({
 }: PersonaAvatarProps) => {
     const [error, setError] = React.useState(false);
 
+    React.useEffect(() => {
+        setError(false);
+    }, [src]);
+
     if (error) {
         return (
             <div className={cn("flex items-center justify-center w-full h-full", className)}>
