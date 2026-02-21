@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, ReactNode, useMemo } from "react";
 import { useUser } from "@clerk/nextjs";
+import { AIPersonas } from "@/types/chat";
 
 interface Message {
     role: "user" | "model";
@@ -15,8 +16,10 @@ interface ChatContextType {
     user: ReturnType<typeof useUser>["user"];
     isSignedIn: boolean | undefined;
     isLoaded: boolean;
+    persona: string; // The ID/key of the persona (e.g. 'default', 'KUROHANA')
+    setPersona: (persona: string) => void;
     setIsOpen: (open: boolean) => void;
-    sendMessage: (message: string, systemPrompt?: string) => Promise<void>;
+    sendMessage: (message: string) => Promise<void>;
     clearHistory: () => void;
 }
 
@@ -26,12 +29,12 @@ export function ChatProvider({ children }: { readonly children: ReactNode }) {
     const [history, setHistory] = useState<Message[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
-
+    const [personaKey, setPersonaKey] = useState<keyof typeof AIPersonas>("default");
     const { isSignedIn, user, isLoaded } = useUser();
     
 
 
-    const sendMessage = async (userMessage: string, systemPrompt?: string) => {
+    const sendMessage = async (userMessage: string) => {
         if (!userMessage.trim() || isLoading) return;
 
         const newHistory: Message[] = [
@@ -54,7 +57,7 @@ export function ChatProvider({ children }: { readonly children: ReactNode }) {
                     message: userMessage, 
                     userId: user?.id,
                     history: history,
-                    systemInstruction: (systemPrompt?.trim() || "") + userContext || undefined
+                    systemInstruction: userContext + (AIPersonas[personaKey] || AIPersonas.default) || undefined
                 }),
             });
 
@@ -122,10 +125,12 @@ export function ChatProvider({ children }: { readonly children: ReactNode }) {
         user,
         isSignedIn,
         isLoaded,
+        persona: personaKey,
+        setPersona: (key: string) => setPersonaKey(key as keyof typeof AIPersonas),
         setIsOpen,
         sendMessage,
         clearHistory
-    }), [history, isLoading, isOpen, user, isSignedIn, isLoaded]);
+    }), [history, isLoading, isOpen, user, isSignedIn, isLoaded, personaKey]);
 
     return (
         <ChatContext.Provider value={value}>
