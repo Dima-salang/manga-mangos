@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Manga, JikanResponse, MangaTypeFilter, TopMangaFilter } from '@/types/manga';
 import { toast } from "sonner";
-import { MangaCard } from "@/components/manga-card";
 import { 
   Select, 
   SelectContent, 
@@ -22,7 +21,31 @@ const DecorativeReviews = dynamic(
   }
 );
 
-import { TrendingHeroCarousel } from "@/components/manga/trending-hero-carousel";
+const TrendingHeroCarousel = dynamic(
+  () => import("@/components/manga/trending-hero-carousel").then((mod) => mod.TrendingHeroCarousel),
+  { 
+    ssr: false,
+    loading: () => <div className="h-[600px] w-full flex items-center justify-center bg-card/10 rounded-[2.5rem] mb-16 animate-pulse" />
+  }
+);
+
+const GenreSectionCarousel = dynamic(
+  () => import("@/components/manga/genre-section-carousel").then((mod) => mod.GenreSectionCarousel),
+  { 
+    ssr: false,
+    loading: () => <div className="h-[400px] w-full flex items-center justify-center bg-card/5 rounded-3xl mb-24 animate-pulse" />
+  }
+);
+
+const CommunityRecommendations = dynamic(
+  () => import("@/components/manga/community-recommendations").then((mod) => mod.CommunityRecommendations),
+  { 
+    ssr: false,
+    loading: () => <div className="h-[600px] w-full flex items-center justify-center bg-card/10 rounded-[2.5rem] mb-16 animate-pulse" />
+  }
+);
+
+const SECTIONS = ["Action", "Shounen", "Romance", "Fantasy", "Horror"];
 
 export default function BrowsePage() {
   const [trendingManga, setTrendingManga] = useState<Manga[]>([]);
@@ -79,6 +102,7 @@ export default function BrowsePage() {
                 </SelectTrigger>
                 <SelectContent className="bg-card border-2 border-primary/20 rounded-xl overflow-hidden backdrop-blur-xl">
                   <SelectItem value="popularity" className="font-bold hover:bg-mango/10 focus:bg-mango/10 transition-colors">Popularity</SelectItem>
+
                   <SelectItem value="rating" className="font-bold hover:bg-mango/10 focus:bg-mango/10 transition-colors">Rating</SelectItem>
                   <SelectItem value="recent" className="font-bold hover:bg-mango/10 focus:bg-mango/10 transition-colors">Recent</SelectItem>
                 </SelectContent>
@@ -89,20 +113,20 @@ export default function BrowsePage() {
           <TrendingHeroCarousel mangaList={trendingManga} isLoading={isLoading} />
         </section>
 
-        <DecorativeReviews />
+        <GenreSectionCarousel genreName="Action" />
+        <GenreSectionCarousel genreName="Romance" />
+        <GenreSectionCarousel genreName="Comedy" />
+        <GenreSectionCarousel genreName="Fantasy" />
 
-        <section className="mb-24">
-          <div className="mb-12 border-b-4 border-mango-secondary/20 pb-6">
-            <h2 className="text-4xl font-black italic uppercase tracking-tight">
-              <span className="text-mango mr-2">/</span>Recommended
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {trendingManga.slice(0, 4).map(manga => (
-              <MangaCard key={`rec-${manga.mal_id}`} manga={manga} />
-            ))}
-          </div>
-        </section>
+        <DecorativeReviews />
+        <CommunityRecommendations />
+
+        <GenreSectionCarousel genreName="Shounen" />
+        <GenreSectionCarousel genreName="Adventure" />
+        <GenreSectionCarousel genreName="Sci-Fi" />
+        <GenreSectionCarousel genreName="Horror" />
+        <GenreSectionCarousel genreName="Mystery" />
+        <GenreSectionCarousel genreName="Supernatural" />
       </main>
 
       <footer className="py-24 border-t border-white/5 opacity-30 select-none pointer-events-none overflow-hidden">
