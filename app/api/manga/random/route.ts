@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     console.error("Error fetching random manga:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to fetch random manga" },
+      { error: "Failed to fetch random manga" },
       { status: 500 },
     );
   }
