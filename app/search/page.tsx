@@ -23,14 +23,8 @@ import { Manga, JikanResponse, GENRE_MAP } from "@/types/manga";
 import { MangaCard, MangaCardSkeleton } from "@/components/manga-card";
 import { Search, SlidersHorizontal, ArrowUp } from "lucide-react";
 
-const GENRES = [
-  "Action", "Adventure", "Cars", "Comedy", "Dementia", "Demons", "Drama", "Ecchi",
-  "Fantasy", "Game", "Harem", "Historical", "Horror", "Isekai", "Josei", "Kids",
-  "Magic", "Martial Arts", "Mecha", "Military", "Music", "Mystery", "Parody", "Police",
-  "Psychological", "Romance", "Samurai", "School", "Sci-Fi", "Seinen", "Shoujo", "Shoujo Ai",
-  "Shounen", "Shounen Ai", "Slice of Life", "Space", "Sports", "Super Power", "Supernatural",
-  "Thriller", "Vampire",
-];
+
+const GENRES = Object.keys(GENRE_MAP).sort((a, b) => a.localeCompare(b));
 
 
 export default function SearchPage() {
