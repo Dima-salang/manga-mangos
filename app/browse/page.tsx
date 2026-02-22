@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Manga, JikanResponse, MangaTypeFilter, TopMangaFilter } from '@/types/manga';
 import { toast } from "sonner";
-import { MangaCard, MangaCardSkeleton } from "@/components/manga-card";
+import { MangaCard } from "@/components/manga-card";
 import { 
   Select, 
   SelectContent, 
@@ -11,6 +11,18 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const DecorativeReviews = dynamic(
+  () => import("@/components/manga/decorative-reviews").then((mod) => mod.DecorativeReviews),
+  { 
+    ssr: false,
+    loading: () => <div className="h-[400px] w-full flex items-center justify-center"><Loader2 className="animate-spin text-mango" size={32} /></div>
+  }
+);
+
+import { TrendingHeroCarousel } from "@/components/manga/trending-hero-carousel";
 
 export default function BrowsePage() {
   const [trendingManga, setTrendingManga] = useState<Manga[]>([]);
@@ -29,7 +41,7 @@ export default function BrowsePage() {
         filter = TopMangaFilter.FAVORITE;
       }
       
-      const response = await fetch(`/api/manga/top?type=${MangaTypeFilter.MANGA}&filter=${filter}&limit=8`);
+      const response = await fetch(`/api/manga/top?type=${MangaTypeFilter.MANGA}&filter=${filter}&limit=10`);
       
       if (!response.ok) {
         const text = await response.text();
@@ -74,18 +86,10 @@ export default function BrowsePage() {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {isLoading ? (
-              ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8'].map((key) => (
-                <MangaCardSkeleton key={key} />
-              ))
-            ) : (
-              trendingManga.map(manga => (
-                <MangaCard key={manga.mal_id} manga={manga} />
-              ))
-            )}
-          </div>
+          <TrendingHeroCarousel mangaList={trendingManga} isLoading={isLoading} />
         </section>
+
+        <DecorativeReviews />
 
         <section className="mb-24">
           <div className="mb-12 border-b-4 border-mango-secondary/20 pb-6">
