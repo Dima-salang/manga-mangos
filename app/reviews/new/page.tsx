@@ -172,7 +172,7 @@ export default function NewReviewPage() {
                             alt={manga.title}
                             className="w-12 h-16 object-cover rounded"
                           />
-                        )}
+                        ): null}
                         <div>
                           <h4 className="font-medium">{manga.title}</h4>
                           <p className="text-sm text-muted-foreground">ID: {manga.mal_id}</p>
@@ -196,7 +196,7 @@ export default function NewReviewPage() {
                       alt={selectedManga.title}
                       className="w-16 h-20 object-cover rounded"
                     />
-                  )}
+                  ): null}
                   <div>
                     <h3 className="font-semibold">{selectedManga.title}</h3>
                     <p className="text-sm text-muted-foreground">MAL ID: {selectedManga.mal_id}</p>
