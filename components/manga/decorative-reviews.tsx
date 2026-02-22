@@ -32,39 +32,52 @@ export function DecorativeReviews() {
   useEffect(() => {
     if (hasStartedFetching.current) return;
 
+    const currentContainer = containerRef.current;
+    if (!currentContainer) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && !hasStartedFetching.current) {
           hasStartedFetching.current = true;
           startFetching();
+          observer.unobserve(currentContainer);
         }
       },
-      { rootMargin: "100px" }
+      { rootMargin: "400px" }
     );
 
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
+    observer.observe(currentContainer);
 
     async function startFetching() {
       setIsLoading(true);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+
       try {
-        const res = await fetch("/api/reviews/top");
-        if (!res.ok) throw new Error("Failed to fetch reviews");
-        const json = await res.json();
-        const data: TopReviewResponse = json;
+        const res = await fetch("/api/reviews/top", { signal: controller.signal });
+        console.log(res);
+        if (!res.ok) throw new Error(`Failed to fetch reviews: ${res.status}`);
+        const data: TopReviewResponse = await res.json();
+        console.log(data);
         setReviews(data.data || []);
-      } catch (error) {
-        console.error("Error loading decorative reviews:", error);
+      } catch (error: any) {
+        if (error.name === 'AbortError') {
+          console.warn("Decorative reviews fetch timed out");
+        } else {
+          console.error("Error loading decorative reviews:", error);
+        }
+        setReviews([]); // Ensure we don't stay in loading state forever
       } finally {
+        clearTimeout(timeoutId);
         setIsLoading(false);
       }
     }
 
-    return () => observer.disconnect();
+    return () => {
+      if (currentContainer) observer.unobserve(currentContainer);
+      observer.disconnect();
+    };
   }, []);
-
-  if (reviews.length === 0 && !isLoading) return null;
 
   return (
     <section ref={containerRef} className="py-24 overflow-hidden relative min-h-[400px]">
@@ -85,7 +98,7 @@ export function DecorativeReviews() {
         <div className="w-full flex items-center justify-center py-12">
           <Loader2 className="animate-spin text-mango" size={32} />
         </div>
-      ) : (
+      ) : reviews.length > 0 ? (
         <div 
           className="embla overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]" 
           ref={emblaRef}
@@ -97,6 +110,10 @@ export function DecorativeReviews() {
               </div>
             ))}
           </div>
+        </div>
+      ) : (
+        <div className="text-center py-12 text-muted-foreground italic font-black uppercase tracking-[0.2em] opacity-20">
+          Searching for reviews...
         </div>
       )}
     </section>
