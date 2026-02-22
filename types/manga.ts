@@ -50,23 +50,31 @@ export const MangaSchema = z.object({
   volumes: z.number().nullish(),
   status: z.string().nullish(),
   publishing: z.boolean().nullish(),
-  published: z.object({
-    from: z.string().nullish(),
-    to: z.string().nullish(),
-    prop: z.object({
-      from: z.object({
-        day: z.number().nullish(),
-        month: z.number().nullish(),
-        year: z.number().nullish(),
-      }),
-      to: z.object({
-        day: z.number().nullish(),
-        month: z.number().nullish(),
-        year: z.number().nullish(),
-      }),
-      string: z.string().nullish(),
-    }),
-  }),
+  published: z
+    .object({
+      from: z.string().nullish(),
+      to: z.string().nullish(),
+      prop: z
+        .object({
+          from: z
+            .object({
+              day: z.number().nullish(),
+              month: z.number().nullish(),
+              year: z.number().nullish(),
+            })
+            .nullish(),
+          to: z
+            .object({
+              day: z.number().nullish(),
+              month: z.number().nullish(),
+              year: z.number().nullish(),
+            })
+            .nullish(),
+          string: z.string().nullish(),
+        })
+        .nullish(),
+    })
+    .nullish(),
   score: z.number().nullish(),
   scored_by: z.number().nullish(),
   rank: z.number().nullish(),
@@ -75,12 +83,24 @@ export const MangaSchema = z.object({
   favorites: z.number().nullish(),
   synopsis: z.string().nullish(),
   background: z.string().nullish(),
-  authors: z.array(JikanResourceSchema),
-  serializations: z.array(JikanResourceSchema),
-  genres: z.array(JikanResourceSchema),
-  explicit_genres: z.array(JikanResourceSchema),
-  themes: z.array(JikanResourceSchema),
-  demographics: z.array(JikanResourceSchema),
+  authors: z
+    .union([z.array(JikanResourceSchema), z.null()])
+    .transform((v) => v ?? []),
+  serializations: z
+    .union([z.array(JikanResourceSchema), z.null()])
+    .transform((v) => v ?? []),
+  genres: z
+    .union([z.array(JikanResourceSchema), z.null()])
+    .transform((v) => v ?? []),
+  explicit_genres: z
+    .union([z.array(JikanResourceSchema), z.null()])
+    .transform((v) => v ?? []),
+  themes: z
+    .union([z.array(JikanResourceSchema), z.null()])
+    .transform((v) => v ?? []),
+  demographics: z
+    .union([z.array(JikanResourceSchema), z.null()])
+    .transform((v) => v ?? []),
 });
 
 export type Manga = z.infer<typeof MangaSchema>;
