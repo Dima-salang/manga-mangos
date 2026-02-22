@@ -211,4 +211,10 @@ export class MangaService {
       redis.del(`libraryContext:${userId}`),
     ]);
   }
+
+
+  // get a random manga
+  async getRandomManga(): Promise<Manga> {
+    return await mangaFetch<Manga>("random/manga");
+  }
 }
