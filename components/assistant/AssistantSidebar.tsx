@@ -112,7 +112,7 @@ export function AssistantSidebar() {
                         variant="ghost" 
                         size="icon" 
                         onClick={clearHistory}
-                        className="w-8 h-8 rounded-lg hover:bg-destructive/10 hover:text-destructive text-muted-foreground/40 transition-colors"
+                        className="cursor-pointer w-8 h-8 rounded-lg hover:bg-destructive/10 hover:text-destructive text-muted-foreground/40 transition-colors"
                         title="Clear History"
                     >
                         <Trash2 className="w-4 h-4" />
@@ -121,7 +121,7 @@ export function AssistantSidebar() {
                         variant="ghost" 
                         size="icon" 
                         onClick={() => setIsOpen(false)}
-                        className="w-8 h-8 rounded-lg hover:bg-white/5 text-muted-foreground transition-colors"
+                        className="cursor-pointer w-8 h-8 rounded-lg hover:bg-white/5 text-muted-foreground transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </Button>
@@ -136,7 +136,7 @@ export function AssistantSidebar() {
                             key={p.id}
                             onClick={() => setPersona(p.id)}
                             className={cn(
-                                "flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all duration-300 group/p relative",
+                                "cursor-pointer flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all duration-300 group/p relative",
                                 persona === p.id 
                                     ? "bg-white/10 scale-105" 
                                     : "hover:bg-white/5 opacity-40 hover:opacity-100"
@@ -200,7 +200,7 @@ export function AssistantSidebar() {
                                     onClick={() => {
                                         setInput(suggestion);
                                     }}
-                                    className="text-[10px] font-black uppercase tracking-widest p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/[0.08] text-muted-foreground/60 transition-all text-left group/suggest"
+                                    className="cursor-pointer text-[10px] font-black uppercase tracking-widest p-3 rounded-xl bg-white/5 border border-white/5 hover:bg-white/[0.08] text-muted-foreground/60 transition-all text-left group/suggest"
                                     style={{ '--hover-border': activePersona.accent } as any}
                                 >
                                     <span className="group-hover/suggest:text-foreground transition-colors">{suggestion}</span>
@@ -300,7 +300,9 @@ export function AssistantSidebar() {
                             <Button 
                                 onClick={handleSend}
                                 disabled={!input.trim() || isLoading}
-                                className="rounded-xl text-black font-black uppercase tracking-widest text-[8px] h-10 w-10 p-0 hover:scale-105 active:scale-95 transition-all disabled:opacity-20"
+                                className={cn("rounded-xl text-black font-black uppercase tracking-widest text-[8px] h-10 w-10 p-0 hover:scale-105 active:scale-95 transition-all disabled:opacity-20",
+                                    !(!input.trim() || isLoading) ? "cursor-pointer" : "cursor-not-allowed"
+                                )}
                                 style={{ backgroundColor: activePersona.accent }}
                             >
                                 {isLoading ? (
