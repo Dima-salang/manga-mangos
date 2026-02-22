@@ -55,10 +55,8 @@ export function DecorativeReviews() {
 
       try {
         const res = await fetch("/api/reviews/top", { signal: controller.signal });
-        console.log(res);
         if (!res.ok) throw new Error(`Failed to fetch reviews: ${res.status}`);
         const data: TopReviewResponse = await res.json();
-        console.log(data);
         setReviews(data.data || []);
       } catch (error: any) {
         if (error.name === 'AbortError') {
