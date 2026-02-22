@@ -152,6 +152,11 @@
   .manga-card-gradient {
     background: linear-gradient(135deg, rgba(255, 159, 67, 0.05) 0%, transparent 100%);
   }
+
+  .manga-halftone-bg {
+    background-image: radial-gradient(var(--color-mango) 1px, transparent 0);
+    background-size: 8px 8px;
+  }
 }
 
 .select-filter {
