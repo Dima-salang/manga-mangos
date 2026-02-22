@@ -157,6 +157,9 @@ export const CommunityRecommendationsResponseSchema = z.object({
     })
     .optional(),
 });
+export type CommunityRecommendationsResponse = z.infer<
+  typeof CommunityRecommendationsResponseSchema
+>;
 
 export interface JikanResponse<T> {
   data: T;
