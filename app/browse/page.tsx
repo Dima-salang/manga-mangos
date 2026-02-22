@@ -45,7 +45,7 @@ const CommunityRecommendations = dynamic(
   }
 );
 
-const SECTIONS = ["Action", "Shounen", "Romance", "Fantasy", "Horror"];
+const BROWSE_GENRES = ["Action", "Romance", "Comedy", "Fantasy", "Shounen", "Adventure", "Sci-Fi", "Horror", "Mystery", "Supernatural"];
 
 export default function BrowsePage() {
   const [trendingManga, setTrendingManga] = useState<Manga[]>([]);
@@ -113,20 +113,18 @@ export default function BrowsePage() {
           <TrendingHeroCarousel mangaList={trendingManga} isLoading={isLoading} />
         </section>
 
-        <GenreSectionCarousel genreName="Action" />
-        <GenreSectionCarousel genreName="Romance" />
-        <GenreSectionCarousel genreName="Comedy" />
-        <GenreSectionCarousel genreName="Fantasy" />
+        {/* Top Genre Sections */}
+        {BROWSE_GENRES.slice(0, 4).map((genre) => (
+          <GenreSectionCarousel key={genre} genreName={genre} />
+        ))}
 
         <DecorativeReviews />
         <CommunityRecommendations />
 
-        <GenreSectionCarousel genreName="Shounen" />
-        <GenreSectionCarousel genreName="Adventure" />
-        <GenreSectionCarousel genreName="Sci-Fi" />
-        <GenreSectionCarousel genreName="Horror" />
-        <GenreSectionCarousel genreName="Mystery" />
-        <GenreSectionCarousel genreName="Supernatural" />
+        {/* Bottom Genre Sections */}
+        {BROWSE_GENRES.slice(4).map((genre) => (
+          <GenreSectionCarousel key={genre} genreName={genre} />
+        ))}
       </main>
 
       <footer className="py-24 border-t border-white/5 opacity-30 select-none pointer-events-none overflow-hidden">
