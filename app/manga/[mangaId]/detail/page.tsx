@@ -62,7 +62,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
 
   // try the response
   try {
-    const response = await mangaService.getManga(Number(mangaId));
+    const response = await mangaService.getManga(id);
     manga = response.data;
   } catch (error) {
     console.error(error);
@@ -102,7 +102,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
   // get the manga recommendations
   let recommendations: MangaRecommendation[] = [];
   try {
-    const response = await mangaService.getMangaRecommendations(Number(mangaId));
+    const response = await mangaService.getMangaRecommendations(id);
     recommendations = response.data;
   } catch (error) {
     // render not found recommendations in the ui
@@ -328,7 +328,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {[...manga.themes, ...manga.demographics].map(item => (
+                {[...(manga.themes || []), ...(manga.demographics || [])].map(item => (
                   <Badge
                     key={item.mal_id}
                     variant="secondary"
@@ -373,7 +373,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                       >
                         <div className="relative aspect-[3/4.2] rounded-2xl overflow-hidden mb-4 border border-white/5 group-hover/rec:border-mango/50 transition-colors duration-500 bg-neutral-900/50">
                           <Image
-                            src={rec.entry.images.webp.large_image_url || rec.entry.images.jpg.large_image_url}
+                            src={rec.entry.images.webp?.large_image_url ?? rec.entry.images.jpg?.large_image_url ?? "/placeholder-manga.jpg"}
                             alt={rec.entry.title}
                             fill
                             className="object-cover group-hover/rec:scale-110 transition-transform duration-700"
