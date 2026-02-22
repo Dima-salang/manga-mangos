@@ -38,6 +38,7 @@ export function ReviewCard({ review, className }: ReviewCardProps) {
                 src={review.user.images.jpg.image_url} 
                 alt={review.user.username || "User"}
                 fill
+                sizes="40px"
                 className="object-cover"
               />
             ) : (
@@ -81,6 +82,7 @@ export function ReviewCard({ review, className }: ReviewCardProps) {
                 src={item.images.jpg.image_url} 
                 alt={item.title || "Manga"}
                 fill
+                sizes="32px"
                 className="object-cover transition-transform group-hover:scale-110 duration-500"
               />
             ) : (

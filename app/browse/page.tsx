@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Manga, JikanResponse, MangaTypeFilter, TopMangaFilter } from '@/types/manga';
 import { toast } from "sonner";
-import { MangaCard, MangaCardSkeleton } from "@/components/manga-card";
 import { 
   Select, 
   SelectContent, 
@@ -11,6 +10,42 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { Loader2 } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const DecorativeReviews = dynamic(
+  () => import("@/components/manga/decorative-reviews").then((mod) => mod.DecorativeReviews),
+  { 
+    ssr: false,
+    loading: () => <div className="h-[400px] w-full flex items-center justify-center"><Loader2 className="animate-spin text-mango" size={32} /></div>
+  }
+);
+
+const TrendingHeroCarousel = dynamic(
+  () => import("@/components/manga/trending-hero-carousel").then((mod) => mod.TrendingHeroCarousel),
+  { 
+    ssr: false,
+    loading: () => <div className="h-[600px] w-full flex items-center justify-center bg-card/10 rounded-[2.5rem] mb-16 animate-pulse" />
+  }
+);
+
+const GenreSectionCarousel = dynamic(
+  () => import("@/components/manga/genre-section-carousel").then((mod) => mod.GenreSectionCarousel),
+  { 
+    ssr: false,
+    loading: () => <div className="h-[400px] w-full flex items-center justify-center bg-card/5 rounded-3xl mb-24 animate-pulse" />
+  }
+);
+
+const CommunityRecommendations = dynamic(
+  () => import("@/components/manga/community-recommendations").then((mod) => mod.CommunityRecommendations),
+  { 
+    ssr: false,
+    loading: () => <div className="h-[600px] w-full flex items-center justify-center bg-card/10 rounded-[2.5rem] mb-16 animate-pulse" />
+  }
+);
+
+const BROWSE_GENRES = ["Action", "Romance", "Comedy", "Fantasy", "Shounen", "Adventure", "Sci-Fi", "Horror", "Mystery", "Supernatural"];
 
 export default function BrowsePage() {
   const [trendingManga, setTrendingManga] = useState<Manga[]>([]);
@@ -29,7 +64,7 @@ export default function BrowsePage() {
         filter = TopMangaFilter.FAVORITE;
       }
       
-      const response = await fetch(`/api/manga/top?type=${MangaTypeFilter.MANGA}&filter=${filter}&limit=8`);
+      const response = await fetch(`/api/manga/top?type=${MangaTypeFilter.MANGA}&filter=${filter}&limit=10`);
       
       if (!response.ok) {
         const text = await response.text();
@@ -67,6 +102,7 @@ export default function BrowsePage() {
                 </SelectTrigger>
                 <SelectContent className="bg-card border-2 border-primary/20 rounded-xl overflow-hidden backdrop-blur-xl">
                   <SelectItem value="popularity" className="font-bold hover:bg-mango/10 focus:bg-mango/10 transition-colors">Popularity</SelectItem>
+
                   <SelectItem value="rating" className="font-bold hover:bg-mango/10 focus:bg-mango/10 transition-colors">Rating</SelectItem>
                   <SelectItem value="recent" className="font-bold hover:bg-mango/10 focus:bg-mango/10 transition-colors">Recent</SelectItem>
                 </SelectContent>
@@ -74,31 +110,21 @@ export default function BrowsePage() {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {isLoading ? (
-              ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8'].map((key) => (
-                <MangaCardSkeleton key={key} />
-              ))
-            ) : (
-              trendingManga.map(manga => (
-                <MangaCard key={manga.mal_id} manga={manga} />
-              ))
-            )}
-          </div>
+          <TrendingHeroCarousel mangaList={trendingManga} isLoading={isLoading} />
         </section>
 
-        <section className="mb-24">
-          <div className="mb-12 border-b-4 border-mango-secondary/20 pb-6">
-            <h2 className="text-4xl font-black italic uppercase tracking-tight">
-              <span className="text-mango mr-2">/</span>Recommended
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {trendingManga.slice(0, 4).map(manga => (
-              <MangaCard key={`rec-${manga.mal_id}`} manga={manga} />
-            ))}
-          </div>
-        </section>
+        {/* Top Genre Sections */}
+        {BROWSE_GENRES.slice(0, 4).map((genre) => (
+          <GenreSectionCarousel key={genre} genreName={genre} />
+        ))}
+
+        <DecorativeReviews />
+        <CommunityRecommendations />
+
+        {/* Bottom Genre Sections */}
+        {BROWSE_GENRES.slice(4).map((genre) => (
+          <GenreSectionCarousel key={genre} genreName={genre} />
+        ))}
       </main>
 
       <footer className="py-24 border-t border-white/5 opacity-30 select-none pointer-events-none overflow-hidden">
