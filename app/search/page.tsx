@@ -2,11 +2,8 @@
 
 import { useState, useEffect, useCallback, Suspense, useRef } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,9 +19,9 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from "@/components/ui/pagination";
-import { Manga, JikanResponse } from "@/types/manga";
+import { Manga, JikanResponse, GENRE_MAP } from "@/types/manga";
 import { MangaCard, MangaCardSkeleton } from "@/components/manga-card";
-import { Search, SlidersHorizontal, Star, Users, ArrowUp } from "lucide-react";
+import { Search, SlidersHorizontal, ArrowUp } from "lucide-react";
 
 const GENRES = [
   "Action", "Adventure", "Cars", "Comedy", "Dementia", "Demons", "Drama", "Ecchi",
@@ -35,50 +32,6 @@ const GENRES = [
   "Thriller", "Vampire",
 ];
 
-// Map genre names to Jikan genre IDs
-const GENRE_MAP: Record<string, number> = {
-  "Action": 1,
-  "Adventure": 2,
-  "Cars": 3,
-  "Comedy": 4,
-  "Dementia": 5,
-  "Demons": 6,
-  "Drama": 8,
-  "Ecchi": 9,
-  "Fantasy": 10,
-  "Game": 11,
-  "Harem": 35,
-  "Historical": 13,
-  "Horror": 14,
-  "Isekai": 62,
-  "Josei": 43,
-  "Kids": 15,
-  "Magic": 16,
-  "Martial Arts": 17,
-  "Mecha": 18,
-  "Military": 38,
-  "Music": 19,
-  "Mystery": 7,
-  "Parody": 20,
-  "Police": 39,
-  "Psychological": 40,
-  "Romance": 22,
-  "Samurai": 21,
-  "School": 23,
-  "Sci-Fi": 24,
-  "Seinen": 42,
-  "Shoujo": 25,
-  "Shoujo Ai": 26,
-  "Shounen": 27,
-  "Shounen Ai": 28,
-  "Slice of Life": 36,
-  "Space": 29,
-  "Sports": 30,
-  "Super Power": 31,
-  "Supernatural": 37,
-  "Thriller": 41,
-  "Vampire": 32,
-};
 
 export default function SearchPage() {
   return (
@@ -120,7 +73,7 @@ function SearchContent() {
   const [maxScore, setMaxScore] = useState("");
   const [sfw, setSfw] = useState(true);
   const [language, setLanguage] = useState("all");
-  const [orderBy, setOrderBy] = useState("");
+  const [orderBy, setOrderBy] = useState("popularity");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [excludedGenres, setExcludedGenres] = useState<string[]>([]);
@@ -134,29 +87,68 @@ function SearchContent() {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
 
-  // Sync searchQuery when URL changes (e.g. from back/forward nav)
+  // Sync searchQuery and filters when URL changes
   useEffect(() => {
     const q = searchParams.get("q") || "";
     if (q !== searchQuery) {
       setSearchQuery(q);
     }
+
+    const genreIds = searchParams.get("genres")?.split(",") || [];
+    if (genreIds.length > 0) {
+      const genreNames = Object.entries(GENRE_MAP)
+        .filter(([_, id]) => genreIds.includes(String(id)))
+        .map(([name, _]) => name);
+      
+      setSelectedGenres(prev => {
+        const currentSorted = [...prev].sort((a, b) => a.localeCompare(b));
+        const newSorted = [...genreNames].sort((a, b) => a.localeCompare(b));
+        
+        if (JSON.stringify(currentSorted) !== JSON.stringify(newSorted)) {
+          return genreNames;
+        }
+        return prev;
+      });
+    }
+
+    const typeParam = searchParams.get("type");
+    if (typeParam) setType(typeParam);
+
+    const orderByParam = searchParams.get("order_by");
+    if (orderByParam) setOrderBy(orderByParam);
   }, [searchParams]);
 
-  // Update URL when debounced query changes
+  // Update URL when filters change
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
+    
+    // Update Search Query
     if (debouncedQuery) {
       params.set("q", debouncedQuery);
     } else {
       params.delete("q");
     }
-    
-    // Only push if different to avoid infinite loops or unnecessary history state
-    const currentQ = searchParams.get("q") || "";
-    if (debouncedQuery !== currentQ) {
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+
+    // Update Genres
+    const genreIds = selectedGenres.map(g => GENRE_MAP[g]).filter(Boolean).join(",");
+    if (genreIds) {
+      params.set("genres", genreIds);
+    } else {
+      params.delete("genres");
     }
-  }, [debouncedQuery, pathname, router, searchParams]);
+
+    // Update other basic filters to keep URL in sync
+    if (type !== "all") params.set("type", type);
+    if (orderBy !== "popularity") params.set("order_by", orderBy);
+    
+    // Only push if different
+    const currentUrl = `${pathname}?${params.toString()}`;
+    const actualUrl = `${pathname}?${searchParams.toString()}`;
+    
+    if (currentUrl !== actualUrl) {
+      router.replace(currentUrl, { scroll: false });
+    }
+  }, [debouncedQuery, selectedGenres, type, orderBy, pathname, router, searchParams]);
 
   // Debounce search query
   useEffect(() => {
