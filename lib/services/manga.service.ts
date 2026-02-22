@@ -4,6 +4,7 @@ import {
   Manga,
   JikanResponse,
   MangaRecommendation,
+  CommunityRecommendation,
   DB_MANGA,
 } from "@/types/manga";
 import { LibraryItem, LibraryStatus } from "@/types/library";
@@ -79,6 +80,14 @@ export class MangaService {
   ): Promise<JikanResponse<MangaRecommendation[]>> {
     return await mangaFetch<JikanResponse<MangaRecommendation[]>>(
       `manga/${id}/recommendations`,
+    );
+  }
+
+  async getCommunityRecommendations(
+    page: number = 1,
+  ): Promise<JikanResponse<CommunityRecommendation[]>> {
+    return await mangaFetch<JikanResponse<CommunityRecommendation[]>>(
+      `recommendations/manga?page=${page}`,
     );
   }
 
