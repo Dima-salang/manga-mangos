@@ -36,10 +36,15 @@ export default function ReviewsPage() {
   const fetchReviews = async () => {
     try {
       const response = await fetch('/api/reviews');
+      console.log('status:', response.status);
+      
       if (!response.ok) throw new Error('Failed to fetch reviews');
+      
       const data = await response.json();
-      setReviews(data);
+      console.log('API data:', data)
+      setReviews(data.reviews);
     } catch (error) {
+      console.error(error);
       toast.error('Failed to load reviews');
     } finally {
       setLoading(false);
