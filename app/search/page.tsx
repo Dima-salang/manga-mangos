@@ -22,6 +22,7 @@ import {
 import { Manga, JikanResponse, GENRE_MAP } from "@/types/manga";
 import { MangaCard, MangaCardSkeleton } from "@/components/manga-card";
 import { Search, SlidersHorizontal, ArrowUp } from "lucide-react";
+import { DiceIcon } from "@/components/icons/dice-icon";
 
 
 const GENRES = Object.keys(GENRE_MAP).sort((a, b) => a.localeCompare(b));
@@ -315,11 +316,12 @@ function SearchContent() {
                      type="button"
                      variant="ghost"
                      size="icon"
-                     onClick={() => router.push('/api/manga/random')}
+                     onClick={() => globalThis.location.href = '/api/manga/random'}
                      className="w-10 h-10 rounded-xl hover:bg-mango/10 text-mango/40 hover:text-mango transition-all group/random"
                      title="Surprise Me"
+                     aria-label="Surprise Me"
                    >
-                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover/random:rotate-180 transition-transform duration-500"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><circle cx="15.5" cy="15.5" r="1.5"/><circle cx="15.5" cy="8.5" r="1.5"/><circle cx="8.5" cy="15.5" r="1.5"/><circle cx="12" cy="12" r="1.5"/></svg>
+                     <DiceIcon className="w-5 h-5 group-hover/random:rotate-180 transition-transform duration-500" />
                    </Button>
                    <Button size="icon" type="submit" className="bg-mango hover:bg-mango/80 text-white rounded-xl h-10 w-10 shadow-lg shadow-mango/20">
                      <ArrowUp className="w-5 h-5 rotate-90" />

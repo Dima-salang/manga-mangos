@@ -7,6 +7,7 @@ import { Search } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { DiceIcon } from "@/components/icons/dice-icon";
 
 export default function LandingPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -72,11 +73,12 @@ export default function LandingPage() {
                       <Button
                         type="button"
                         variant="ghost"
-                        onClick={() => router.push('/api/manga/random')}
+                        onClick={() => globalThis.location.href = '/api/manga/random'}
                         className="h-10 px-4 rounded-xl hover:bg-black/5 text-black/60 hover:text-black transition-all flex items-center gap-2 font-bold uppercase text-[10px] tracking-widest group/random"
+                        aria-label="Surprise Me"
                       >
                         <span className="opacity-40 group-hover/random:opacity-100 group-hover/random:rotate-180 transition-all duration-500">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><circle cx="15.5" cy="15.5" r="1.5"/><circle cx="15.5" cy="8.5" r="1.5"/><circle cx="8.5" cy="15.5" r="1.5"/><circle cx="12" cy="12" r="1.5"/></svg>
+                          <DiceIcon className="w-4 h-4" />
                         </span>
                         <span className="hidden sm:inline">Surprise Me</span>
                       </Button>
