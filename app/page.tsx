@@ -74,7 +74,7 @@ export default function LandingPage() {
                         type="button"
                         variant="ghost"
                         onClick={() => globalThis.location.href = '/api/manga/random'}
-                        className="h-10 px-4 rounded-xl hover:bg-black/5 text-black/60 hover:text-black transition-all flex items-center gap-2 font-bold uppercase text-[10px] tracking-widest group/random"
+                        className="cursor-pointer h-10 px-4 rounded-xl hover:bg-black/5 text-black/60 hover:text-black transition-all flex items-center gap-2 font-bold uppercase text-[10px] tracking-widest group/random"
                         aria-label="Surprise Me"
                       >
                         <span className="opacity-40 group-hover/random:opacity-100 group-hover/random:rotate-180 transition-all duration-500">
@@ -87,7 +87,7 @@ export default function LandingPage() {
                       </Kbd>
                       <button
                         type="submit"
-                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-black text-white hover:bg-black/90 transition-all shadow-lg shadow-black/20"
+                        className="cursor-pointer w-10 h-10 flex items-center justify-center rounded-xl bg-black text-white hover:bg-black/90 transition-all shadow-lg shadow-black/20"
                         aria-label="Search"
                       >
                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="rotate-90"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
