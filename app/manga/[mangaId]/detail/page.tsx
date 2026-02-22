@@ -25,7 +25,7 @@ import {
   ChevronLeft,
   Info
 } from "lucide-react";
-import { DetailActions, ReadingStatusSelect, MangaLibraryProvider } from "./client-actions";
+import { DetailActions, ReadingStatusSelect, MangaLibraryProvider, MangaReviewsSection } from "./client-actions";
 import { z } from "zod";
 import { Manga, MangaRecommendation } from "@/types/manga";
 import { auth } from "@clerk/nextjs/server";
@@ -33,6 +33,8 @@ import { LibraryItem } from "@/types/library";
 
 // zod validation for the manga id
 const mangaIdSchema = z.coerce.number().int().positive();
+
+
 
 
 export default async function MangaDetail({ params }: { params: Promise<{ mangaId: string }> }) {
@@ -396,6 +398,10 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
             </div>
           </section>
         )}
+        
+        <section className="max-w-7xl mx-auto px-4 py-24 border-t border-white/5">
+          <MangaReviewsSection mangaId={id} />
+        </section>
         </MangaLibraryProvider>
       </main>
 

@@ -11,6 +11,7 @@ import { LibraryItem, LibraryStatus } from "@/types/library";
 import { mangaFetch } from "@/lib/external-api/external-api";
 import { supabaseAdmin } from "@/utils/supabase/server";
 import { redis } from "@/utils/upstash-redis/redis";
+import { JikanReview } from "@/types/review";
 
 export async function getTopManga(
   type: MangaTypeFilter = MangaTypeFilter.MANGA,
@@ -90,6 +91,12 @@ export class MangaService {
       `recommendations/manga?page=${page}`,
     );
   }
+
+  // get reviews for a specific manga
+  async getMangaReviews(id: number): Promise<JikanResponse<JikanReview[]>> {
+    return await mangaFetch<JikanResponse<JikanReview[]>>(`manga/${id}/reviews`);
+  }
+
 
   // get library items with manga details
   async getLibraryWithManga(

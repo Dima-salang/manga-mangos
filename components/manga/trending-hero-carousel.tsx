@@ -114,7 +114,7 @@ function TrendingHeroSlide({ manga }: { readonly manga: Manga }) {
           <div className="flex flex-wrap items-center gap-8">
             <Link href={`/manga/${manga.mal_id}/detail`}>
               <Button className="bg-mango hover:bg-white text-black font-black uppercase tracking-[0.2em] px-10 h-16 rounded-[1.2rem] shadow-xl shadow-mango/20 transition-all hover:-translate-y-2 active:scale-95 text-xs">
-                READ NOW
+                VIEW DETAILS
               </Button>
             </Link>
             
