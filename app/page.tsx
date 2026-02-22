@@ -126,11 +126,11 @@ export default function LandingPage() {
           <h2 className="text-center text-3xl font-black uppercase tracking-tight mb-8">
             What is MangaMangos?
           </h2>
-          <p className="text-justify text-lg md:text-xl mb-4 font-black/80 leading-relaxed font-medium">
+          <p className="text-center text-lg md:text-xl mb-4 font-black/80 leading-relaxed font-medium">
             MangaMangos is a community-driven manga hub enhanced by an AI assistant.<br></br>
             Users can:
           </p>
-          <ul className="mx-auto mb-16 list-disc list-inside text-lg md:text-xl space-y-2">
+          <ul className="mx-auto pl-25 mb-16 list-disc list-inside text-lg md:text-xl space-y-2">
             <li>Browse manga by genre, rating, and trends</li>
             <li>Read and write reviews</li>
             <li>Maintain personal reading lists</li>
@@ -150,10 +150,10 @@ export default function LandingPage() {
           <h2 className="text-center text-3xl font-black uppercase tracking-tight mb-8">
             Where does MangaMangos link readers to?
           </h2>
-          <p className="text-justify text-lg md:text-xl mb-4 font-black/80 leading-relaxed font-medium">
+          <p className="text-center text-lg md:text-xl mb-4 font-black/80 leading-relaxed font-medium">
             MangaMangos guides users toward established, legal publishers such as:
           </p>
-          <ul className="mx-auto mb-12 list-disc list-inside text-lg md:text-xl space-y-2">
+          <ul className="mx-auto text-center mb-12 list-disc list-inside text-lg md:text-xl space-y-2">
             <li>VIZ Media</li>
             <li>Webtoon</li>
             <li>Manga Plus</li>
@@ -162,15 +162,15 @@ export default function LandingPage() {
           <h2 className="text-center text-3xl font-black uppercase tracking-tight mb-8">
             Is MangaMangos safe to use?
           </h2>
-          <p className="text-justify text-lg md:text-xl mb-4 font-black/80 leading-relaxed font-medium">
+          <p className="text-center text-lg md:text-xl mb-4 font-black/80 leading-relaxed font-medium">
             Yes, with standard web precautions.
           </p>
-          <ul className="mx-auto mb-12 list-disc list-inside text-lg md:text-xl space-y-2">
+          <ul className="text-center mx-auto mb-12 list-disc list-inside text-lg md:text-xl space-y-2">
             <li>No forced downloads</li>
             <li>No sketchy players or embeds</li>
             <li>No third-party streaming scripts</li>
           </ul>
-          <p className="text-justify text-lg md:text-xl mb-12 font-black/80 leading-relaxed font-medium">
+          <p className="text-center text-lg md:text-xl mb-12 font-black/80 leading-relaxed font-medium">
             Account security and data handling follow modern web standards. You are not exposed to the risks you would find on pirate streaming sites.
           </p>
 
