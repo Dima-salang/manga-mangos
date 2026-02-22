@@ -146,10 +146,20 @@ function NavSearch() {
         placeholder="Quick search..."
         className="h-10 border-0 bg-transparent pl-10 pr-12 focus-visible:ring-0 focus-visible:ring-offset-0 text-xs font-bold placeholder:text-muted-foreground/20 italic tracking-wide"
       />
-      <div className="absolute right-2 opacity-50 group-focus-within:opacity-100 transition-opacity pointer-events-none">
-        <Kbd className="bg-white/5 border-white/10 text-[10px] h-6 px-1.5 font-black flex items-center gap-1">
-          <span className="text-[12px] opacity-40">⌘</span>K
-        </Kbd>
+      <div className="absolute right-2 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => router.push('/api/manga/random')}
+          className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 text-muted-foreground/40 hover:text-mango transition-all group/random"
+          title="Surprise Me"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover/random:rotate-180 transition-transform duration-500"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><circle cx="15.5" cy="15.5" r="1.5"/><circle cx="15.5" cy="8.5" r="1.5"/><circle cx="8.5" cy="15.5" r="1.5"/><circle cx="12" cy="12" r="1.5"/></svg>
+        </button>
+        <div className="opacity-50 group-focus-within:opacity-100 transition-opacity pointer-events-none hidden md:block">
+          <Kbd className="bg-white/5 border-white/10 text-[10px] h-6 px-1.5 font-black flex items-center gap-1">
+            <span className="text-[12px] opacity-40">⌘</span>K
+          </Kbd>
+        </div>
       </div>
     </form>
   );
