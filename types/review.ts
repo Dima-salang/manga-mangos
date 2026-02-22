@@ -98,7 +98,7 @@ export const JikanReviewSchema = z.object({
   tags: z.array(z.string()),
   is_spoiler: z.boolean(),
   is_preliminary: z.boolean(),
-  episodes_watched: z.number(),
+  episodes_watched: z.number().optional(),
 });
 
 export type JikanReview = z.infer<typeof JikanReviewSchema>;
