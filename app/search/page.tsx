@@ -22,6 +22,7 @@ import {
 import { Manga, JikanResponse, GENRE_MAP } from "@/types/manga";
 import { MangaCard, MangaCardSkeleton } from "@/components/manga-card";
 import { Search, SlidersHorizontal, ArrowUp } from "lucide-react";
+import { DiceIcon } from "@/components/icons/dice-icon";
 
 
 const GENRES = Object.keys(GENRE_MAP).sort((a, b) => a.localeCompare(b));
@@ -311,7 +312,18 @@ function SearchContent() {
                    {isSearching && (
                      <div className="w-8 h-8 rounded-full border-2 border-mango/20 border-t-mango animate-spin" />
                    )}
-                   <Button size="icon" className="bg-mango hover:bg-mango/80 text-white rounded-xl h-10 w-10 shadow-lg shadow-mango/20">
+                   <Button
+                     type="button"
+                     variant="ghost"
+                     size="icon"
+                     onClick={() => globalThis.location.href = '/api/manga/random'}
+                     className="w-10 h-10 rounded-xl hover:bg-mango/10 text-mango/40 hover:text-mango transition-all group/random"
+                     title="Surprise Me"
+                     aria-label="Surprise Me"
+                   >
+                     <DiceIcon className="w-5 h-5 group-hover/random:rotate-180 transition-transform duration-500" />
+                   </Button>
+                   <Button size="icon" type="submit" className="bg-mango hover:bg-mango/80 text-white rounded-xl h-10 w-10 shadow-lg shadow-mango/20">
                      <ArrowUp className="w-5 h-5 rotate-90" />
                    </Button>
                 </div>

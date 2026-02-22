@@ -11,88 +11,99 @@ export const DB_MangaSchema = z.object({
 export type DB_MANGA = z.infer<typeof DB_MangaSchema>;
 
 // Jikan-specific Manga interface for external API results
-export interface Manga {
-  mal_id: number;
-  url: string;
-  images: {
-    jpg: {
-      image_url: string;
-      small_image_url: string;
-      large_image_url: string;
-    };
-    webp: {
-      image_url: string;
-      small_image_url: string;
-      large_image_url: string;
-    };
-  };
-  approved: boolean;
-  titles: Array<{
-    type: string;
-    title: string;
-  }>;
-  title: string;
-  title_english: string | null;
-  title_japanese: string | null;
-  type: string;
-  chapters: number | null;
-  volumes: number | null;
-  status: string;
-  publishing: boolean;
-  published: {
-    from: string;
-    to: string | null;
-    prop: {
-      from: { day: number | null; month: number | null; year: number | null };
-      to: { day: number | null; month: number | null; year: number | null };
-      string: string;
-    };
-  };
-  score: number | null;
-  scored_by: number | null;
-  rank: number | null;
-  popularity: number | null;
-  members: number | null;
-  favorites: number | null;
-  synopsis: string | null;
-  background: string | null;
-  authors: Array<{
-    mal_id: number;
-    type: string;
-    name: string;
-    url: string;
-  }>;
-  serializations: Array<{
-    mal_id: number;
-    type: string;
-    name: string;
-    url: string;
-  }>;
-  genres: Array<{
-    mal_id: number;
-    type: string;
-    name: string;
-    url: string;
-  }>;
-  explicit_genres: Array<{
-    mal_id: number;
-    type: string;
-    name: string;
-    url: string;
-  }>;
-  themes: Array<{
-    mal_id: number;
-    type: string;
-    name: string;
-    url: string;
-  }>;
-  demographics: Array<{
-    mal_id: number;
-    type: string;
-    name: string;
-    url: string;
-  }>;
-}
+export const JikanImageSchema = z.object({
+  image_url: z.string().nullish(),
+  small_image_url: z.string().nullish(),
+  large_image_url: z.string().nullish(),
+});
+
+export const JikanResourceSchema = z.object({
+  mal_id: z.number(),
+  type: z.string(),
+  name: z.string(),
+  url: z.string(),
+});
+
+export const MangaSchema = z.object({
+  mal_id: z.number(),
+  url: z.string().nullish(),
+  images: z
+    .object({
+      jpg: JikanImageSchema.nullish(),
+      webp: JikanImageSchema.nullish(),
+    })
+    .nullish(),
+  approved: z.boolean().nullish(),
+  titles: z
+    .array(
+      z.object({
+        type: z.string().nullish(),
+        title: z.string().nullish(),
+      }),
+    )
+    .nullish(),
+  title: z.string(),
+  title_english: z.string().nullish(),
+  title_japanese: z.string().nullish(),
+  type: z.string().nullish(),
+  chapters: z.number().nullish(),
+  volumes: z.number().nullish(),
+  status: z.string().nullish(),
+  publishing: z.boolean().nullish(),
+  published: z
+    .object({
+      from: z.string().nullish(),
+      to: z.string().nullish(),
+      prop: z
+        .object({
+          from: z
+            .object({
+              day: z.number().nullish(),
+              month: z.number().nullish(),
+              year: z.number().nullish(),
+            })
+            .nullish(),
+          to: z
+            .object({
+              day: z.number().nullish(),
+              month: z.number().nullish(),
+              year: z.number().nullish(),
+            })
+            .nullish(),
+          string: z.string().nullish(),
+        })
+        .nullish(),
+    })
+    .nullish(),
+  score: z.number().nullish(),
+  scored_by: z.number().nullish(),
+  rank: z.number().nullish(),
+  popularity: z.number().nullish(),
+  members: z.number().nullish(),
+  favorites: z.number().nullish(),
+  synopsis: z.string().nullish(),
+  background: z.string().nullish(),
+  authors: z
+    .union([z.array(JikanResourceSchema), z.null()])
+    .transform((v) => v ?? []),
+  serializations: z
+    .union([z.array(JikanResourceSchema), z.null()])
+    .transform((v) => v ?? []),
+  genres: z
+    .union([z.array(JikanResourceSchema), z.null()])
+    .transform((v) => v ?? []),
+  explicit_genres: z
+    .union([z.array(JikanResourceSchema), z.null()])
+    .transform((v) => v ?? []),
+  themes: z
+    .union([z.array(JikanResourceSchema), z.null()])
+    .transform((v) => v ?? []),
+  demographics: z
+    .union([z.array(JikanResourceSchema), z.null()])
+    .transform((v) => v ?? []),
+});
+
+export type Manga = z.infer<typeof MangaSchema>;
 
 export interface MangaRecommendation {
   entry: {

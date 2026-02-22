@@ -211,4 +211,11 @@ export class MangaService {
       redis.del(`libraryContext:${userId}`),
     ]);
   }
+
+  // get a random manga
+  async getRandomManga(): Promise<JikanResponse<Manga>> {
+    return await mangaFetch<JikanResponse<Manga>>("random/manga", 3, {
+      next: { revalidate: 0 },
+    });
+  }
 }

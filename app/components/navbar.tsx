@@ -9,6 +9,7 @@ import { NavbarActions } from './navbar-context';
 import { Search } from 'lucide-react';
 import { Kbd } from '@/components/ui/kbd';
 import { Input } from '@/components/ui/input';
+import { DiceIcon } from '@/components/icons/dice-icon';
 
 export function Navbar() {
   const pathname = usePathname();
@@ -146,10 +147,21 @@ function NavSearch() {
         placeholder="Quick search..."
         className="h-10 border-0 bg-transparent pl-10 pr-12 focus-visible:ring-0 focus-visible:ring-offset-0 text-xs font-bold placeholder:text-muted-foreground/20 italic tracking-wide"
       />
-      <div className="absolute right-2 opacity-50 group-focus-within:opacity-100 transition-opacity pointer-events-none">
-        <Kbd className="bg-white/5 border-white/10 text-[10px] h-6 px-1.5 font-black flex items-center gap-1">
-          <span className="text-[12px] opacity-40">⌘</span>K
-        </Kbd>
+      <div className="absolute right-2 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => globalThis.location.href = '/api/manga/random'}
+          className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/10 text-muted-foreground/40 hover:text-mango transition-all group/random"
+          title="Surprise Me"
+          aria-label="Surprise Me"
+        >
+          <DiceIcon className="w-[14px] h-[14px] group-hover/random:rotate-180 transition-transform duration-500" />
+        </button>
+        <div className="opacity-50 group-focus-within:opacity-100 transition-opacity pointer-events-none hidden md:block">
+          <Kbd className="bg-white/5 border-white/10 text-[10px] h-6 px-1.5 font-black flex items-center gap-1">
+            <span className="text-[12px] opacity-40">⌘</span>K
+          </Kbd>
+        </div>
       </div>
     </form>
   );

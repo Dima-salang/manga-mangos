@@ -13,10 +13,13 @@ interface MangaCardProps {
 
 export function MangaCard({ manga }: MangaCardProps) {
   const title = manga.title;
-  const genres = manga.genres.map(g => g.name);
+  const genres = (manga.genres || []).map(g => g.name);
   const ratingDisplay = manga.score ?? "N/A";
   const members = manga.members || 0;
-  const image = manga.images.webp.large_image_url;
+  const hasRemoteImage = !!(manga.images?.webp?.large_image_url || manga.images?.jpg?.large_image_url);
+  const image = hasRemoteImage 
+    ? (manga.images?.webp?.large_image_url || manga.images?.jpg?.large_image_url) 
+    : "/placeholder-manga.jpg";
   const description = manga.synopsis;
 
   return (
@@ -24,9 +27,9 @@ export function MangaCard({ manga }: MangaCardProps) {
       <Card className="group relative overflow-hidden border border-white/5 bg-card/20 backdrop-blur-md hover:border-mango/40 transition-all duration-700 hover:-translate-y-4 cursor-pointer rounded-[2rem] shadow-xl hover:shadow-mango/10">
         <CardContent className="p-0">
           <div className="aspect-[3/4.2] relative m-3 overflow-hidden rounded-[1.6rem]">
-            {image ? (
+            {hasRemoteImage ? (
               <Image 
-                src={image} 
+                src={image!} 
                 alt={title} 
                 fill 
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

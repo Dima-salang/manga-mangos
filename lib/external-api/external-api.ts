@@ -14,6 +14,7 @@ const jikanErrorSchema = z.object({
 export async function mangaFetch<T>(
   path: string,
   retries: number = 3,
+  options: RequestInit = {},
 ): Promise<T> {
   const { success } = await rate.limit("jikan");
 
@@ -21,19 +22,20 @@ export async function mangaFetch<T>(
   if (!success) {
     if (retries > 0) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      return mangaFetch(path, retries - 1);
+      return mangaFetch(path, retries - 1, options);
     }
     throw new Error("API is rate limited. Please try again after a while.");
   }
 
   const res = await fetch(`${BASE_URL}${path}`, {
     next: { revalidate: 60 * 60 },
+    ...options,
   });
 
   if (!res.ok) {
     if (res.status === 429 && retries > 0) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      return mangaFetch(path, retries - 1);
+      return mangaFetch(path, retries - 1, options);
     }
     let errorMessage = res.statusText;
     try {
