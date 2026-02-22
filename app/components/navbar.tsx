@@ -21,6 +21,7 @@ export function Navbar() {
 
   const protectedLinks = [
     { name: 'Library', href: '/library' },
+    { name: 'Reviews', href: '/reviews' },
     { name: 'Assistant', href: '/assistant' },
     { name: 'Profile', href: '/profile' },
   ];
