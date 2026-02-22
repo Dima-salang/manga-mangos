@@ -1,12 +1,23 @@
 import { MangaService } from "@/lib/services/manga.service";
 import { NextResponse, NextRequest } from "next/server";
 import { CommunityRecommendationsResponseSchema } from "@/types/manga";
+import { z } from "zod";
+
+const QuerySchema = z.object({
+  page: z.coerce.number().optional().default(1),
+});
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const page = searchParams.get("page")
-    ? Number.parseInt(searchParams.get("page")!)
-    : 1;
+  const parsed = QuerySchema.safeParse(searchParams);
+  if (!parsed.success) {
+    console.error("Invalid query parameters:", parsed.error);
+    return NextResponse.json(
+      { error: "Invalid query parameters" },
+      { status: 400 },
+    );
+  }
+  const page = parsed.data.page;
 
   const mangaService = new MangaService();
   try {
@@ -25,7 +36,7 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error("Error fetching community recommendations:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to fetch community recommendations" },
+      { error: "Failed to fetch community recommendations" },
       { status: 500 },
     );
   }
