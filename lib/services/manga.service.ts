@@ -212,9 +212,8 @@ export class MangaService {
     ]);
   }
 
-
   // get a random manga
-  async getRandomManga(): Promise<Manga> {
-    return await mangaFetch<Manga>("random/manga");
+  async getRandomManga(): Promise<JikanResponse<Manga>> {
+    return await mangaFetch<JikanResponse<Manga>>("random/manga");
   }
 }
