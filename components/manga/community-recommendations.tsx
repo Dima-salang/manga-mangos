@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { CommunityRecommendation, JikanResponse } from "@/types/manga";
-import { Loader2, ArrowRight, MessageSquare, Quote } from "lucide-react";
+import { CommunityRecommendation, CommunityRecommendationsResponse } from "@/types/manga";
+import { Loader2, MessageSquare, Quote } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -34,15 +34,25 @@ export function CommunityRecommendations() {
 
     async function startFetching() {
       setIsLoading(true);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+
       try {
-        const res = await fetch("/api/manga/community-recommendations");
+        const res = await fetch("/api/manga/community-recommendations", { 
+          signal: controller.signal 
+        });
         if (!res.ok) throw new Error(`Failed to fetch recommendations: ${res.status}`);
-        const data: JikanResponse<CommunityRecommendation[]> = await res.json();
+        const data: CommunityRecommendationsResponse = await res.json();
         setRecommendations(data.data || []);
-      } catch (error) {
-        console.error("Error loading community recommendations:", error);
+      } catch (error: any) {
+        if (error.name === 'AbortError') {
+          console.warn("Community recommendations fetch timed out");
+        } else {
+          console.error("Error loading community recommendations:", error);
+        }
         setRecommendations([]);
       } finally {
+        clearTimeout(timeoutId);
         setIsLoading(false);
       }
     }
