@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { MangaService } from "@/lib/services/manga.service";
 import { MangaSchema } from "@/types/manga";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const mangaService = new MangaService();
