@@ -8,9 +8,10 @@ import { cn } from "@/lib/utils";
 interface ReviewCardProps {
   readonly review: JikanReview;
   readonly className?: string;
+  readonly showMetadata?: boolean;
 }
 
-export function ReviewCard({ review, className }: ReviewCardProps) {
+export function ReviewCard({ review, className, showMetadata = true }: ReviewCardProps) {
   // Extract a shorter snippet of the review
   const snippet = review.review.length > 200 
     ? review.review.substring(0, 200) + "..." 
@@ -74,35 +75,37 @@ export function ReviewCard({ review, className }: ReviewCardProps) {
         </div>
       </div>
 
-      <div className="relative z-10 mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div className="relative w-8 h-12 flex-shrink-0 bg-mango/10 overflow-hidden rounded-sm border border-white/5">
-            {item?.images?.jpg?.image_url ? (
-              <Image 
-                src={item.images.jpg.image_url} 
-                alt={item.title || "Manga"}
-                fill
-                sizes="32px"
-                className="object-cover transition-transform group-hover:scale-110 duration-500"
-              />
-            ) : (
-              <div className="w-full h-full bg-mango/5" />
-            )}
-          </div>
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground truncate max-w-[120px]">
-            {item?.title || "Unknown Title"}
-          </span>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-mango/5 border border-mango/10">
-            <MessageSquare size={10} className="text-mango" />
-            <span className="text-[10px] font-bold text-mango">
-              {review.reactions.overall}
+      {showMetadata && (
+        <div className="relative z-10 mt-auto pt-6 border-t border-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="relative w-8 h-12 flex-shrink-0 bg-mango/10 overflow-hidden rounded-sm border border-white/5">
+              {item?.images?.jpg?.image_url ? (
+                <Image 
+                  src={item.images.jpg.image_url} 
+                  alt={item.title || "Manga"}
+                  fill
+                  sizes="32px"
+                  className="object-cover transition-transform group-hover:scale-110 duration-500"
+                />
+              ) : (
+                <div className="w-full h-full bg-mango/5" />
+              )}
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground truncate max-w-[120px]">
+              {item?.title || "Unknown Title"}
             </span>
           </div>
+          
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-mango/5 border border-mango/10">
+              <MessageSquare size={10} className="text-mango" />
+              <span className="text-[10px] font-bold text-mango">
+                {review.reactions.overall}
+              </span>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Manga-style halftone background effect on hover */}
       <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.02] pointer-events-none transition-opacity duration-500 manga-halftone-bg" />
