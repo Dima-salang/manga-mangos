@@ -5,7 +5,8 @@ import { MangaSchema } from "@/types/manga";
 export async function GET(req: NextRequest) {
   try {
     const mangaService = new MangaService();
-    const rawData = await mangaService.getRandomManga();
+    const response = await mangaService.getRandomManga();
+    const rawData = response.data;
 
     // validate
     const parsed = MangaSchema.safeParse(rawData);
@@ -18,7 +19,11 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    return NextResponse.json(parsed.data);
+    // get the mal_id of the manga
+    const mal_id = parsed.data.mal_id;
+
+    // redirect to specific manga page
+    return NextResponse.redirect(new URL(`/manga/${mal_id}/detail`, req.url));
   } catch (error: any) {
     console.error("Error fetching random manga:", error);
     return NextResponse.json(
