@@ -10,7 +10,7 @@ import { Search } from 'lucide-react';
 import { Kbd } from '@/components/ui/kbd';
 import { Input } from '@/components/ui/input';
 import { DiceIcon } from '@/components/icons/dice-icon';
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 
 export function Navbar() {
@@ -100,9 +100,9 @@ export function Navbar() {
               >
               <nav className="pl-6 flex flex-col h-full">
                 <div className="mb-6 mt-6">
-                  <span className="font-black text-xl italic uppercase">
+                  <SheetTitle className="font-black text-xl italic uppercase">
                     Manga<span className="text-mango">Mangos</span>
-                  </span>
+                  </SheetTitle>
                 </div>
 
                 <ul className="flex flex-col gap-4 font-black text-sm uppercase tracking-widest">
