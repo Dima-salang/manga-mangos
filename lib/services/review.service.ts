@@ -1,13 +1,8 @@
-import { sql } from '@/lib/db/client';
+import { mangaFetch } from "@/lib/external-api/external-api";
+import { TopReviewResponse } from "@/types/review";
 
-export async function createReview(
-  userId: string,
-  mangaId: string,
-  rating: number,
-  reviewText: string
-) {
-  await sql`
-    INSERT INTO reviews (user_id, manga_id, rating, review_text)
-    VALUES (${userId}, ${mangaId}, ${rating}, ${reviewText})
-  `;
+export class ReviewService {
+  async getTopReviews() {
+    return await mangaFetch<TopReviewResponse>("top/reviews?type=manga");
+  }
 }
