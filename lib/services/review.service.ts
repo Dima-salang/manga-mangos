@@ -3,6 +3,6 @@ import { TopReviewResponse } from "@/types/review";
 
 export class ReviewService {
   async getTopReviews() {
-    return await mangaFetch<TopReviewResponse>("top/reviews?type=manga");
+    return await mangaFetch<TopReviewResponse>("top/reviews?type=manga&page=1");
   }
 }
