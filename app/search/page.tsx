@@ -138,8 +138,18 @@ function SearchContent() {
     }
 
     // Update other basic filters to keep URL in sync
-    if (type !== "all") params.set("type", type);
-    if (orderBy !== "popularity") params.set("order_by", orderBy);
+    // Update other basic filters to keep URL in sync
+    if (type === "all") {
+      params.delete("type");
+    } else {
+      params.set("type", type);
+    }
+
+    if (orderBy === "popularity") {
+      params.delete("order_by");
+    } else {
+      params.set("order_by", orderBy);
+    }
     
     // Only push if different
     const currentUrl = `${pathname}?${params.toString()}`;
