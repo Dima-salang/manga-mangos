@@ -125,7 +125,7 @@ function TrendingHeroSlide({ manga }: { readonly manga: Manga }) {
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-[9px] font-black uppercase text-muted-foreground/40 tracking-[0.2em]">Status</span>
-                <span className="text-xl md:text-2xl font-black italic uppercase">{(manga.status || 'N/A').split(' ')[0]}</span>
+                <span className="text-xl md:text-2xl font-black italic uppercase">{formatStatus(manga.status)}</span>
               </div>
             </div>
           </div>
@@ -140,6 +140,25 @@ function TrendingHeroSlide({ manga }: { readonly manga: Manga }) {
       </div>
     </div>
   );
+}
+
+const STATUS_MAP: Record<string, string> = {
+  "On Hiatus": "Hiatus",
+  "Not yet published": "Unreleased",
+  "Publishing": "Ongoing",
+  "Finished": "Finished",
+  "Discontinued": "Dropped",
+};
+
+function formatStatus(status: string | null | undefined): string {
+  if (!status) return "N/A";
+  
+  if (STATUS_MAP[status]) {
+    return STATUS_MAP[status];
+  }
+
+  // Fallback: limit to 12 characters with ellipsis if too long
+  return status.length > 12 ? `${status.substring(0, 11)}…` : status;
 }
 
 function TrendingHeroSkeleton() {
