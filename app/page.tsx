@@ -69,15 +69,26 @@ export default function LandingPage() {
                       className="w-full h-16 rounded-2xl border-black/10 bg-white/90 pl-14 pr-20 text-black text-xl font-bold placeholder:text-black/30 placeholder:italic transition-all shadow-2xl focus-visible:ring-black/10 focus-visible:border-black/20"
                     />
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-3">
-                      <Kbd className="bg-black/5 border-black/10 text-black/40 text-[10px] h-7 px-2 font-black">
-                        <span className="text-xs opacity-40">⌘</span>K
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => router.push('/api/manga/random')}
+                        className="h-10 px-4 rounded-xl hover:bg-black/5 text-black/60 hover:text-black transition-all flex items-center gap-2 font-bold uppercase text-[10px] tracking-widest group/random"
+                      >
+                        <span className="opacity-40 group-hover/random:opacity-100 group-hover/random:rotate-180 transition-all duration-500">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><circle cx="15.5" cy="15.5" r="1.5"/><circle cx="15.5" cy="8.5" r="1.5"/><circle cx="8.5" cy="15.5" r="1.5"/><circle cx="12" cy="12" r="1.5"/></svg>
+                        </span>
+                        <span className="hidden sm:inline">Surprise Me</span>
+                      </Button>
+                      <Kbd className="bg-black/5 border-black/10 text-black/40 text-[10px] h-7 px-2 font-black hidden md:flex">
+                        <span className="text-xs opacity-40 mr-1">⌘</span>K
                       </Kbd>
                       <button
                         type="submit"
-                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-black/5 transition-colors"
+                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-black text-white hover:bg-black/90 transition-all shadow-lg shadow-black/20"
                         aria-label="Search"
                       >
-                         <span className="text-xl rotate-90 scale-x-[-1] inline-block opacity-40 group-focus-within/search:opacity-100 transition-opacity">↳</span>
+                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="rotate-90"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
                       </button>
                     </div>
                   </div>

@@ -13,10 +13,10 @@ interface MangaCardProps {
 
 export function MangaCard({ manga }: MangaCardProps) {
   const title = manga.title;
-  const genres = manga.genres.map(g => g.name);
+  const genres = (manga.genres || []).map(g => g.name);
   const ratingDisplay = manga.score ?? "N/A";
   const members = manga.members || 0;
-  const image = manga.images.webp.large_image_url;
+  const image = manga.images?.webp?.large_image_url || manga.images?.jpg?.large_image_url || "/placeholder-manga.jpg";
   const description = manga.synopsis;
 
   return (

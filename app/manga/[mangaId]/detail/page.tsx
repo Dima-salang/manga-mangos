@@ -82,7 +82,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
 
 
   // parse the published to and from dates into human-readable format
-  const fromPublishDate = manga.published.from 
+  const fromPublishDate = manga.published?.from 
     ? new Date(manga.published.from).toLocaleDateString('en-US', {
         day: 'numeric',
         month: 'long',
@@ -90,7 +90,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
       })
     : "Unknown";
 
-  const toPublishDate = manga.published.to
+  const toPublishDate = manga.published?.to
     ? new Date(manga.published.to).toLocaleDateString('en-US', {
         day: 'numeric',
         month: 'long',
@@ -127,7 +127,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
       <main className="relative z-10">
         <div className="relative w-full aspect-[21/9] md:aspect-[25/9] overflow-hidden">
           <div className="absolute inset-0 z-0">
-            {manga.images.webp.large_image_url && (
+            {manga.images?.webp?.large_image_url && (
               <Image
                 src={manga.images.webp.large_image_url}
                 alt=""
@@ -160,9 +160,9 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
               <div className="relative group/cover shrink-0 mx-auto md:mx-0">
                 <div className="absolute -inset-1 bg-mango rounded-[2.5rem] blur opacity-25 group-hover/cover:opacity-50 transition duration-1000" />
                 <div className="relative w-[280px] aspect-[3/4.2] rounded-[2rem] overflow-hidden border-2 border-mango shadow-2xl bg-neutral-900/50">
-                  {manga.images.webp.large_image_url ? (
+                  {manga.images?.webp?.large_image_url || manga.images?.jpg?.large_image_url ? (
                     <Image
-                      src={manga.images.webp.large_image_url}
+                      src={manga.images?.webp?.large_image_url || manga.images?.jpg?.large_image_url || ""}
                       alt={manga.title}
                       fill
                       className="object-cover group-hover/cover:scale-105 transition-transform duration-700"
@@ -180,7 +180,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
 
               <div className="flex-1 text-center md:text-left">
                 <div className="flex flex-wrap justify-center md:justify-start gap-3 mb-6">
-                  {manga.genres.map((genre) => (
+                  {(manga.genres || []).map((genre) => (
                     <Badge
                       key={genre.mal_id}
                       variant="outline"
@@ -190,7 +190,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                     </Badge>
                   ))}
                   <Badge className="bg-mango text-black hover:bg-mango/90 uppercase font-black tracking-widest text-[8px] py-1 px-3">
-                    {manga.type}
+                    {manga.type || "Manga"}
                   </Badge>
                 </div>
 
@@ -277,13 +277,13 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                 <div className="space-y-6">
                   <MetaItem label="Reading Status" value={<ReadingStatusSelect />} />
                   <Separator className="bg-white/5" />
-                  <MetaItem label="Status" value={manga.status} />
+                  <MetaItem label="Status" value={manga.status || "Unknown"} />
                   <MetaItem label="Published" value={`${fromPublishDate} to ${toPublishDate}`} />
                   <MetaItem 
                     label="Authors" 
                     value={
                       <div className="flex flex-wrap gap-x-2 gap-y-1">
-                        {manga.authors.map((a, i) => (
+                        {(manga.authors || []).map((a, i) => (
                           <div key={a.mal_id} className="inline-flex items-center gap-1 group/link">
                             <a 
                               href={a.url} 
@@ -294,7 +294,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                               {a.name}
                               <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-mango transition-all group-hover/link:w-full" />
                             </a>
-                            {i < manga.authors.length - 1 && <span className="text-muted-foreground/20 ml-1">/</span>}
+                            {i < (manga.authors || []).length - 1 && <span className="text-muted-foreground/20 ml-1">/</span>}
                           </div>
                         ))}
                       </div>
@@ -306,7 +306,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                     label="Serialization" 
                     value={
                       <div className="flex flex-wrap gap-x-2 gap-y-1">
-                        {manga.serializations.map((s, i) => (
+                        {(manga.serializations || []).map((s, i) => (
                           <div key={s.mal_id} className="inline-flex items-center gap-1 group/link">
                             <a 
                               href={s.url} 
@@ -317,7 +317,7 @@ export default async function MangaDetail({ params }: { params: Promise<{ mangaI
                               {s.name}
                               <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-mango transition-all group-hover/link:w-full" />
                             </a>
-                            {i < manga.serializations.length - 1 && <span className="text-muted-foreground/20 ml-1">/</span>}
+                            {i < (manga.serializations || []).length - 1 && <span className="text-muted-foreground/20 ml-1">/</span>}
                           </div>
                         ))}
                       </div>

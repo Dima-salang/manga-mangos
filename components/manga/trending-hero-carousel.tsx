@@ -50,8 +50,8 @@ export function TrendingHeroCarousel({ mangaList, isLoading }: TrendingHeroCarou
 }
 
 function TrendingHeroSlide({ manga }: { readonly manga: Manga }) {
-  const image = manga.images.webp.large_image_url || manga.images.jpg.large_image_url;
-  const genres = manga.genres.slice(0, 3);
+  const image = manga.images?.webp?.large_image_url || manga.images?.jpg?.large_image_url || "/placeholder-manga.jpg";
+  const genres = manga.genres?.slice(0, 3) || [];
   
   return (
     <div className="relative overflow-hidden rounded-[2.5rem] bg-card/10 backdrop-blur-sm border border-white/5 group h-[550px] md:h-[600px] w-full">
@@ -125,7 +125,7 @@ function TrendingHeroSlide({ manga }: { readonly manga: Manga }) {
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-[9px] font-black uppercase text-muted-foreground/40 tracking-[0.2em]">Status</span>
-                <span className="text-xl md:text-2xl font-black italic uppercase">{manga.status.split(' ')[0]}</span>
+                <span className="text-xl md:text-2xl font-black italic uppercase">{(manga.status || 'N/A').split(' ')[0]}</span>
               </div>
             </div>
           </div>
