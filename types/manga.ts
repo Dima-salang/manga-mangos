@@ -12,9 +12,9 @@ export type DB_MANGA = z.infer<typeof DB_MangaSchema>;
 
 // Jikan-specific Manga interface for external API results
 export const JikanImageSchema = z.object({
-  image_url: z.string(),
-  small_image_url: z.string(),
-  large_image_url: z.string(),
+  image_url: z.string().nullish(),
+  small_image_url: z.string().nullish(),
+  large_image_url: z.string().nullish(),
 });
 
 export const JikanResourceSchema = z.object({
@@ -26,51 +26,55 @@ export const JikanResourceSchema = z.object({
 
 export const MangaSchema = z.object({
   mal_id: z.number(),
-  url: z.string(),
-  images: z.object({
-    jpg: JikanImageSchema,
-    webp: JikanImageSchema,
-  }),
-  approved: z.boolean(),
-  titles: z.array(
-    z.object({
-      type: z.string(),
-      title: z.string(),
-    }),
-  ),
+  url: z.string().nullish(),
+  images: z
+    .object({
+      jpg: JikanImageSchema.nullish(),
+      webp: JikanImageSchema.nullish(),
+    })
+    .nullish(),
+  approved: z.boolean().nullish(),
+  titles: z
+    .array(
+      z.object({
+        type: z.string().nullish(),
+        title: z.string().nullish(),
+      }),
+    )
+    .nullish(),
   title: z.string(),
-  title_english: z.string().nullable(),
-  title_japanese: z.string().nullable(),
-  type: z.string(),
-  chapters: z.number().nullable(),
-  volumes: z.number().nullable(),
-  status: z.string(),
-  publishing: z.boolean(),
+  title_english: z.string().nullish(),
+  title_japanese: z.string().nullish(),
+  type: z.string().nullish(),
+  chapters: z.number().nullish(),
+  volumes: z.number().nullish(),
+  status: z.string().nullish(),
+  publishing: z.boolean().nullish(),
   published: z.object({
-    from: z.string(),
-    to: z.string().nullable(),
+    from: z.string().nullish(),
+    to: z.string().nullish(),
     prop: z.object({
       from: z.object({
-        day: z.number().nullable(),
-        month: z.number().nullable(),
-        year: z.number().nullable(),
+        day: z.number().nullish(),
+        month: z.number().nullish(),
+        year: z.number().nullish(),
       }),
       to: z.object({
-        day: z.number().nullable(),
-        month: z.number().nullable(),
-        year: z.number().nullable(),
+        day: z.number().nullish(),
+        month: z.number().nullish(),
+        year: z.number().nullish(),
       }),
-      string: z.string(),
+      string: z.string().nullish(),
     }),
   }),
-  score: z.number().nullable(),
-  scored_by: z.number().nullable(),
-  rank: z.number().nullable(),
-  popularity: z.number().nullable(),
-  members: z.number().nullable(),
-  favorites: z.number().nullable(),
-  synopsis: z.string().nullable(),
-  background: z.string().nullable(),
+  score: z.number().nullish(),
+  scored_by: z.number().nullish(),
+  rank: z.number().nullish(),
+  popularity: z.number().nullish(),
+  members: z.number().nullish(),
+  favorites: z.number().nullish(),
+  synopsis: z.string().nullish(),
+  background: z.string().nullish(),
   authors: z.array(JikanResourceSchema),
   serializations: z.array(JikanResourceSchema),
   genres: z.array(JikanResourceSchema),
