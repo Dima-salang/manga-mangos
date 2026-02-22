@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useTransition, createContext, useContext, useMemo } from "react";
+import dynamic from 'next/dynamic';
 import { Button } from "@/components/ui/button";
 import { 
   Heart, 
@@ -23,6 +24,23 @@ import { toast } from "sonner";
 import { Manga } from "@/types/manga";
 import { LibraryItem, LibraryStatus } from "@/types/library";
 import { addMangaToLibraryAction } from "@/app/library/library";
+
+export const MangaReviewsSection = dynamic(
+  () => import("@/components/manga/manga-reviews-section").then((mod) => mod.MangaReviewsSection),
+  {
+    loading: () => (
+      <div className="max-w-7xl mx-auto px-4 py-24 border-t border-white/5 animate-pulse">
+        <div className="h-10 w-48 bg-white/5 rounded-lg mb-8" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-64 bg-white/5 rounded-2xl" />
+          ))}
+        </div>
+      </div>
+    ),
+    ssr: false,
+  }
+);
 
 interface MangaLibraryContextType {
   isFavorite: boolean;
