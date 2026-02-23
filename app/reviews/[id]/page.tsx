@@ -7,52 +7,39 @@ import Link from 'next/link';
 import { Star, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-
-interface Review {
-  id: number;
-  created_at: string;
-  user_id: string;
-  mal_id: number;
-  rating: number;
-  review_text: string;
-  manga?: {
-    mal_id: number;
-    titles: any;
-  };
-}
+import { ReviewWithManga, MangaTitle } from '@/types/review';
 
 export default function EditReviewPage() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const router = useRouter();
   const params = useParams();
-  const [review, setReview] = useState<Review | null>(null);
+  const [review, setReview] = useState<ReviewWithManga | null>(null);
   const [rating, setRating] = useState(5);
   const [reviewText, setReviewText] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
+    if (!isLoaded) return;
     if (user && params.id) {
       fetchReview();
+    } else {
+      setLoading(false);
     }
-  }, [user, params.id]);
+  }, [isLoaded, user, params.id]);
 
   const fetchReview = async () => {
     try {
-      const response = await fetch('/api/reviews');
-      if (!response.ok) throw new Error('Failed to fetch reviews');
-      const reviews = await response.json();
-      const userReview = reviews.find((r: Review) => r.id === parseInt(params.id as string));
-      
-      if (!userReview) {
+      const response = await fetch(`/api/reviews/${params.id}`);
+      if (response.status === 404) {
         toast.error('Review not found');
         router.push('/reviews');
         return;
       }
-
+      if (!response.ok) throw new Error('Failed to fetch review');
+      const userReview = await response.json();
       setReview(userReview);
       setRating(userReview.rating);
       setReviewText(userReview.review_text);
