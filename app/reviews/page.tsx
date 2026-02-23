@@ -8,43 +8,29 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-
-interface Review {
-  id: number;
-  created_at: string;
-  user_id: string;
-  mal_id: number;
-  rating: number;
-  review_text: string;
-  manga?: {
-    mal_id: number;
-    titles: any;
-  };
-}
+import { ReviewWithManga, MangaTitle } from '@/types/review';
 
 export default function ReviewsPage() {
-  const { user } = useUser();
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const { user, isLoaded } = useUser();
+  const [reviews, setReviews] = useState<ReviewWithManga[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!isLoaded) return;
     if (user) {
       fetchReviews();
+    } else {
+      setLoading(false);
     }
-  }, [user]);
+  }, [isLoaded, user]);
 
   const fetchReviews = async () => {
     try {
       const response = await fetch('/api/reviews');
-      console.log('status:', response.status);
-      
       if (!response.ok) throw new Error('Failed to fetch reviews');
-      
       const data = await response.json();
-      console.log('API data:', data)
-      setReviews(data.reviews);
+      setReviews(data);
     } catch (error) {
-      console.error(error);
       toast.error('Failed to load reviews');
     } finally {
       setLoading(false);
@@ -59,7 +45,7 @@ export default function ReviewsPage() {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete review');
-      setReviews(reviews.filter(review => review.id !== id));
+      setReviews(prev => prev.filter(review => review.id !== id));
       toast.success('Review deleted successfully');
     } catch (error) {
       toast.error('Failed to delete review');
