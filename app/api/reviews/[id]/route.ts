@@ -1,21 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateReview, deleteReview } from '@/utils/supabase/reviews';
+import { getReviewById, updateReview, deleteReview } from '@/utils/supabase/reviews';
 import { auth } from '@clerk/nextjs/server';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
+    const { id: idStr } = await params;
+    const id = parseInt(idStr, 10);
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const id = parseInt(params.id);
     if (isNaN(id)) {
       return NextResponse.json({ error: 'Invalid review ID' }, { status: 400 });
+    }
+
+    // Check ownership
+    const existingReview = await getReviewById(id);
+    if (!existingReview || existingReview.user_id !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const body = await request.json();
@@ -28,7 +35,7 @@ export async function PUT(
       );
     }
 
-    const review = await updateReview(id, { rating, review_text });
+    const review = await updateReview(id, { rating, review_text }, userId);
     return NextResponse.json(review);
   } catch (error) {
     console.error('Error updating review:', error);
@@ -41,21 +48,28 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth();
+    const { id: idStr } = await params;
+    const id = parseInt(idStr, 10);
     
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const id = parseInt(params.id);
     if (isNaN(id)) {
       return NextResponse.json({ error: 'Invalid review ID' }, { status: 400 });
     }
 
-    await deleteReview(id);
+    // Check ownership
+    const existingReview = await getReviewById(id);
+    if (!existingReview || existingReview.user_id !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    await deleteReview(id, userId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting review:', error);
