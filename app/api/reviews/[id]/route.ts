@@ -2,6 +2,33 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getReviewById, updateReview, deleteReview } from '@/utils/supabase/reviews';
 import { auth } from '@clerk/nextjs/server';
 
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: idStr } = await params;
+    const id = parseInt(idStr, 10);
+    
+    if (isNaN(id)) {
+      return NextResponse.json({ error: 'Invalid review ID' }, { status: 400 });
+    }
+
+    const review = await getReviewById(id);
+    if (!review) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(review);
+  } catch (error) {
+    console.error('Error fetching review:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch review' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -28,11 +55,21 @@ export async function PUT(
     const body = await request.json();
     const { rating, review_text } = body;
 
-    if (rating !== undefined && (rating < 1 || rating > 10)) {
-      return NextResponse.json(
-        { error: 'Rating must be between 1 and 10' },
-        { status: 400 }
-      );
+    if (rating !== undefined) {
+      // Validate rating type and integer-ness
+      if (typeof rating !== 'number' || !Number.isInteger(rating)) {
+        return NextResponse.json(
+          { error: 'Rating must be an integer between 1 and 10' },
+          { status: 400 }
+        );
+      }
+      
+      if (rating < 1 || rating > 10) {
+        return NextResponse.json(
+          { error: 'Rating must be between 1 and 10' },
+          { status: 400 }
+        );
+      }
     }
 
     const review = await updateReview(id, { rating, review_text }, userId);
