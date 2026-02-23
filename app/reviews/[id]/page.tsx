@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
@@ -21,16 +21,7 @@ export default function EditReviewPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (!isLoaded) return;
-    if (user && params.id) {
-      fetchReview();
-    } else {
-      setLoading(false);
-    }
-  }, [isLoaded, user, params.id]);
-
-  const fetchReview = async () => {
+  const fetchReview = useCallback(async () => {
     try {
       const response = await fetch(`/api/reviews/${params.id}`);
       if (response.status === 404) {
@@ -49,7 +40,16 @@ export default function EditReviewPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.id, router]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (user && params.id) {
+      fetchReview();
+    } else {
+      setLoading(false);
+    }
+  }, [isLoaded, user, params.id, fetchReview]);
 
   const updateReview = async () => {
     if (!review || !reviewText.trim()) {

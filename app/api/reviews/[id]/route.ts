@@ -52,7 +52,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (isNaN(id)) {
+    if (isNaN(id) || id <= 0) {
       return NextResponse.json({ error: 'Invalid review ID' }, { status: 400 });
     }
 
@@ -121,7 +121,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (isNaN(id)) {
+    if (isNaN(id) || id <= 0) {
       return NextResponse.json({ error: 'Invalid review ID' }, { status: 400 });
     }
 

@@ -23,7 +23,7 @@ export default function ReviewsPage() {
       const response = await fetch('/api/reviews');
       if (!response.ok) throw new Error('Failed to fetch reviews');
       const data = await response.json();
-      setReviews(data);
+      setReviews(data.reviews || []);
     } catch (error) {
       toast.error('Failed to load reviews');
     } finally {
@@ -50,6 +50,8 @@ export default function ReviewsPage() {
         method: 'DELETE',
       });
       if (!response.ok) throw new Error('Failed to delete review');
+      
+      // Only update UI after successful deletion
       setReviews(prev => prev.filter(review => review.id !== id));
       toast.success('Review deleted successfully');
     } catch (error) {
