@@ -30,5 +30,15 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "components/ui/form.tsx",
+    "components/ui/checkbox.tsx",
+    "components/ui/popover.tsx",
+    "components/ui/scroll-area.tsx",
+    "components/ui/select.tsx",
+    "components/ui/separator.tsx",
+    "components/ui/tabs.tsx",
+    "components/ui/tooltip.tsx"
+  ]
 }
