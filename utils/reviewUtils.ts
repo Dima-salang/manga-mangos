@@ -1,3 +1,4 @@
+import React from 'react';
 import { Star } from 'lucide-react';
 import { MangaTitle } from '@/types/review';
 
@@ -7,7 +8,7 @@ export const renderStars = (
   setRating?: (rating: number) => void
 ) => {
   return Array.from({ length: 10 }, (_, i) => {
-    const starProps: React.ComponentProps<typeof Star> = {
+    const starProps: any = {
       key: i,
       className: `w-6 h-6 transition-colors ${
         i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
@@ -20,7 +21,7 @@ export const renderStars = (
       starProps.onClick = () => setRating(i + 1);
     }
     
-    return <Star {...starProps} />;
+    return React.createElement(Star, starProps);
   });
 };
 
