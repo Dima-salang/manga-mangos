@@ -1,7 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { getUserReviews, createReview } from '@/utils/supabase/reviews';
 import { auth } from '@clerk/nextjs/server';
-import { getUserReviews } from '@/utils/supabase/reviews';
-import { createReview } from '@/utils/supabase/reviews';
 
 export async function GET() {
   const authResult = await auth();
@@ -14,7 +13,7 @@ export async function GET() {
   try {
     const reviews = await getUserReviews(userId);
     return NextResponse.json({ reviews });
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('REVIEWS FETCH FAILED:', err);
     return NextResponse.json(
       { error: 'Failed to fetch reviews' },
@@ -23,7 +22,7 @@ export async function GET() {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const authResult = await auth();
   const userId = authResult.userId;
 
@@ -47,10 +46,11 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ review }, { status: 201 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('CREATE REVIEW FAILED:', err);
+    const message = err instanceof Error ? err.message : 'Failed to create review';
     return NextResponse.json(
-      { error: err.message || 'Failed to create review' },
+      { error: message },
       { status: 500 }
     );
   }
