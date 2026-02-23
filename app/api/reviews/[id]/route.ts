@@ -65,6 +65,14 @@ export async function PUT(
     const body = await request.json();
     const { rating, review_text } = body;
 
+    // Guard against empty PUT requests
+    if (rating === undefined && review_text === undefined) {
+      return NextResponse.json(
+        { error: 'No updatable fields provided' },
+        { status: 400 }
+      );
+    }
+
     if (rating !== undefined) {
       // Validate rating type and integer-ness
       if (typeof rating !== 'number' || !Number.isInteger(rating)) {

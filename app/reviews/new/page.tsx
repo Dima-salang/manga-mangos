@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from 'react';
+
+import { ReviewWithManga, MangaTitle } from '@/types/review';
+import { renderStars, getMangaTitle } from '@/utils/reviewUtils';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';

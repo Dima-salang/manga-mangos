@@ -3,14 +3,14 @@ import { getUserReviews, createReview, getReviewByUserAndManga } from '@/utils/s
 import { auth } from '@clerk/nextjs/server';
 
 export async function GET() {
-  const authResult = await auth();
-  const userId = authResult.userId;
-
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
+    const authResult = await auth();
+    const userId = authResult.userId;
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const reviews = await getUserReviews(userId);
     return NextResponse.json({ reviews });
   } catch (err: unknown) {
@@ -39,6 +39,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Validate and coerce mal_id to number
+    const malIdNum = Number(mal_id);
+    if (!Number.isFinite(malIdNum) || malIdNum <= 0) {
+      return NextResponse.json({ error: 'Invalid manga ID' }, { status: 400 });
+    }
+
+    // Validate review_text type
+    if (typeof review_text !== 'string') {
+      return NextResponse.json({ error: 'Review text must be a string' }, { status: 400 });
+    }
+
     // Parse and validate rating
     const ratingNum = Number(rating);
     if (!Number.isFinite(ratingNum) || ratingNum < 1 || ratingNum > 10) {
@@ -46,14 +57,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Check for duplicate review
-    const existingReview = await getReviewByUserAndManga(userId, mal_id);
+    const existingReview = await getReviewByUserAndManga(userId, malIdNum);
     if (existingReview) {
       return NextResponse.json({ error: 'You have already reviewed this manga' }, { status: 409 });
     }
 
     const review = await createReview({
       user_id: userId,
-      mal_id,
+      mal_id: malIdNum,
       rating: ratingNum,
       review_text,
     });

@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { ReviewWithManga, MangaTitle } from '@/types/review';
+import { renderStars, getMangaTitle } from '@/utils/reviewUtils';
 
 export default function ReviewsPage() {
   const { user, isLoaded } = useUser();
@@ -64,8 +65,8 @@ export default function ReviewsPage() {
     if (typeof titles === 'string') return titles;
     if (titles.en) return titles.en;
     if (titles.ja) return titles.ja;
-    // Fallback to first available title
-    const values = Object.values(titles);
+    // Fallback to first available string value
+    const values = Object.values(titles).filter(val => typeof val === 'string');
     return values.length > 0 ? String(values[0]) : 'Unknown Manga';
   };
 
@@ -157,7 +158,7 @@ export default function ReviewsPage() {
                         size="sm"
                         asChild
                       >
-                        <Link href={`/reviews/${review.id}/edit`}>
+                        <Link href={`/reviews/${review.id}`}>
                           <Edit className="w-4 h-4" />
                         </Link>
                       </Button>
