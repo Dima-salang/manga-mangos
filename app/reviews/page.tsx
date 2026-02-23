@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Star, Edit, Trash2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,19 +13,12 @@ import { ReviewWithManga, MangaTitle } from '@/types/review';
 
 export default function ReviewsPage() {
   const { user, isLoaded } = useUser();
+  const router = useRouter();
   const [reviews, setReviews] = useState<ReviewWithManga[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!isLoaded) return;
-    if (user) {
-      fetchReviews();
-    } else {
-      setLoading(false);
-    }
-  }, [isLoaded, user]);
-
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
+    setLoading(true);
     try {
       const response = await fetch('/api/reviews');
       if (!response.ok) throw new Error('Failed to fetch reviews');
@@ -35,7 +29,18 @@ export default function ReviewsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (user) {
+      fetchReviews();
+    } else {
+      setLoading(false);
+      // Redirect to sign-in for unauthenticated users
+      router.push('/login');
+    }
+  }, [isLoaded, user, fetchReviews]);
 
   const deleteReview = async (id: number) => {
     if (!confirm('Are you sure you want to delete this review?')) return;
@@ -52,12 +57,14 @@ export default function ReviewsPage() {
     }
   };
 
-  const getMangaTitle = (titles: any) => {
+  const getMangaTitle = (titles: MangaTitle | string | undefined) => {
     if (!titles) return 'Unknown Manga';
     if (typeof titles === 'string') return titles;
     if (titles.en) return titles.en;
     if (titles.ja) return titles.ja;
-    return JSON.stringify(titles);
+    // Fallback to first available title
+    const values = Object.values(titles);
+    return values.length > 0 ? String(values[0]) : 'Unknown Manga';
   };
 
   const renderStars = (rating: number) => {
