@@ -7,7 +7,7 @@ export async function GET() {
   const userId = authResult.userId;
 
   if (!userId) {
-    return NextResponse.json({ reviews: [] });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
@@ -34,24 +34,24 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { mal_id, rating, review_text } = body;
 
-    if (!mal_id || !rating || !review_text) {
+    // Explicit null/undefined checks
+    if (mal_id == null || rating == null || review_text == null) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Parse and validate rating
+    const ratingNum = Number(rating);
+    if (!Number.isFinite(ratingNum) || ratingNum < 1 || ratingNum > 10) {
+      return NextResponse.json({ error: 'Rating must be a number between 1 and 10' }, { status: 400 });
     }
 
     const review = await createReview({
       user_id: userId,
       mal_id,
-      rating,
+      rating: ratingNum,
       review_text,
     });
 
     return NextResponse.json({ review }, { status: 201 });
   } catch (err: unknown) {
     console.error('CREATE REVIEW FAILED:', err);
-    const message = err instanceof Error ? err.message : 'Failed to create review';
-    return NextResponse.json(
-      { error: message },
-      { status: 500 }
-    );
-  }
-}
