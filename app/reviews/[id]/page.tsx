@@ -46,6 +46,12 @@ export default function EditReviewPage() {
 
   const fetchReview = useCallback(async () => {
 
+    if (!params.id || typeof params.id !== "string") {
+      toast.error('Invalid review ID');
+      router.push('/reviews');
+      return;
+    }
+
     try {
 
       const response = await fetch(`/api/reviews/${params.id}`);
@@ -90,13 +96,16 @@ export default function EditReviewPage() {
 
     if (!isLoaded) return;
 
-    if (user && params.id) {
+    if (user && params.id && typeof params.id === "string") {
 
       fetchReview();
 
     } else {
 
-      if (!user) router.push('/login');
+      if (!user) {
+        router.push('/login');
+        return;
+      }
       
       setLoading(false);
 
