@@ -52,6 +52,8 @@ export default function NewReviewPage() {
     if (!searchQuery.trim()) return;
 
     setSearchLoading(true);
+    setSearchResults([]); // Clear previous results immediately
+    
     try {
       const response = await fetch(`/api/manga/search?q=${encodeURIComponent(searchQuery)}&limit=10`);
       if (!response.ok) throw new Error('Failed to search manga');
