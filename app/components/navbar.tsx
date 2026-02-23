@@ -10,9 +10,15 @@ import { Search } from 'lucide-react';
 import { Kbd } from '@/components/ui/kbd';
 import { Input } from '@/components/ui/input';
 import { DiceIcon } from '@/components/icons/dice-icon';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
 
 export function Navbar() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   const publicLinks = [
     { name: 'Search', href: '/search' },
@@ -75,6 +81,77 @@ export function Navbar() {
             {/* Quick Search */}
             <NavSearch />
           </div>
+
+          {/* Navigation Drawer */}
+          <Sheet open={open} onOpenChange={setOpen}>
+            {/* Navigation Drawer Button */}
+            <SheetTrigger asChild>
+              <button
+                className="lg:hidden p-2 rounded-md hover:bg-white/10"
+                aria-label="Open navigation"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
+            </SheetTrigger>
+            {/* Navigation Drawer Panel */}
+            <SheetContent
+                side="right"
+                className="w-[280px] bg-background/95 backdrop-blur-xl border-l border-white/10"
+              >
+              <nav className="pl-6 flex flex-col h-full">
+                <div className="mb-6 mt-6">
+                  <SheetTitle className="font-black text-xl italic uppercase">
+                    Manga<span className="text-mango">Mangos</span>
+                  </SheetTitle>
+                </div>
+
+                <ul className="flex flex-col gap-4 font-black text-sm uppercase tracking-widest">
+                  {publicLinks.map(link => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className={cn(
+                          "block py-2 transition-colors",
+                          pathname === link.href
+                            ? "text-mango"
+                            : "text-muted-foreground/70 hover:text-mango"
+                        )}
+                      >
+                        {link.name}
+                      </Link>
+                    </li>
+                  ))}
+                  <SignedIn>
+                    {protectedLinks.map(link => (
+                      <li key={link.href}>
+                        <Link
+                          href={link.href}
+                          className={cn(
+                            "block py-2 transition-colors",
+                            pathname === link.href
+                              ? "text-mango"
+                              : "text-muted-foreground/70 hover:text-mango"
+                          )}
+                        >
+                          {link.name}
+                        </Link>
+                      </li>
+                    ))}
+                  </SignedIn>
+                </ul>
+                <div className="mt-8 pt-6 border-t border-white/10">
+                  <SignedOut>
+                    <Link
+                      href="/login"
+                      className="block py-2 text-sm font-bold uppercase tracking-widest"
+                    >
+                      Sign In
+                    </Link>
+                  </SignedOut>
+                </div>
+              </nav>
+            </SheetContent>
+          </Sheet>
 
           {/* Auth & Actions */}
           <div className="flex items-center gap-6">
