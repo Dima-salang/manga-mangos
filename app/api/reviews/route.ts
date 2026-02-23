@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserReviews, createReview } from '@/utils/supabase/reviews';
+import { getUserReviews, createReview, getReviewByUserAndManga } from '@/utils/supabase/reviews';
 import { auth } from '@clerk/nextjs/server';
 
 export async function GET() {
@@ -45,6 +45,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Rating must be a number between 1 and 10' }, { status: 400 });
     }
 
+    // Check for duplicate review
+    const existingReview = await getReviewByUserAndManga(userId, mal_id);
+    if (existingReview) {
+      return NextResponse.json({ error: 'You have already reviewed this manga' }, { status: 409 });
+    }
+
     const review = await createReview({
       user_id: userId,
       mal_id,
@@ -55,3 +61,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ review }, { status: 201 });
   } catch (err: unknown) {
     console.error('CREATE REVIEW FAILED:', err);
+    return NextResponse.json(
+      { error: 'Failed to create review' },
+      { status: 500 }
+    );
+  }
+}

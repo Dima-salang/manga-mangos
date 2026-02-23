@@ -50,7 +50,27 @@ export async function getUserReviews(userId: string) {
   return reviews;
 }
 
-export async function updateReview(id: number, data: Partial<CreateReviewData>) {
+export async function getReviewById(id: number) {
+  const { data: review, error } = await supabase
+    .from('reviews')
+    .select(`
+      *,
+      manga (
+        mal_id,
+        titles
+      )
+    `)
+    .eq('id', id)
+    .single();
+
+  if (error && error.code !== 'PGRST116') {
+    throw new Error(`Failed to fetch review: ${error.message}`);
+  }
+
+  return review;
+}
+
+export async function updateReview(id: number, data: Partial<CreateReviewData>, userId?: string) {
   const { data: review, error } = await supabase
     .from('reviews')
     .update(data)
@@ -65,7 +85,7 @@ export async function updateReview(id: number, data: Partial<CreateReviewData>) 
   return review;
 }
 
-export async function deleteReview(id: number) {
+export async function deleteReview(id: number, userId?: string) {
   const { error } = await supabase
     .from('reviews')
     .delete()

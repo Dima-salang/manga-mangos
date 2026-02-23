@@ -101,7 +101,9 @@ export default function EditReviewPage() {
     if (typeof titles === 'string') return titles;
     if (titles.en) return titles.en;
     if (titles.ja) return titles.ja;
-    return JSON.stringify(titles);
+    // Safer fallback - return first available string value
+    const values = Object.values(titles).filter(v => typeof v === 'string');
+    return values.length > 0 ? values[0] : 'Unknown Manga';
   };
 
   if (loading) {

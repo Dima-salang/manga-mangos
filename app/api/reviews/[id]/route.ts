@@ -7,16 +7,26 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { userId } = await auth();
     const { id: idStr } = await params;
     const id = parseInt(idStr, 10);
     
-    if (isNaN(id)) {
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (isNaN(id) || id <= 0) {
       return NextResponse.json({ error: 'Invalid review ID' }, { status: 400 });
     }
 
     const review = await getReviewById(id);
     if (!review) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    }
+
+    // Check ownership - users can only access their own reviews
+    if (review.user_id !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     return NextResponse.json(review);
@@ -70,6 +80,21 @@ export async function PUT(
           { status: 400 }
         );
       }
+    }
+
+    // Validate review_text
+    if (review_text !== undefined && typeof review_text !== 'string') {
+      return NextResponse.json(
+        { error: 'Review text must be a string' },
+        { status: 400 }
+      );
+    }
+
+    if (review_text !== undefined && review_text.trim() === '') {
+      return NextResponse.json(
+        { error: 'Review text cannot be empty' },
+        { status: 400 }
+      );
     }
 
     const review = await updateReview(id, { rating, review_text }, userId);
