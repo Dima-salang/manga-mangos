@@ -56,13 +56,14 @@ export async function getReviewById(id: number) {
 }
 
 export async function updateReview(id: number, data: Partial<CreateReviewData>, userId?: string) {
-  const { data: review, error } = await supabase
-    .from('reviews')
-    .update(data)
-    .eq('id', id)
-    .eq('user_id', userId) // Row-level security filter
-    .select()
-    .single();
+  let query = supabase.from('reviews').update(data).eq('id', id);
+  
+  // Only apply user_id filter if userId is provided
+  if (userId !== undefined && userId !== null) {
+    query = query.eq('user_id', userId);
+  }
+  
+  const { data: review, error } = await query.select().single();
 
   if (error) {
     throw new Error(`Failed to update review: ${error.message}`);
@@ -72,13 +73,15 @@ export async function updateReview(id: number, data: Partial<CreateReviewData>, 
 }
 
 export async function deleteReview(id: number, userId?: string) {
-  const { error } = await supabase
-    .from('reviews')
-    .delete()
-    .eq('id', id)
-    .eq('user_id', userId) // Row-level security filter
-    .single();
-
+  let query = supabase.from('reviews').delete().eq('id', id);
+  
+  // Only apply user_id filter if userId is provided
+  if (userId !== undefined && userId !== null) {
+    query = query.eq('user_id', userId);
+  }
+  
+  const { error } = await query;
+  
   if (error) {
     throw new Error(`Failed to delete review: ${error.message}`);
   }

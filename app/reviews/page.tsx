@@ -8,15 +8,18 @@ import { Star, Edit, Trash2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { ReviewWithManga, MangaTitle } from '@/types/review';
-import { renderStars, getMangaTitle } from '@/utils/reviewUtils';
+import { getMangaTitle } from '@/utils/reviewUtils';
 
 export default function ReviewsPage() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
   const [reviews, setReviews] = useState<ReviewWithManga[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const fetchReviews = useCallback(async () => {
     setLoading(true);
@@ -43,9 +46,7 @@ export default function ReviewsPage() {
     }
   }, [isLoaded, user, fetchReviews]);
 
-  const deleteReview = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this review?')) return;
-
+  const handleConfirmDelete = async (id: number) => {
     try {
       const response = await fetch(`/api/reviews/${id}`, {
         method: 'DELETE',
@@ -55,21 +56,19 @@ export default function ReviewsPage() {
       // Only update UI after successful deletion
       setReviews(prev => prev.filter(review => review.id !== id));
       toast.success('Review deleted successfully');
+      setDeleteConfirmOpen(false);
+      setSelectedId(null);
     } catch (error) {
       toast.error('Failed to delete review');
     }
   };
 
-  const getMangaTitle = (titles: MangaTitle | string | undefined) => {
-    if (!titles) return 'Unknown Manga';
-    if (typeof titles === 'string') return titles;
-    if (titles.en) return titles.en;
-    if (titles.ja) return titles.ja;
-    // Fallback to first available string value
-    const values = Object.values(titles).filter(val => typeof val === 'string');
-    return values.length > 0 ? String(values[0]) : 'Unknown Manga';
+  const openDeleteConfirm = (id: number) => {
+    setSelectedId(id);
+    setDeleteConfirmOpen(true);
   };
 
+  
   const renderStars = (rating: number) => {
     return Array.from({ length: 10 }, (_, i) => (
       <Star
@@ -165,7 +164,7 @@ export default function ReviewsPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => deleteReview(review.id)}
+                        onClick={() => openDeleteConfirm(review.id)}
                         className="text-red-500 hover:text-red-600"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -187,5 +186,23 @@ export default function ReviewsPage() {
         )}
       </div>
     </div>
-  );
+
+    <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this review? This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={() => selectedId && handleConfirmDelete(selectedId)}>
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </div>
+);
 }

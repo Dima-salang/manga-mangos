@@ -23,14 +23,14 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const authResult = await auth();
-  const userId = authResult.userId;
-
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
+    const authResult = await auth();
+    const userId = authResult.userId;
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await req.json();
     const { mal_id, rating, review_text } = body;
 
@@ -45,9 +45,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid manga ID' }, { status: 400 });
     }
 
-    // Validate review_text type
+    // Validate review_text type and non-empty after trimming
     if (typeof review_text !== 'string') {
       return NextResponse.json({ error: 'Review text must be a string' }, { status: 400 });
+    }
+
+    if (review_text.trim() === '') {
+      return NextResponse.json({ error: 'Review text cannot be empty' }, { status: 400 });
     }
 
     // Parse and validate rating

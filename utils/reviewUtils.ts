@@ -9,8 +9,10 @@ export const renderStars = (
   return Array.from({ length: 10 }, (_, i) => (
     <Star
       key={i}
-      className={`w-6 h-6 cursor-pointer transition-colors ${
-        i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 hover:text-yellow-200'
+      className={`w-6 h-6 transition-colors ${
+        i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+      }${
+        interactive ? ' cursor-pointer hover:text-yellow-200' : ''
       }`}
       onClick={() => interactive && setRating && setRating(i + 1)}
     />
