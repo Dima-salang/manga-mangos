@@ -96,8 +96,6 @@ export default function EditReviewPage() {
 
     } else {
 
-      setLoading(false);
-
       // Redirect unauthenticated users to login
 
       router.push('/login');
