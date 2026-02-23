@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 
 interface MangaSearchResult {
@@ -29,7 +30,7 @@ interface MangaSearchResult {
 }
 
 export default function NewReviewPage() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const router = useRouter();
   const [selectedManga, setSelectedManga] = useState<MangaSearchResult | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -38,6 +39,14 @@ export default function NewReviewPage() {
   const [reviewText, setReviewText] = useState('');
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   const searchManga = async () => {
     if (!searchQuery.trim()) return;
@@ -166,13 +175,13 @@ export default function NewReviewPage() {
                       onClick={() => setSelectedManga(manga)}
                     >
                       <div className="flex items-center gap-3">
-                        {manga.images?.webp?.image_url || manga.images?.jpg?.image_url ? (
+                        {(manga.images?.webp?.image_url || manga.images?.jpg?.image_url) ? (
                           <img
                             src={manga.images?.webp?.image_url || manga.images?.jpg?.image_url}
                             alt={manga.title}
                             className="w-12 h-16 object-cover rounded"
                           />
-                        ): null}
+                        ) : null}
                         <div>
                           <h4 className="font-medium">{manga.title}</h4>
                           <p className="text-sm text-muted-foreground">ID: {manga.mal_id}</p>
@@ -190,13 +199,13 @@ export default function NewReviewPage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  {selectedManga.images?.webp?.image_url || selectedManga.images?.jpg?.image_url ? (
+                  {(selectedManga.images?.webp?.image_url || selectedManga.images?.jpg?.image_url) ? (
                     <img
                       src={selectedManga.images?.webp?.image_url || selectedManga.images?.jpg?.image_url}
                       alt={selectedManga.title}
                       className="w-16 h-20 object-cover rounded"
                     />
-                  ): null}
+                  ) : null}
                   <div>
                     <h3 className="font-semibold">{selectedManga.title}</h3>
                     <p className="text-sm text-muted-foreground">MAL ID: {selectedManga.mal_id}</p>
@@ -229,13 +238,13 @@ export default function NewReviewPage() {
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="review-text">Your thoughts</Label>
-                <textarea
+                <Textarea
                   id="review-text"
                   placeholder="Share your thoughts about this manga..."
                   value={reviewText}
                   onChange={(e) => setReviewText(e.target.value)}
                   rows={8}
-                  className="mt-2 flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-2"
                 />
               </div>
               <div className="flex justify-end gap-2">
