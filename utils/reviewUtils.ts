@@ -6,17 +6,22 @@ export const renderStars = (
   interactive: boolean = false, 
   setRating?: (rating: number) => void
 ) => {
-  return Array.from({ length: 10 }, (_, i) => (
-    <Star
-      key={i}
-      className={`w-6 h-6 transition-colors ${
+  return Array.from({ length: 10 }, (_, i) => {
+    const starProps: React.ComponentProps<typeof Star> = {
+      key: i,
+      className: `w-6 h-6 transition-colors ${
         i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
       }${
         interactive ? ' cursor-pointer hover:text-yellow-200' : ''
-      }`}
-      onClick={() => interactive && setRating && setRating(i + 1)}
-    />
-  ));
+      }`,
+    };
+    
+    if (interactive && setRating) {
+      starProps.onClick = () => setRating(i + 1);
+    }
+    
+    return <Star {...starProps} />;
+  });
 };
 
 export const getMangaTitle = (

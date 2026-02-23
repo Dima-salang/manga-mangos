@@ -98,6 +98,10 @@ export default function EditReviewPage() {
 
       setLoading(false);
 
+      // Redirect unauthenticated users to login
+
+      router.push('/login');
+
     }
 
   }, [isLoaded, user, params.id, fetchReview]);

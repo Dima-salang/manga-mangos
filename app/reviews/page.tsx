@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { ReviewWithManga, MangaTitle } from '@/types/review';
-import { getMangaTitle } from '@/utils/reviewUtils';
+import { renderStars, getMangaTitle } from '@/utils/reviewUtils';
 
 export default function ReviewsPage() {
   const { user, isLoaded } = useUser();
@@ -69,17 +69,7 @@ export default function ReviewsPage() {
   };
 
   
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 10 }, (_, i) => (
-      <Star
-        key={i}
-        className={`w-4 h-4 ${
-          i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
-        }`}
-      />
-    ));
-  };
-
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -185,7 +175,6 @@ export default function ReviewsPage() {
           </div>
         )}
       </div>
-    </div>
 
     <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
       <AlertDialogContent>

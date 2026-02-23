@@ -2,6 +2,11 @@ import supabase from './server';
 import { Review, CreateReviewData } from '@/types/review';
 
 export async function createReview(data: CreateReviewData) {
+  // Validate rating is an integer between 1 and 10
+  if (typeof data.rating !== 'number' || !Number.isInteger(data.rating) || data.rating < 1 || data.rating > 10) {
+    throw new Error('Rating must be an integer between 1 and 10');
+  }
+
   const { data: review, error } = await supabase
     .from('reviews')
     .insert(data)
@@ -56,6 +61,13 @@ export async function getReviewById(id: number) {
 }
 
 export async function updateReview(id: number, data: Partial<CreateReviewData>, userId?: string) {
+  // Validate rating if present
+  if (data.rating !== undefined) {
+    if (typeof data.rating !== 'number' || !Number.isInteger(data.rating) || data.rating < 1 || data.rating > 10) {
+      throw new Error('Rating must be an integer between 1 and 10');
+    }
+  }
+
   let query = supabase.from('reviews').update(data).eq('id', id);
   
   // Only apply user_id filter if userId is provided
