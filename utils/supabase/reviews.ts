@@ -1,4 +1,4 @@
-import supabase from './server';
+import supabaseAdmin from './server';
 import { Review, CreateReviewData } from '@/types/review';
 
 export async function createReview(data: CreateReviewData) {
@@ -7,7 +7,7 @@ export async function createReview(data: CreateReviewData) {
     throw new Error('Rating must be an integer between 1 and 10');
   }
 
-  const { data: review, error } = await supabase
+  const { data: review, error } = await supabaseAdmin
     .from('reviews')
     .insert(data)
     .select()
@@ -21,7 +21,7 @@ export async function createReview(data: CreateReviewData) {
 }
 
 export async function getUserReviews(userId: string) {
-  const { data: reviews, error } = await supabase
+  const { data: reviews, error } = await supabaseAdmin
     .from('reviews')
     .select('*')
     .eq('user_id', userId)
@@ -35,7 +35,7 @@ export async function getUserReviews(userId: string) {
 }
 
 export async function getReviewById(id: number) {
-  const { data: review, error } = await supabase
+  const { data: review, error } = await supabaseAdmin
     .from('reviews')
     .select('*')
     .eq('id', id)
@@ -56,7 +56,7 @@ export async function updateReview(id: number, data: Partial<CreateReviewData>, 
     }
   }
 
-  let query = supabase.from('reviews').update(data).eq('id', id);
+  let query = supabaseAdmin.from('reviews').update(data).eq('id', id);
   
   // Only apply user_id filter if userId is provided
   if (userId !== undefined && userId !== null) {
@@ -73,7 +73,7 @@ export async function updateReview(id: number, data: Partial<CreateReviewData>, 
 }
 
 export async function deleteReview(id: number, userId?: string) {
-  let query = supabase.from('reviews').delete().eq('id', id);
+  let query = supabaseAdmin.from('reviews').delete().eq('id', id);
   
   // Only apply user_id filter if userId is provided
   if (userId !== undefined && userId !== null) {
@@ -90,7 +90,7 @@ export async function deleteReview(id: number, userId?: string) {
 }
 
 export async function getReviewByUserAndManga(userId: string, malId: number) {
-  const { data: review, error } = await supabase
+  const { data: review, error } = await supabaseAdmin
     .from('reviews')
     .select('*')
     .eq('user_id', userId)
