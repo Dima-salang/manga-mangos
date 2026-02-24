@@ -1,4 +1,4 @@
-import supabaseAdmin from './server';
+import { supabaseAdmin } from './server';
 import { Review, CreateReviewData } from '@/types/review';
 
 export async function createReview(data: CreateReviewData) {
