@@ -1,0 +1,84 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getUserReviews, createReview, getReviewByUserAndManga } from '@/utils/supabase/reviews';
+import { auth } from '@clerk/nextjs/server';
+
+export async function GET() {
+  try {
+    const authResult = await auth();
+    const userId = authResult.userId;
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const reviews = await getUserReviews(userId);
+    return NextResponse.json({ reviews });
+  } catch (err: unknown) {
+    console.error('REVIEWS FETCH FAILED:', err);
+    return NextResponse.json(
+      { error: 'Failed to fetch reviews' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const authResult = await auth();
+    const userId = authResult.userId;
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { mal_id, rating, review_text } = body;
+
+    // Explicit null/undefined checks
+    if (mal_id == null || rating == null || review_text == null) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Validate and coerce mal_id to number
+    const malIdNum = Number(mal_id);
+    if (!Number.isFinite(malIdNum) || malIdNum <= 0) {
+      return NextResponse.json({ error: 'Invalid manga ID' }, { status: 400 });
+    }
+
+    // Validate review_text type and non-empty after trimming
+    if (typeof review_text !== 'string') {
+      return NextResponse.json({ error: 'Review text must be a string' }, { status: 400 });
+    }
+
+    if (review_text.trim() === '') {
+      return NextResponse.json({ error: 'Review text cannot be empty' }, { status: 400 });
+    }
+
+    // Parse and validate rating
+    const ratingNum = Number(rating);
+    if (!Number.isFinite(ratingNum) || ratingNum < 1 || ratingNum > 10) {
+      return NextResponse.json({ error: 'Rating must be a number between 1 and 10' }, { status: 400 });
+    }
+
+    // Check for duplicate review
+    const existingReview = await getReviewByUserAndManga(userId, malIdNum);
+    if (existingReview) {
+      return NextResponse.json({ error: 'You have already reviewed this manga' }, { status: 409 });
+    }
+
+    const review = await createReview({
+      user_id: userId,
+      mal_id: malIdNum,
+      rating: ratingNum,
+      review_text,
+    });
+
+    return NextResponse.json({ review }, { status: 201 });
+  } catch (err: unknown) {
+    console.error('CREATE REVIEW FAILED:', err);
+    return NextResponse.json(
+      { error: 'Failed to create review' },
+      { status: 500 }
+    );
+  }
+}

@@ -1,12 +1,43 @@
 import { z } from "zod";
 
+/**
+ * This module uses SUPABASE_SERVICE_ROLE_KEY-backed client (supabaseAdmin) 
+ * which bypasses Row Level Security, and all exported functions such as createReview 
+ * are server-only helpers that assume upstream authorization/ownership checks. 
+ * Callers must perform proper auth/authorization checks before invoking these functions 
+ * and they should not be used from untrusted contexts.
+ */
+
 export interface Review {
-  id: string;
-  mangaId: string;
-  userId: string;
+  id: number;
+  created_at: string;
+  user_id: string;
+  mal_id: number;
   rating: number;
-  reviewText: string;
-  createdAt: Date;
+  review_text: string;
+  manga?: {
+    mal_id: number;
+    titles: MangaTitle;
+  };
+}
+
+export interface ReviewWithManga extends Review {
+  manga: {
+    mal_id: number;
+    titles: MangaTitle;
+  };
+}
+
+export interface MangaTitle {
+  en?: string;
+  ja?: string;
+}
+
+export interface CreateReviewData {
+  user_id: string;
+  mal_id: number;
+  rating: number;
+  review_text: string;
 }
 
 export const reviewSchema = z.object({

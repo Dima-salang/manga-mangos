@@ -7,10 +7,13 @@ const isPublicRoute = createRouteMatcher([
   "/api/manga(.*)",
   "/api/reviews(.*)",
   "/api/manga/community-recommendations(.*)",
+  "/api/webhook(.*)",
   "/",
   "/manga(.*)",
   "/search(.*)",
   "/browse(.*)",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
