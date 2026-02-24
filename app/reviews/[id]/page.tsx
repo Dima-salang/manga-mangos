@@ -42,6 +42,36 @@ export default function EditReviewPage() {
 
   const [saving, setSaving] = useState(false);
 
+  const [mangaCache, setMangaCache] = useState<Map<number, any>>(new Map());
+
+  const fetchMangaDetails = async (malId: number) => {
+    if (mangaCache.has(malId)) {
+      return mangaCache.get(malId);
+    }
+    
+    try {
+      const response = await fetch(`https://api.jikan.moe/v4/manga/${malId}`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      const mangaData = data.data;
+      
+      // Transform Jikan API response to match our expected structure
+      const transformedData = {
+        mal_id: mangaData.mal_id,
+        titles: mangaData.titles?.reduce((acc: any, title: any) => {
+          acc[title.type.toLowerCase()] = title.title;
+          return acc;
+        }, {}) || {}
+      };
+      
+      setMangaCache(prev => new Map(prev.set(malId, transformedData)));
+      return transformedData;
+    } catch (error) {
+      console.error(`Failed to fetch manga details for MAL ID ${malId}:`, error);
+      return null;
+    }
+  };
+
 
 
   const fetchReview = useCallback(async () => {
@@ -71,11 +101,22 @@ export default function EditReviewPage() {
 
       const userReview = await response.json();
 
-      setReview(userReview);
+      // Fetch manga details for the review
+      const mangaData = await fetchMangaDetails(userReview.mal_id);
+      
+      const reviewWithManga = {
+        ...userReview,
+        manga: mangaData ? {
+          mal_id: mangaData.mal_id,
+          titles: mangaData.titles
+        } : undefined
+      };
 
-      setRating(userReview.rating);
+      setReview(reviewWithManga);
 
-      setReviewText(userReview.review_text);
+      setRating(reviewWithManga.rating);
+
+      setReviewText(reviewWithManga.review_text);
 
     } catch (error) {
 
@@ -89,7 +130,7 @@ export default function EditReviewPage() {
 
     }
 
-  }, [params.id, router]);
+  }, [params.id, router, mangaCache]);
 
 
 
