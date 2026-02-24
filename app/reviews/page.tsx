@@ -20,6 +20,26 @@ export default function ReviewsPage() {
   const [loading, setLoading] = useState(true);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [mangaCache, setMangaCache] = useState<Map<number, any>>(new Map());
+
+  const fetchMangaDetails = async (malId: number) => {
+    if (mangaCache.has(malId)) {
+      return mangaCache.get(malId);
+    }
+    
+    try {
+      const response = await fetch(`https://api.jikan.moe/v4/manga/${malId}`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      const mangaData = data.data;
+      
+      setMangaCache(prev => new Map(prev.set(malId, mangaData)));
+      return mangaData;
+    } catch (error) {
+      console.error(`Failed to fetch manga details for MAL ID ${malId}:`, error);
+      return null;
+    }
+  };
 
   const fetchReviews = useCallback(async () => {
     setLoading(true);
@@ -27,13 +47,29 @@ export default function ReviewsPage() {
       const response = await fetch('/api/reviews');
       if (!response.ok) throw new Error('Failed to fetch reviews');
       const data = await response.json();
-      setReviews(data.reviews || []);
+      const reviews = data.reviews || [];
+      
+      // Fetch manga details for each review
+      const reviewsWithManga = await Promise.all(
+        reviews.map(async (review: any) => {
+          const mangaData = await fetchMangaDetails(review.mal_id);
+          return {
+            ...review,
+            manga: mangaData ? {
+              mal_id: mangaData.mal_id,
+              titles: mangaData.titles
+            } : undefined
+          };
+        })
+      );
+      
+      setReviews(reviewsWithManga);
     } catch (error) {
       toast.error('Failed to load reviews');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [mangaCache]);
 
   useEffect(() => {
     if (!isLoaded) return;
