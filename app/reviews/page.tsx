@@ -33,8 +33,17 @@ export default function ReviewsPage() {
       const data = await response.json();
       const mangaData = data.data;
       
-      setMangaCache(prev => new Map(prev.set(malId, mangaData)));
-      return mangaData;
+      // Transform Jikan API response to match our expected structure
+      const transformedData = {
+        mal_id: mangaData.mal_id,
+        titles: mangaData.titles?.reduce((acc: any, title: any) => {
+          acc[title.type.toLowerCase()] = title.title;
+          return acc;
+        }, {}) || {}
+      };
+      
+      setMangaCache(prev => new Map(prev.set(malId, transformedData)));
+      return transformedData;
     } catch (error) {
       console.error(`Failed to fetch manga details for MAL ID ${malId}:`, error);
       return null;
@@ -161,7 +170,7 @@ export default function ReviewsPage() {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         <Link
-                          href={`/manga/${review.mal_id}`}
+                          href={`/manga/${review.mal_id}/detail`}
                           className="text-lg font-semibold hover:text-mango transition-colors"
                         >
                           {getMangaTitle(review.manga?.titles)}
