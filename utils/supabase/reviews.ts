@@ -23,13 +23,7 @@ export async function createReview(data: CreateReviewData) {
 export async function getUserReviews(userId: string) {
   const { data: reviews, error } = await supabase
     .from('reviews')
-    .select(`
-      *,
-      manga (
-        mal_id,
-        titles
-      )
-    `)
+    .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
@@ -43,13 +37,7 @@ export async function getUserReviews(userId: string) {
 export async function getReviewById(id: number) {
   const { data: review, error } = await supabase
     .from('reviews')
-    .select(`
-      *,
-      manga (
-        mal_id,
-        titles
-      )
-    `)
+    .select('*')
     .eq('id', id)
     .single();
 
