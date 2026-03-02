@@ -4,6 +4,8 @@ MangaMangos is an AI-powered web platform that acts as a central, community-driv
 
 ## Installation & Setup Steps
 
+The following steps assume you have **git** and **npm** installed.
+
 1. Navigate to the directory where you want the cloned repository to be stored locally.
 
 2. Clone the project to the directory using the terminal command:
