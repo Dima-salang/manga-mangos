@@ -6,15 +6,16 @@ MangaMangos is an AI-powered web platform that acts as a central, community-driv
 
 1. Navigate to the directory where you want the cloned repository to be stored locally.
 
-2. Clone the project to the directory using the command:
+2. Clone the project to the directory using the terminal command:
 
 ```console
 git clone https://github.com/Dima-salang/manga-mangos/
 ```
 
-3. Install the project's dependencies:
+3. Navigate into the new directory and install the project's dependencies:
 
 ```console
+cd manga-mangos
 npm install
 ```
 
@@ -22,4 +23,16 @@ npm install
 
 ```console
 npm run dev
+```
+
+5. Ensure you have the .env files in the project directory for all the features to be available.
+
+6. Connect to the app with a browser using the URL presented in the terminal:
+
+```
+...
+▲ Next.js 16.1.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://26.33.28.42:3000
+...
 ```
