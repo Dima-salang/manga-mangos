@@ -20,7 +20,7 @@ import { PERSONA_CONFIGS } from "@/types/chat";
 import { PersonaAvatar } from "./PersonaAvatar";
 
 export function AssistantSidebar() {
-    const { history, isLoading, isOpen, setIsOpen, sendMessage, clearHistory, user, persona, setPersona } = useChat();
+    const { history, isLoading, isOpen, setIsOpen, sendMessage, clearHistory, user, persona, setPersona, isSignedIn, isLoaded } = useChat();
     const pathname = usePathname();
     const [input, setInput] = useState("");
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -51,8 +51,8 @@ export function AssistantSidebar() {
         scrollToBottom();
     }, [history]);
 
-    // Don't render the sidebar if we are on the assistant page
-    if (pathname?.startsWith("/assistant")) {
+    // Don't render if not logged in or on the assistant page
+    if (!isLoaded || !isSignedIn || pathname?.startsWith("/assistant")) {
         return null;
     }
 
