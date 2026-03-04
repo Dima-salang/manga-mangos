@@ -86,13 +86,8 @@ export function Navbar() {
           {/* Navigation Drawer */}
           <Sheet open={open} onOpenChange={setOpen}>
             {/* Navigation Drawer Button */}
-            <SheetTrigger asChild>
-              <button
-                className="lg:hidden p-2 rounded-md hover:bg-white/10"
-                aria-label="Open navigation"
-              >
-                <Menu className="h-6 w-6" />
-              </button>
+            <SheetTrigger className="lg:hidden p-2 rounded-md hover:bg-white/10" aria-label="Open navigation">
+              <Menu className="h-6 w-6" />
             </SheetTrigger>
             {/* Navigation Drawer Panel */}
             <SheetContent

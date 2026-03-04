@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'myanimelist.net',
+        pathname: '/images/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'img.clerk.com',
       },
       {
