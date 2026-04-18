@@ -16,10 +16,15 @@ export async function mangaFetch<T>(
   retries: number = 3,
   options: RequestInit = {},
 ): Promise<T> {
-  const { success } = await rate.limit("jikan");
+  let isRateLimited = false;
+  try {
+    const { success } = await rate.limit("jikan");
+    isRateLimited = !success;
+  } catch (e) {
+    console.warn("Rate limiting unavailable, proceeding without it:", e);
+  }
 
-  // if the api is rate limited, retry after a second
-  if (!success) {
+  if (isRateLimited) {
     if (retries > 0) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       return mangaFetch(path, retries - 1, options);

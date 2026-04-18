@@ -27,9 +27,14 @@ export async function getTopManga(
   });
 
   // check the cache
-  const cachedTopManga = await redis.get<JikanResponse<Manga[]>>(
-    `topManga:${queryParams.toString()}`,
-  );
+  let cachedTopManga: JikanResponse<Manga[]> | null = null;
+  try {
+    cachedTopManga = await redis.get<JikanResponse<Manga[]>>(
+      `topManga:${queryParams.toString()}`,
+    );
+  } catch (e) {
+    console.warn("Redis cache unavailable, skipping cache:", e);
+  }
   if (cachedTopManga) {
     return cachedTopManga;
   }
@@ -39,13 +44,17 @@ export async function getTopManga(
   );
 
   // set the cache
-  await redis.set(
-    `topManga:${queryParams.toString()}`,
-    JSON.stringify(response),
-    {
-      ex: 60 * 60 * 24,
-    },
-  );
+  try {
+    await redis.set(
+      `topManga:${queryParams.toString()}`,
+      JSON.stringify(response),
+      {
+        ex: 60 * 60 * 24,
+      },
+    );
+  } catch (e) {
+    console.warn("Redis cache write failed, continuing without cache:", e);
+  }
 
   return response;
 }
@@ -103,9 +112,14 @@ export class MangaService {
     userId: string,
   ): Promise<(LibraryItem & { manga: DB_MANGA })[]> {
     // check the cache
-    const cachedLibrary = await redis.get<
-      (LibraryItem & { manga: DB_MANGA })[]
-    >(`libraryWithManga:${userId}`);
+    let cachedLibrary: (LibraryItem & { manga: DB_MANGA })[] | null = null;
+    try {
+      cachedLibrary = await redis.get<
+        (LibraryItem & { manga: DB_MANGA })[]
+      >(`libraryWithManga:${userId}`);
+    } catch (e) {
+      console.warn("Redis cache unavailable, skipping cache:", e);
+    }
     if (cachedLibrary) {
       return cachedLibrary;
     }
@@ -126,9 +140,13 @@ export class MangaService {
     }
 
     // set the cache
-    await redis.set(`libraryWithManga:${userId}`, JSON.stringify(data), {
-      ex: 60 * 60 * 24,
-    });
+    try {
+      await redis.set(`libraryWithManga:${userId}`, JSON.stringify(data), {
+        ex: 60 * 60 * 24,
+      });
+    } catch (e) {
+      console.warn("Redis cache write failed, continuing without cache:", e);
+    }
 
     return data as (LibraryItem & { manga: DB_MANGA })[];
   }
@@ -195,9 +213,13 @@ export class MangaService {
     }
 
     // clear the cache
-    await Promise.all([
-      redis.del(`libraryWithManga:${userId}`),
-      redis.del(`libraryContext:${userId}`),
+    await Promise.allSettled([
+      redis.del(`libraryWithManga:${userId}`).catch((e) =>
+        console.warn("Redis cache invalidation failed:", e),
+      ),
+      redis.del(`libraryContext:${userId}`).catch((e) =>
+        console.warn("Redis cache invalidation failed:", e),
+      ),
     ]);
   }
 
@@ -213,9 +235,13 @@ export class MangaService {
     }
 
     // clear the cache
-    await Promise.all([
-      redis.del(`libraryWithManga:${userId}`),
-      redis.del(`libraryContext:${userId}`),
+    await Promise.allSettled([
+      redis.del(`libraryWithManga:${userId}`).catch((e) =>
+        console.warn("Redis cache invalidation failed:", e),
+      ),
+      redis.del(`libraryContext:${userId}`).catch((e) =>
+        console.warn("Redis cache invalidation failed:", e),
+      ),
     ]);
   }
 
